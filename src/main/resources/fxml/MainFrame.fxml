@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.StatusBar?>
+<?import org.fxmisc.richtext.CodeArea?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/global.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="xdean.css.editor.controller.MainFrameController">
+	<children>
+		<MenuBar>
+			<menus>
+				<Menu mnemonicParsing="false" text="File">
+					<items>
+						<MenuItem mnemonicParsing="false" onAction="#newFile" text="New">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                     <graphic>
+                        <FontAwesomeIconView glyphName="FILE_ALT" />
+                     </graphic></MenuItem>
+						<MenuItem mnemonicParsing="false" onAction="#open" text="Open...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                     <graphic>
+                        <FontAwesomeIconView glyphName="FOLDER_OPEN_ALT" />
+                     </graphic></MenuItem>
+                  <Menu fx:id="openRecentMenu" mnemonicParsing="false" text="Open Recent">
+                     <items>
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#clearRecent" text="Clear Recent" />
+                     </items></Menu>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="closeItem" mnemonicParsing="false" onAction="#close" text="Close">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="CLOSE" />
+                     </graphic></MenuItem>
+						<MenuItem fx:id="saveItem" mnemonicParsing="false" onAction="#save" text="Save">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                     <graphic>
+                        <FontAwesomeIconView glyphName="SAVE" />
+                     </graphic></MenuItem>
+						<MenuItem fx:id="saveAsItem" mnemonicParsing="false" onAction="#saveAs" text="Save as...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator></MenuItem>
+                  <MenuItem fx:id="revertItem" mnemonicParsing="false" onAction="#revert" text="Revert" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
+					</items>
+				</Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+              <items>
+                <MenuItem fx:id="undoItem" mnemonicParsing="false" onAction="#undo" text="Undo">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="UNDO" />
+                     </graphic>
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Z" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem fx:id="redoItem" mnemonicParsing="false" onAction="#redo" text="Redo">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="REPEAT" />
+                     </graphic>
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Y" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="commentItem" mnemonicParsing="false" onAction="#comment" text="Toggle Comment" />
+                  <MenuItem fx:id="suggestItem" mnemonicParsing="false" onAction="#suggest" text="Auto Completion" />
+                  <MenuItem fx:id="formatItem" mnemonicParsing="false" onAction="#format" text="Format" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem fx:id="optionItem" mnemonicParsing="false" onAction="#option" text="Options">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="GEAR" />
+                     </graphic>
+                  </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <Menu fx:id="skinMenu" mnemonicParsing="false" text="Skin" />
+                  <MenuItem mnemonicParsing="false" onAction="#about" text="About">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="EXCLAMATION_CIRCLE" />
+                     </graphic>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#help" text="Help">
+                     <graphic>
+                        <FontAwesomeIconView glyphName="QUESTION_CIRCLE" />
+                     </graphic>
+                  </MenuItem>
+              </items>
+            </Menu>
+			</menus>
+		</MenuBar>
+      <ToolBar>
+         <items>
+			<Separator orientation="VERTICAL" />
+			<Button fx:id="newButton" mnemonicParsing="false" onAction="#newFile">
+				<tooltip>
+					<Tooltip autoHide="true" text="New" />
+				</tooltip>
+              	<graphic>
+                 <FontAwesomeIconView glyphName="FILE_ALT" size="15" />
+            	</graphic>
+            </Button>
+			<Button fx:id="openButton" mnemonicParsing="false" onAction="#open">
+					<tooltip>
+						<Tooltip text="Open" />
+					</tooltip>
+               <graphic>
+                  <FontAwesomeIconView glyphName="FOLDER_OPEN_ALT" size="15" />
+               </graphic>
+            </Button>
+			<Button fx:id="saveButton" mnemonicParsing="false" onAction="#save">
+					<tooltip>
+						<Tooltip text="Save" />
+					</tooltip>
+               <graphic>
+                  <FontAwesomeIconView glyphName="SAVE" size="15" />
+               </graphic>
+            </Button>
+				<Separator orientation="VERTICAL" />
+            <Button fx:id="undoButton" mnemonicParsing="false" onAction="#undo">
+               <tooltip>
+                  <Tooltip text="Undo" />
+               </tooltip>
+               <graphic>
+                  <FontAwesomeIconView glyphName="UNDO" size="15" />
+               </graphic>
+            </Button>
+            <Button fx:id="redoButton" mnemonicParsing="false" onAction="#redo">
+               <tooltip>
+                  <Tooltip text="Redo" />
+               </tooltip>
+               <graphic>
+                  <FontAwesomeIconView glyphName="REPEAT" size="15" />
+               </graphic>
+            </Button>
+            <Separator orientation="VERTICAL" />
+         </items>
+      </ToolBar>
+      <SplitPane prefHeight="160.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+        <items>
+            <BorderPane prefHeight="200.0" prefWidth="200.0">
+               <right>
+                  <ScrollBar fx:id="verticalScrollBar" orientation="VERTICAL" prefWidth="15.0" BorderPane.alignment="CENTER" />
+               </right>
+               <bottom>
+                  <ScrollBar fx:id="horizontalScrollBar" prefHeight="15.0" BorderPane.alignment="CENTER" />
+               </bottom>
+               <center>
+                  <TabPane fx:id="tabPane" BorderPane.alignment="CENTER">
+                     <tabs>
+                        <Tab>
+                           <content>
+                              <CodeArea fx:id="codeArea" wrapText="true" />
+                           </content>
+                           <graphic>
+                              <FontAwesomeIconView fill="#7a9ece" fontSmoothingType="LCD" glyphName="SAVE" />
+                           </graphic>
+                        </Tab>
+                     </tabs>
+                  </TabPane>
+               </center>
+            </BorderPane>
+        </items>
+      </SplitPane>
+      <VBox fx:id="bottomExtraPane" />
+      <StatusBar fx:id="statusBar" text="" />
+	</children>
+   <padding>
+      <Insets bottom="1.0" />
+   </padding>
+</VBox>

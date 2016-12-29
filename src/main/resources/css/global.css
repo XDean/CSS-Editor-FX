@@ -1,0 +1,30 @@
+.code-area {
+	-fx-background-color: white;
+}
+
+.lineno {
+	-fx-background-color: white;
+}
+
+.status-bar {
+	-fx-padding: 4px;
+	-fx-pref-height: 22px;
+	-fx-background-color: white;
+	-fx-background-insets: 0, 1;
+}
+
+.tab-icon {
+	-fx-fill: DEEPSKYBLUE;
+}
+
+.tab-icon:selected {
+	-fx-fill: BLUE;
+}
+
+.tab-icon:modified {
+	-fx-fill: PURPLE;
+}
+
+.tab-icon:selected-modified {
+	-fx-fill: RED;
+}

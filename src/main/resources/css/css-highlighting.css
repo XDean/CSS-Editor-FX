@@ -1,0 +1,33 @@
+.selector {
+	-fx-fill: red;
+}
+
+.selector-id {
+	-fx-fill: #4444ff;
+}
+
+.selector-class {
+	-fx-fill: #ff4444;
+}
+
+.selector-state {
+	-fx-fill: #ff69b4;
+}
+
+.selector-java-class {
+    -fx-font-weight: bold;
+	-fx-fill: #222222;
+}
+
+.key {
+	-fx-fill: #666666;
+}
+
+.value {
+    -fx-font-weight: bold;
+	-fx-fill: #333333;
+}
+
+.muticomment {
+	-fx-fill: #008800;
+}

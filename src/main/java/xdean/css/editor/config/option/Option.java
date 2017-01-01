@@ -1,10 +1,10 @@
 package xdean.css.editor.config.option;
 
-import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.Property;
 
 public interface Option<T> {
 
-  public ReadOnlyProperty<T> property();
+  public Property<T> property();
 
   public default T get() {
     return property().getValue();

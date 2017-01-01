@@ -32,7 +32,7 @@
      *
      * -fx-text-base-color for text on top of -fx-base, -fx-color, and -fx-body-color
      * -fx-text-background-color for text on top of -fx-background
-     * -fx-text-inner-color for text on top of -fx-control-inner-color
+     * -fx-text-inner-color for text on top of -fx-control-inner-color 
      * -fx-selection-bar-text for text on top of -fx-selection-bar
      */
     -fx-dark-text-color: black;

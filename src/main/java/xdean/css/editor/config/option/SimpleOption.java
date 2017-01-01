@@ -1,7 +1,6 @@
 package xdean.css.editor.config.option;
 
 import javafx.beans.property.Property;
-import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 public class SimpleOption<T> implements Option<T> {
@@ -23,7 +22,7 @@ public class SimpleOption<T> implements Option<T> {
   }
 
   @Override
-  public ReadOnlyProperty<T> property() {
+  public Property<T> property() {
     return property;
   }
 

@@ -26,7 +26,9 @@ public class Options {
       GENERAL = ALL.add(new OptionGroup("General")),
       KEY = ALL.add(new OptionGroup("Key")),
       COMMON = GENERAL.add(new OptionGroup("Common")),
-      TEXT = GENERAL.add(new OptionGroup("Text"));
+      TEXT = GENERAL.add(new OptionGroup("Text")),
+      OTHER = ALL.add(new OptionGroup("Other")),
+      FIND = OTHER.add(new OptionGroup("Find"));
 
   public static final BooleanOption autoSuggest = COMMON.add(Option.create(true, "Auto Completion"));
   public static final BooleanOption showLineNo = COMMON.add(Option.create(true, "Show Line Number"));
@@ -35,6 +37,9 @@ public class Options {
   public static final ValueOption<String> fontFamily = TEXT.add(Option.createValue(DefaultValue.DEFAULT_FONT_FAMILY, "Font Family"));
   public static final IntegerOption fontSize = TEXT.add(Option.create(DefaultValue.DEFAULT_FONT_SIZE, "Font Size"));
   public static final BooleanOption wrapText = TEXT.add(Option.create(true, "Wrap text"));
+  public static final BooleanOption findRegex = FIND.add(Option.create(false, "Find Regex"));
+  public static final BooleanOption findWrapText = FIND.add(Option.create(true, "Find Wrap Text"));
+  public static final BooleanOption findCaseSensitive = FIND.add(Option.create(false, "Find Case Sensitive"));
 
   public static final class DefaultValue {
     public static final int DEFAULT_FONT_SIZE = 16;
@@ -65,6 +70,9 @@ public class Options {
     bind(fontFamily, Options::safeFontFamily);
     bindInt(fontSize);
     bindBool(wrapText);
+    bindBool(findRegex);
+    bindBool(findCaseSensitive);
+    bindBool(findWrapText);
   }
 
   /**
@@ -80,7 +88,7 @@ public class Options {
     try {
       o.set(converter.apply(Config.getProperty(key).get()));
     } catch (Exception e) {
-      log.info(String.format("Option \"%s\" init fail.", o.getDescribe()), e);
+      log.trace(String.format("Option \"%s\" init fail.", o.getDescribe()), e);
       o.set(o.getDefault());
       Config.setProperty(key, toString.apply(o.get()));
     }

@@ -20,7 +20,7 @@ import com.google.common.collect.RangeMap;
 import com.google.common.collect.TreeRangeMap;
 
 /**
- * Remind to set -Xss2m to VM for large file if use regex
+ * Remind to set -Xss1m to VM for large file if use regex
  * 
  * @author XDean
  *
@@ -44,31 +44,8 @@ public class CSSHighLight {
     String SEMICOLON = "semicolon";
   }
 
-  private static final String CSS_REGEX = "(([^\\{\\}/])*)(\\{)(([^}])*)(\\})";
-  private static final String SELECTOR_REGEX = "([.#: ]|\\n)([A-Za-z0-9-_]+)";
-  private static final String MUTI_COMMENT_REGEX = "/\\*+([^*]|(\\*+[^*/]))*\\*+/";
-  private static final String ENTRY_REGEX = "([A-Za-z0-9-_]+)(\\s*:\\s*)(([^;]|\\R)*)(;)";
-
-  private static final Pattern CSS_PATTERN = Pattern.compile(String.format(
-      "(?<%s>%s)|(?<%s>%s)", Element.MUTI_COMMENT, MUTI_COMMENT_REGEX, Element.CSS, CSS_REGEX));
-  private static final Pattern ENTRY_PATTERN = Pattern.compile(String.format(
-      "(?<%s>%s)|(?<%s>%s)", Element.MUTI_COMMENT, MUTI_COMMENT_REGEX, Element.ENTRY, ENTRY_REGEX));
-  private static final Pattern SELECTOR_PATTERN = Pattern.compile(SELECTOR_REGEX);
-
-  private static final int GROUP_BEFORE = 5;
-
-  private static final int GROUP_KEY = GROUP_BEFORE + 0;
-  private static final int GROPU_COLON = GROUP_BEFORE + 1;
-  private static final int GROUP_VALUE = GROUP_BEFORE + 2;
-  private static final int GROUP_SEMICOLON = GROUP_BEFORE + 4;
-
-  private static final int GROUP_SELECTOR = GROUP_BEFORE + 0;
-  private static final int GROUP_LEFT_BRACE = GROUP_BEFORE + 2;
-  private static final int GROUP_VALUES = GROUP_BEFORE + 3;
-  private static final int GROUP_RIGHT_BRACE = GROUP_BEFORE + 5;
-
   public static StyleSpans<Collection<String>> computeHighlighting(String text) {
-//     return computeHighlightingSimply(text);
+    // return computeHighlightingSimply(text);
     return computeHighlightingByRegex(text);
   }
 
@@ -92,14 +69,13 @@ public class CSSHighLight {
       if (css == null) {
         break;
       }
-      text.substring(css.lowerEndpoint(), css.upperEndpoint());
       while (comment != null && comment.upperEndpoint() < css.lowerEndpoint()) {
         comment = TaskUtil.uncatch(() -> iterator.next());
       }
       if (comment != null) {
         if (comment.contains(css.lowerEndpoint())) {
           // [COMMEN{CST]S}
-          offset = comment.upperEndpoint();
+          offset = comment.upperEndpoint() + 1;
           css = findCSS(text, offset);
           continue;
         }
@@ -164,12 +140,35 @@ public class CSSHighLight {
   private static Range<Integer> findCSS(String text, int offset) {
     int start = text.indexOf("{", offset);
     int end = text.indexOf("}", start);
-    if (start == -1 || end == -1) {
+    if (start > end || start == -1 || end == -1) {
       return null;
     }
     start = offset + StringUtil.lastIndexOf(text.substring(offset, start), "{", "}") + 1;
     return Range.closed(start, end + 1);
   }
+
+  private static final String CSS_REGEX = "(([^\\{\\}/])*)(\\{)(([^}])*)(\\})";
+  private static final String SELECTOR_REGEX = "([.#: ]|\\n)([A-Za-z0-9-_]+)";
+  private static final String MUTI_COMMENT_REGEX = "/\\*+([^*]|(\\*+[^*/]))*\\*+/";
+  private static final String ENTRY_REGEX = "([A-Za-z0-9-_]+)(\\s*:\\s*)(([^;]|\\R)*)(;)";
+
+  private static final Pattern CSS_PATTERN = Pattern.compile(String.format(
+      "(?<%s>%s)|(?<%s>%s)", Element.MUTI_COMMENT, MUTI_COMMENT_REGEX, Element.CSS, CSS_REGEX));
+  private static final Pattern ENTRY_PATTERN = Pattern.compile(String.format(
+      "(?<%s>%s)|(?<%s>%s)", Element.MUTI_COMMENT, MUTI_COMMENT_REGEX, Element.ENTRY, ENTRY_REGEX));
+  private static final Pattern SELECTOR_PATTERN = Pattern.compile(SELECTOR_REGEX);
+
+  private static final int GROUP_BEFORE = 5;
+
+  private static final int GROUP_KEY = GROUP_BEFORE + 0;
+  private static final int GROPU_COLON = GROUP_BEFORE + 1;
+  private static final int GROUP_VALUE = GROUP_BEFORE + 2;
+  private static final int GROUP_SEMICOLON = GROUP_BEFORE + 4;
+
+  private static final int GROUP_SELECTOR = GROUP_BEFORE + 0;
+  private static final int GROUP_LEFT_BRACE = GROUP_BEFORE + 2;
+  private static final int GROUP_VALUES = GROUP_BEFORE + 3;
+  private static final int GROUP_RIGHT_BRACE = GROUP_BEFORE + 5;
 
   public static StyleSpans<Collection<String>> computeHighlightingByRegex(String text) {
     StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<Collection<String>>();

@@ -30,6 +30,7 @@ import java.util.ResourceBundle;
 import java.util.function.Function;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.IntegerProperty;
@@ -69,6 +70,7 @@ import xdean.css.editor.config.ConfigKey;
 import xdean.css.editor.config.Context;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
+import xdean.css.editor.controller.comp.SearchBar;
 import xdean.css.editor.controller.manager.CodeAreaManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
 import xdean.jex.config.Config;
@@ -89,7 +91,7 @@ public class MainFrameController implements Initializable {
 
   @FXML
   MenuItem suggestItem, formatItem, undoItem, redoItem, commentItem,
-      closeItem, saveItem, saveAsItem, revertItem;
+      closeItem, saveItem, saveAsItem, revertItem, findItem;
   @FXML
   Button newButton, openButton, saveButton, undoButton, redoButton;
 
@@ -117,6 +119,7 @@ public class MainFrameController implements Initializable {
   private Path lastFilePath = Context.TEMP_PATH.resolve("last");
 
   private IntSequence nameOrder = new IntSequence(1);
+  private SearchBar searchBar;
 
   private class TabEntity {
     final Tab tab;
@@ -209,6 +212,7 @@ public class MainFrameController implements Initializable {
   public void initialize(URL location, ResourceBundle resources) {
     initField();
     initMenu();
+    initComp();
     initBind();
     throwToReturn(() -> openLastFile()).ifPresent(e -> log.error("Load last closed file fail.", e));
   }
@@ -246,23 +250,32 @@ public class MainFrameController implements Initializable {
     }
   }
 
+  private void initComp() {
+    searchBar = new SearchBar(currentCodeArea());
+    bottomExtraPane.getChildren().add(searchBar);
+  }
+
   private void initBind() {
     // shortcut
     suggestItem.acceleratorProperty().bind(Key.SUGGEST.property());
     formatItem.acceleratorProperty().bind(Key.FORMAT.property());
     commentItem.acceleratorProperty().bind(Key.COMMENT.property());
+    findItem.acceleratorProperty().bind(Key.FIND.property());
+    closeItem.acceleratorProperty().bind(Key.CLOSE.property());
 
     // disable
-    undoItem.disableProperty().bind(isNull(currentCodeArea())
-        .or(not(getCodeAreaValue(c -> c.undoAvailableProperty()))));
-    redoItem.disableProperty().bind(isNull(currentCodeArea())
-        .or(not(getCodeAreaValue(c -> c.redoAvailableProperty()))));
+    BooleanBinding nullArea = isNull(currentCodeArea());
+    suggestItem.disableProperty().bind(nullArea);
+    formatItem.disableProperty().bind(nullArea);
+    commentItem.disableProperty().bind(nullArea);
+    findItem.disableProperty().bind(nullArea);
+    undoItem.disableProperty().bind(nullArea.or(not(getCodeAreaValue(c -> c.undoAvailableProperty()))));
+    redoItem.disableProperty().bind(nullArea.or(not(getCodeAreaValue(c -> c.redoAvailableProperty()))));
     undoButton.disableProperty().bind(undoItem.disableProperty());
     redoButton.disableProperty().bind(redoItem.disableProperty());
-    closeItem.disableProperty().bind(isNull(currentCodeArea()));
-    saveAsItem.disableProperty().bind(isNull(currentCodeArea()));
-    saveItem.disableProperty().bind(saveAsItem.disableProperty()
-        .or(not(modifiedProperty())));
+    closeItem.disableProperty().bind(nullArea);
+    saveAsItem.disableProperty().bind(nullArea);
+    saveItem.disableProperty().bind(saveAsItem.disableProperty().or(not(modifiedProperty())));
     saveButton.disableProperty().bind(saveItem.disableProperty());
     revertItem.disableProperty().bind(isNull(currentFile())
         .or(not(modifiedProperty()))
@@ -329,8 +342,7 @@ public class MainFrameController implements Initializable {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Open");
     fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
-    // TODO consider folder not exist
-    uncatch(() -> fileChooser.setInitialDirectory(recentSupport.getLastFile().getParentFile()));
+    fileChooser.setInitialDirectory(recentSupport.getLastFile().getParentFile());
     File selectedFile = fileChooser.showOpenDialog(stage);
     if (selectedFile != null) {
       openFile(selectedFile);
@@ -363,7 +375,7 @@ public class MainFrameController implements Initializable {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Save");
     fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
-    uncatch(() -> fileChooser.setInitialDirectory(recentSupport.getLastFile().getParentFile()));
+    fileChooser.setInitialDirectory(recentSupport.getLastFile().getParentFile());
     fileChooser.setInitialFileName(currentTabEntity().getValue().name.get());
     File selectedFile = fileChooser.showSaveDialog(stage);
     if (selectedFile == null) {
@@ -383,10 +395,11 @@ public class MainFrameController implements Initializable {
   public void exit() {
     if (Options.openLastFile.get()) {
       uncheck(() -> FileUtil.createDirectory(lastFilePath));
+      uncheck(() -> Files.newDirectoryStream(lastFilePath, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
       ListUtil.forEach(tabList, (te, i) -> {
         String nameString = te.file.get() == null ? Integer.toString(te.order.get()) : te.file.get().toString();
         String text = te.manager.isModified() ? te.codeArea.getText() : "";
-        Path path = lastFilePath.resolve(i.toString());
+        Path path = lastFilePath.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(Options.charset.get())));
       });
       stage.close();
@@ -396,49 +409,54 @@ public class MainFrameController implements Initializable {
   }
 
   @FXML
-  private void undo() {
+  public void undo() {
     currentCodeArea().getValue().undo();
   }
 
   @FXML
-  private void redo() {
+  public void redo() {
     currentCodeArea().getValue().redo();
   }
 
   @FXML
-  private void suggest() {
+  public void find() {
+    searchBar.toggle();
+  }
+
+  @FXML
+  public void suggest() {
     currentManager().getValue().suggest();
   }
 
   @FXML
-  private void format() {
+  public void format() {
     currentManager().getValue().format();
   }
 
   @FXML
-  private void comment() {
+  public void comment() {
     currentManager().getValue().comment();
   }
 
   @FXML
-  private void option() {
+  public void option() {
     OptionsController.show(tabPane.getScene().getWindow());
   }
 
   @FXML
-  private void help() {
+  public void help() {
     Util.showMessageDialog(stage, "Help", "Send email to dean.xu@asml.com for help.");
   }
 
   @FXML
-  private void about() {
+  public void about() {
     // TODO About
   }
 
   private void openLastFile() throws IOException {
     if (Options.openLastFile.get()) {
       FileUtil.createDirectory(lastFilePath);
-      Files.newDirectoryStream(lastFilePath).forEach(p -> uncheck(() -> {
+      Files.newDirectoryStream(lastFilePath, "*.tmp").forEach(p -> uncheck(() -> {
         TabEntity te = openFile(null);
         List<String> lines = Files.readAllLines(p, Options.charset.get());
         Optional.ofNullable(lines.get(0)).ifPresent(s -> throwToReturn(() -> Integer.valueOf(s))

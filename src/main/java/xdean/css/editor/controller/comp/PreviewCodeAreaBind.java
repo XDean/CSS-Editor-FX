@@ -19,7 +19,7 @@ import org.fxmisc.richtext.PopupAlignment;
 import xdean.jfx.ex.support.DragSupport;
 import xdean.jfx.ex.util.LayoutUtil;
 
-public class PreviewCodeAreaBind {
+public final class PreviewCodeAreaBind {
 
   private double width = 80, height = 50, line = 2;
 

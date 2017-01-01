@@ -15,13 +15,6 @@ import javafx.stage.PopupWindow;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.PopupAlignment;
 
-/**
- * 
- * Bind itself doesn't decide when show the popupMenu
- * 
- * @author XDean
- *
- */
 public final class AutoCompletionCodeAreaBind {
 
   CodeArea codeArea;

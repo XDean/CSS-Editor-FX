@@ -1,7 +1,6 @@
 package xdean.css.editor.config.option;
 
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import com.sun.javafx.binding.BidirectionalBinding;
@@ -16,7 +15,7 @@ public class IntegerOption extends RangeOption<Integer> {
     BidirectionalBinding.bindNumber(property, writableProperty());
   }
 
-  public ReadOnlyIntegerProperty intProperty() {
+  public IntegerProperty intProperty() {
     return property;
   }
 

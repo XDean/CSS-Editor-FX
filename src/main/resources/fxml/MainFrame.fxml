@@ -85,6 +85,7 @@
                      </accelerator>
                   </MenuItem>
                   <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="findItem" mnemonicParsing="false" onAction="#find" text="Find" />
                   <MenuItem fx:id="commentItem" mnemonicParsing="false" onAction="#comment" text="Toggle Comment" />
                   <MenuItem fx:id="suggestItem" mnemonicParsing="false" onAction="#suggest" text="Auto Completion" />
                   <MenuItem fx:id="formatItem" mnemonicParsing="false" onAction="#format" text="Format" />

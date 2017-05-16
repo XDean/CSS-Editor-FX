@@ -1,21 +1,8 @@
 package xdean.css.editor.controller;
 
-import static xdean.jex.util.task.TaskUtil.andFinal;
-import static xdean.jex.util.task.TaskUtil.ifTodo;
-import static xdean.jex.util.task.TaskUtil.throwToReturn;
-import static xdean.jex.util.task.TaskUtil.todoAll;
-import static xdean.jex.util.task.TaskUtil.uncatch;
-import static xdean.jex.util.task.TaskUtil.uncheck;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.toObjectBinding;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.toStringBinding;
-import static xdean.jfx.ex.util.bean.BeanUtil.bind;
-import static xdean.jfx.ex.util.bean.BeanUtil.isNotNull;
-import static xdean.jfx.ex.util.bean.BeanUtil.isNull;
-import static xdean.jfx.ex.util.bean.BeanUtil.map;
-import static xdean.jfx.ex.util.bean.BeanUtil.nestProp;
-import static xdean.jfx.ex.util.bean.BeanUtil.nestValue;
-import static xdean.jfx.ex.util.bean.BeanUtil.not;
+import static xdean.jex.util.task.TaskUtil.*;
+import static xdean.jfx.ex.util.bean.BeanConvertUtil.*;
+import static xdean.jfx.ex.util.bean.BeanUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +47,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import org.controlsfx.control.StatusBar;
@@ -80,6 +69,7 @@ import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
 import xdean.jfx.ex.support.RecentFileMenuSupport;
 import xdean.jfx.ex.support.skin.SkinStyle;
+import xdean.jfx.ex.util.bean.CollectionUtil;
 
 import com.sun.javafx.binding.BidirectionalBinding;
 
@@ -87,6 +77,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class MainFrameController implements Initializable {
 
   @FXML
@@ -111,24 +102,25 @@ public class MainFrameController implements Initializable {
   StatusBar statusBar;
 
   @SuppressWarnings("unused")
-  private StatusBarManager statusBarManager;
-  private Stage stage;
-  private RecentFileMenuSupport recentSupport;
+  StatusBarManager statusBarManager;
+  Stage stage;
+  RecentFileMenuSupport recentSupport;
 
-  private ObservableList<TabEntity> tabList;
-  private Path lastFilePath = Context.TEMP_PATH.resolve("last");
+  ObservableList<TabEntity> tabList;
+  Path lastFilePath = Context.TEMP_PATH.resolve("last");
 
-  private IntSequence nameOrder = new IntSequence(1);
-  private SearchBar searchBar;
+  IntSequence nameOrder = new IntSequence(1);
+  SearchBar searchBar;
 
+  @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
   private class TabEntity {
-    final Tab tab;
-    final CodeArea codeArea;
-    final CodeAreaManager manager;
-    final StringProperty name;
-    final ObjectProperty<File> file;
-    final FontAwesomeIconView icon;
-    final IntegerProperty order;
+    Tab tab;
+    CodeArea codeArea;
+    CodeAreaManager manager;
+    StringProperty name;
+    ObjectProperty<File> file;
+    FontAwesomeIconView icon;
+    IntegerProperty order;
 
     TabEntity() {
       this.tab = new Tab();
@@ -154,6 +146,7 @@ public class MainFrameController implements Initializable {
       tab.setGraphic(icon);
       icon.setStyleClass("tab-icon");
       icon.setIcon(FontAwesomeIcon.SAVE);
+      // Hold the object in cache to avoid gc
       StringBinding state = CacheUtil.cache(this, "state", () -> Bindings.when(Bindings.equal(toObjectBinding(currentTabEntity()), this))
           .then(Bindings.when(manager.modifiedProperty())
               .then("selected-modified")
@@ -309,20 +302,14 @@ public class MainFrameController implements Initializable {
         horizontalScrollBar.visibleProperty()));
 
     // tabList
-    bind(tabList, tabPane.getTabs(),
+    CollectionUtil.bind(tabList, tabPane.getTabs(),
         tabEntity -> tabEntity.tab,
         tab -> findEntity(tab).orElseThrow(() -> new RuntimeException("Tab not found " + tab)));
     tabList.addListener(new ListChangeListener<TabEntity>() {
       @Override
       public void onChanged(Change<? extends TabEntity> c) {
         while (c.next()) {
-          if (c.wasPermutated()) {
-            for (int i = c.getFrom(); i < c.getTo(); ++i) {
-
-            }
-          } else if (c.wasUpdated()) {
-
-          } else {
+          if (c.wasRemoved()) {
             for (TabEntity te : c.getRemoved()) {
               te.releaseName();
             }

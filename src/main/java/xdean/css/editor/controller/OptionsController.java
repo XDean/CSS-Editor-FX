@@ -101,6 +101,7 @@ public class OptionsController implements Initializable {
     commandColumn.setCellValueFactory(cdf -> new SimpleStringProperty(cdf.getValue().getDescribe()));
     bindingColumn.setCellValueFactory(cdf -> CacheUtil.cache(OptionsController.this,
         cdf.getValue(), () -> new SimpleObjectProperty<>(cdf.getValue().get())));
+//    bindingColumn.setCellValueFactory(cdf -> new SimpleObjectProperty<>(cdf.getValue().get()));
 
     bindingColumn.setEditable(true);
     bindingColumn.setCellFactory(column -> new KeyEditField());

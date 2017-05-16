@@ -65,14 +65,18 @@
 			<version>0.7-M2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.github.XDean</groupId>
+			<groupId>xdean</groupId>
 			<artifactId>JavaFX-EX</artifactId>
-			<version>-SNAPSHOT</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>com.github.XDean</groupId> -->
+		<!-- <artifactId>JavaFX-EX</artifactId> -->
+		<!-- <version>-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 	</dependencies>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

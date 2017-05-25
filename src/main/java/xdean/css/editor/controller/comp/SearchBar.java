@@ -1,7 +1,6 @@
 package xdean.css.editor.controller.comp;
 
-import static xdean.jex.util.task.TaskUtil.ifTodo;
-import static xdean.jex.util.task.TaskUtil.uncatch;
+import static xdean.jex.util.task.TaskUtil.*;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,7 +63,10 @@ public final class SearchBar extends HBox {
     wrapSearch.selectedProperty().bindBidirectional(Options.findWrapText.property());
 
     JavaFxObservable.fromObservableValue(visibleProperty())
-        .subscribe(v -> ifTodo(v, () -> findField.requestFocus(), () -> uncatch(() -> codeArea.getValue().requestFocus())));
+        .subscribe(
+            v -> ifThat(v)
+                .todo(() -> findField.requestFocus())
+                .otherwise(() -> uncatch(() -> codeArea.getValue().requestFocus())));
     visibleProperty().bind(showing.and(BeanUtil.isNotNull(codeArea)));
     managedProperty().bind(visibleProperty());
     findButton.setOnAction(e -> find());
@@ -88,7 +90,8 @@ public final class SearchBar extends HBox {
   }
 
   private boolean simpleFind(CodeArea area, String text, int offset) {
-    Func3<String, String, Integer, Integer> func = caseSensitive.isSelected() ? String::indexOf : StringUtil::indexOfIgnoreCase;
+    Func3<String, String, Integer, Integer> func = caseSensitive.isSelected() ? String::indexOf
+        : StringUtil::indexOfIgnoreCase;
     int index = func.call(area.getText(), text, offset);
     if (index != -1) {
       area.selectRange(index, index + text.length());

@@ -147,13 +147,14 @@ public class MainFrameController implements Initializable {
       icon.setStyleClass("tab-icon");
       icon.setIcon(FontAwesomeIcon.SAVE);
       // Hold the object in cache to avoid gc
-      StringBinding state = CacheUtil.cache(this, "state", () -> Bindings.when(Bindings.equal(toObjectBinding(currentTabEntity()), this))
-          .then(Bindings.when(manager.modifiedProperty())
-              .then("selected-modified")
-              .otherwise("selected"))
-          .otherwise(Bindings.when(manager.modifiedProperty())
-              .then("modified")
-              .otherwise("")));
+      StringBinding state = CacheUtil.cache(this, "state",
+          () -> Bindings.when(Bindings.equal(toObjectBinding(currentTabEntity()), this))
+              .then(Bindings.when(manager.modifiedProperty())
+                  .then("selected-modified")
+                  .otherwise("selected"))
+              .otherwise(Bindings.when(manager.modifiedProperty())
+                  .then("modified")
+                  .otherwise("")));
       state.addListener((ob, o, n) -> {
         uncatch(() -> icon.pseudoClassStateChanged(PseudoClass.getPseudoClass(o), false));
         uncatch(() -> icon.pseudoClassStateChanged(PseudoClass.getPseudoClass(n), true));
@@ -161,8 +162,8 @@ public class MainFrameController implements Initializable {
 
       // recent
       file.addListener((ob, o, n) -> todoAll(
-          () -> ifTodo(n != null, () -> recentSupport.setLastFile(n)),
-          () -> ifTodo(o == null && n != null, () -> releaseName())
+          () -> ifThat(n != null).todo(() -> recentSupport.setLastFile(n)),
+          () -> ifThat(o == null && n != null).todo(() -> releaseName())
           ));
     }
 
@@ -213,7 +214,8 @@ public class MainFrameController implements Initializable {
   private void initField() {
     tabList = FXCollections.observableArrayList();
     // codeAreaManager = new CodeAreaManager(codeArea);
-    statusBarManager = new StatusBarManager(statusBar, currentCodeArea(), nestProp(currentManager(), m -> m.overrideProperty()));
+    statusBarManager = new StatusBarManager(statusBar, currentCodeArea(), nestProp(currentManager(),
+        m -> m.overrideProperty()));
     tabPane.getTabs().clear();// DELETE
   }
 
@@ -281,7 +283,8 @@ public class MainFrameController implements Initializable {
     verticalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, toDoubleBinding(verticalScrollBar.maxProperty())
             .multiply(codeAreaHeight).divide(codeAreaTextHeight)));
-    BidirectionalBinding.bindNumber(verticalScrollBar.valueProperty(), getCodeAreaProperty(c -> c.estimatedScrollYProperty()));
+    BidirectionalBinding.bindNumber(verticalScrollBar.valueProperty(),
+        getCodeAreaProperty(c -> c.estimatedScrollYProperty()));
     verticalScrollBar.visibleProperty().bind(isNotNull(currentCodeArea())
         .and(verticalScrollBar.maxProperty().greaterThan(verticalScrollBar.visibleAmountProperty())));
     verticalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
@@ -294,7 +297,8 @@ public class MainFrameController implements Initializable {
     horizontalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, horizontalScrollBar.maxProperty()
             .multiply(codeAreaWidth).divide(codeAreaTextWidth)));
-    BidirectionalBinding.bindNumber(horizontalScrollBar.valueProperty(), getCodeAreaProperty(c -> c.estimatedScrollXProperty()));
+    BidirectionalBinding.bindNumber(horizontalScrollBar.valueProperty(),
+        getCodeAreaProperty(c -> c.estimatedScrollXProperty()));
     horizontalScrollBar.visibleProperty().bind(Options.wrapText.property().not().and(isNotNull(currentCodeArea()))
         .and(horizontalScrollBar.maxProperty().greaterThan(horizontalScrollBar.visibleAmountProperty())));
     horizontalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
@@ -369,7 +373,7 @@ public class MainFrameController implements Initializable {
       return false;
     } else {
       return andFinal(() -> saveToFile(selectedFile),
-          b -> ifTodo(b, () -> currentTabEntity().getValue().file.setValue(selectedFile)));
+          b -> ifThat(b).todo(() -> currentTabEntity().getValue().file.setValue(selectedFile)));
     }
   }
 

@@ -1,7 +1,6 @@
 package xdean.css.editor.controller.manager;
 
-import static xdean.jex.util.task.TaskUtil.ifTodo;
-import static xdean.jex.util.task.TaskUtil.uncatch;
+import static xdean.jex.util.task.TaskUtil.*;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -134,7 +133,7 @@ public class CodeAreaManager extends ModifiableObject {
                 )
                 .firstOrDefault(null)
                 .observeOn(JavaFxScheduler.getInstance())
-                .doOnNext(e -> ifTodo(e == null, () -> preview.hidePopup())))
+                .doOnNext(e -> ifThat(e == null).todo(() -> preview.hidePopup())))
         .subscribe();
     // context add to suggestion
     JavaFxObservable.fromObservableValue(codeArea.textProperty())
@@ -209,8 +208,8 @@ public class CodeAreaManager extends ModifiableObject {
 
     // modified
     bindModified(codeArea.textProperty());
-    codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> ifTodo(n, () -> saved()));
-    modifiedProperty().addListener((ob, o, n) -> ifTodo(!n, () -> codeArea.getUndoManager().mark()));
+    codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> ifThat(n).todo(() -> saved()));
+    modifiedProperty().addListener((ob, o, n) -> ifThat(n).otherwise(() -> codeArea.getUndoManager().mark()));
   }
 
   public void comment() {

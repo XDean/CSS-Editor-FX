@@ -209,7 +209,7 @@ public class CodeAreaManager extends ModifiableObject {
     // modified
     bindModified(codeArea.textProperty());
     codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> ifThat(n).todo(() -> saved()));
-    modifiedProperty().addListener((ob, o, n) -> ifThat(n).otherwise(() -> codeArea.getUndoManager().mark()));
+    modifiedProperty().addListener((ob, o, n) -> ifThat(n).ordo(() -> codeArea.getUndoManager().mark()));
   }
 
   public void comment() {

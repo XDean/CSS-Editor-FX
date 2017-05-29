@@ -66,7 +66,7 @@ public final class SearchBar extends HBox {
         .subscribe(
             v -> ifThat(v)
                 .todo(() -> findField.requestFocus())
-                .otherwise(() -> uncatch(() -> codeArea.getValue().requestFocus())));
+                .ordo(() -> uncatch(() -> codeArea.getValue().requestFocus())));
     visibleProperty().bind(showing.and(BeanUtil.isNotNull(codeArea)));
     managedProperty().bind(visibleProperty());
     findButton.setOnAction(e -> find());

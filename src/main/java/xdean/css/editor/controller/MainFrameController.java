@@ -436,7 +436,7 @@ public class MainFrameController implements Initializable {
 
   @FXML
   public void help() {
-    Util.showMessageDialog(stage, "Help", "Send email to dean.xu@asml.com for help.");
+    Util.showMessageDialog(stage, "Help", "Send email to xuda1107@gmail.com for help.");
   }
 
   @FXML

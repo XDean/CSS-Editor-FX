@@ -1,11 +1,11 @@
 package xdean.css.editor.config;
 
-import xdean.css.editor.config.option.Option;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import xdean.css.editor.config.option.Option;
 
 public enum Key implements Option<KeyCombination> {
   SUGGEST("Completion Assist", new KeyCodeCombination(KeyCode.SLASH, KeyCombination.ALT_DOWN)),

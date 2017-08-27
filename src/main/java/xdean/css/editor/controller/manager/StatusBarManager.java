@@ -1,9 +1,7 @@
 package xdean.css.editor.controller.manager;
 
-import static xdean.jfx.ex.util.LayoutUtil.margin;
-import static xdean.jfx.ex.util.LayoutUtil.minWidth;
-import static xdean.jfx.ex.util.bean.BeanUtil.nestValue;
-import static xdean.jfx.ex.util.bean.BeanUtil.yep;
+import static xdean.jfx.ex.util.LayoutUtil.*;
+import static xdean.jfx.ex.util.bean.BeanUtil.*;
 
 import java.util.function.Function;
 

@@ -3,24 +3,15 @@ package xdean.css.editor.feature;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javafx.scene.control.IndexRange;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
 import rx.Observable;
 import xdean.css.CSSConstants;
 import xdean.css.context.CSSContext;
-import xdean.css.editor.Util;
-import xdean.css.editor.config.Key;
-import xdean.css.editor.config.Options;
 import xdean.jex.util.string.StringUtil;
 
 @SuppressWarnings("unused")

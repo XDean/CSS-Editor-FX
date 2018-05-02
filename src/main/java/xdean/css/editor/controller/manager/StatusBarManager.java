@@ -1,9 +1,17 @@
 package xdean.css.editor.controller.manager;
 
-import static xdean.jfx.ex.util.LayoutUtil.*;
-import static xdean.jfx.ex.util.bean.BeanUtil.*;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
+import static xdean.jfx.ex.util.LayoutUtil.margin;
+import static xdean.jfx.ex.util.LayoutUtil.minWidth;
+import static xdean.jfx.ex.util.bean.BeanUtil.nestValue;
+import static xdean.jfx.ex.util.bean.BeanUtil.yep;
 
 import java.util.function.Function;
+
+import org.controlsfx.control.StatusBar;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.Validator;
+import org.fxmisc.richtext.CodeArea;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
@@ -17,16 +25,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
-
-import org.controlsfx.control.StatusBar;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
-import org.fxmisc.richtext.CodeArea;
-
 import xdean.css.editor.config.Options;
 import xdean.jex.util.calc.MathUtil;
 import xdean.jex.util.string.StringUtil;
-import xdean.jex.util.task.TaskUtil;
 
 public class StatusBarManager {
 
@@ -102,7 +103,7 @@ public class StatusBarManager {
     int lines = StringUtil.countLine(area.getValue().getText());
     ValidationSupport vs = new ValidationSupport();
     vs.registerValidator(tf, Validator.<String> createPredicateValidator(
-        s -> TaskUtil.uncatch(() -> MathUtil.inRange(Integer.valueOf(s), 1, lines)) == Boolean.TRUE,
+        s -> uncatch(() -> MathUtil.inRange(Integer.valueOf(s), 1, lines)) == Boolean.TRUE,
         String.format("Line number must be in [%d,%d]", 1, lines)));
 
     dialog.showAndWait().ifPresent(s -> {

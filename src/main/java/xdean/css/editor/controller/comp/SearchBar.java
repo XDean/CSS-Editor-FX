@@ -1,9 +1,12 @@
 package xdean.css.editor.controller.comp;
 
-import static xdean.jex.util.task.TaskUtil.*;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.controlsfx.control.textfield.TextFields;
+import org.fxmisc.richtext.CodeArea;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,14 +17,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-
-import org.controlsfx.control.textfield.TextFields;
-import org.fxmisc.richtext.CodeArea;
-
 import rx.functions.Func3;
 import rx.observables.JavaFxObservable;
 import xdean.css.editor.config.Options;
 import xdean.jex.util.string.StringUtil;
+import xdean.jex.util.task.If;
 import xdean.jfx.ex.util.bean.BeanUtil;
 
 public final class SearchBar extends HBox {
@@ -64,7 +64,7 @@ public final class SearchBar extends HBox {
 
     JavaFxObservable.fromObservableValue(visibleProperty())
         .subscribe(
-            v -> ifThat(v)
+            v -> If.that(v)
                 .todo(() -> findField.requestFocus())
                 .ordo(() -> uncatch(() -> codeArea.getValue().requestFocus())));
     visibleProperty().bind(showing.and(BeanUtil.isNotNull(codeArea)));

@@ -1,5 +1,7 @@
 package xdean.css.editor.feature;
 
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,16 +14,15 @@ import java.util.regex.Pattern;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 
-import xdean.jex.util.string.StringUtil;
-import xdean.jex.util.task.TaskUtil;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
 import com.google.common.collect.TreeRangeMap;
 
+import xdean.jex.util.string.StringUtil;
+
 /**
  * Remind to set -Xss1m to VM for large file if use regex
- * 
+ *
  * @author XDean
  *
  */
@@ -50,7 +51,7 @@ public class CSSHighLight {
   }
 
   public static StyleSpans<Collection<String>> computeHighlightingSimply(String text) {
-    StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<Collection<String>>();
+    StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
     RangeMap<Integer, Collection<String>> map = TreeRangeMap.create();
     int offset = 0;
     while (offset < text.length()) {
@@ -63,14 +64,14 @@ public class CSSHighLight {
     }
     offset = 0;
     Iterator<Range<Integer>> iterator = new ArrayList<>(map.asMapOfRanges().keySet()).iterator();
-    Range<Integer> comment = TaskUtil.uncatch(() -> iterator.next());
+    Range<Integer> comment = uncatch(() -> iterator.next());
     Range<Integer> css = findCSS(text, offset);
     while (offset < text.length()) {
       if (css == null) {
         break;
       }
       while (comment != null && comment.upperEndpoint() < css.lowerEndpoint()) {
-        comment = TaskUtil.uncatch(() -> iterator.next());
+        comment = uncatch(() -> iterator.next());
       }
       if (comment != null) {
         if (comment.contains(css.lowerEndpoint())) {
@@ -103,7 +104,7 @@ public class CSSHighLight {
           while (comment != null && comment.upperEndpoint() < css.upperEndpoint()) {
             map.put(Range.closed(lower, comment.lowerEndpoint()), Collections.singleton(Element.SELECTOR_CLASS));
             lower = comment.upperEndpoint();
-            comment = TaskUtil.uncatch(() -> iterator.next());
+            comment = uncatch(() -> iterator.next());
           }
           map.put(Range.closed(lower, css.upperEndpoint()), Collections.singleton(Element.SELECTOR_CLASS));
         } else {
@@ -171,7 +172,7 @@ public class CSSHighLight {
   private static final int GROUP_RIGHT_BRACE = GROUP_BEFORE + 5;
 
   public static StyleSpans<Collection<String>> computeHighlightingByRegex(String text) {
-    StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<Collection<String>>();
+    StyleSpansBuilder<Collection<String>> spansBuilder = new StyleSpansBuilder<>();
     Matcher cssMatcher = CSS_PATTERN.matcher(text);
     int lastKwEnd = 0;
     while (cssMatcher.find()) {

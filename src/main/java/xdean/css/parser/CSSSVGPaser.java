@@ -1,9 +1,10 @@
 package xdean.css.parser;
 
-import xdean.jex.util.string.StringUtil;
-import xdean.jex.util.task.TaskUtil;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 
 import com.sun.javafx.geom.Path2D;
+
+import xdean.jex.util.string.StringUtil;
 
 public class CSSSVGPaser {
 
@@ -11,6 +12,6 @@ public class CSSSVGPaser {
     if (StringUtil.isEmpty(svg)) {
       return false;
     }
-    return TaskUtil.uncatch(() -> new Path2D().appendSVGPath(svg));
+    return uncatch(() -> new Path2D().appendSVGPath(svg));
   }
 }

@@ -1,12 +1,17 @@
 package xdean.css.editor.controller.manager;
 
-import static xdean.jex.util.task.TaskUtil.*;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
+
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.StyledTextArea;
+import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -23,12 +28,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
-import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
-
 import rx.Observable;
 import rx.observables.JavaFxObservable;
 import rx.schedulers.JavaFxScheduler;
@@ -47,6 +46,7 @@ import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.ref.WeakUtil;
 import xdean.jex.util.string.StringUtil;
+import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfx.ex.extra.ModifiableObject;
 
@@ -133,7 +133,7 @@ public class CodeAreaManager extends ModifiableObject {
                 )
                 .firstOrDefault(null)
                 .observeOn(JavaFxScheduler.getInstance())
-                .doOnNext(e -> ifThat(e == null).todo(() -> preview.hidePopup())))
+                .doOnNext(e -> If.that(e == null).todo(() -> preview.hidePopup())))
         .subscribe();
     // context add to suggestion
     JavaFxObservable.fromObservableValue(codeArea.textProperty())
@@ -208,8 +208,8 @@ public class CodeAreaManager extends ModifiableObject {
 
     // modified
     bindModified(codeArea.textProperty());
-    codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> ifThat(n).todo(() -> saved()));
-    modifiedProperty().addListener((ob, o, n) -> ifThat(n).ordo(() -> codeArea.getUndoManager().mark()));
+    codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> If.that(n).todo(() -> saved()));
+    modifiedProperty().addListener((ob, o, n) -> If.that(n).ordo(() -> codeArea.getUndoManager().mark()));
   }
 
   public void comment() {

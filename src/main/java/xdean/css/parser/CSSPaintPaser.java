@@ -1,9 +1,18 @@
 package xdean.css.parser;
 
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
+import com.sun.javafx.css.Stylesheet;
+import com.sun.javafx.css.converters.PaintConverter.LinearGradientConverter;
+import com.sun.javafx.css.converters.PaintConverter.RadialGradientConverter;
+import com.sun.javafx.css.parser.CSSParser;
+import com.sun.javafx.css.parser.DeriveColorConverter;
+import com.sun.javafx.css.parser.LadderConverter;
 
 import javafx.css.ParsedValue;
 import javafx.scene.Group;
@@ -17,13 +26,6 @@ import rx.Observable;
 import xdean.css.context.CSSContext;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
-
-import com.sun.javafx.css.Stylesheet;
-import com.sun.javafx.css.converters.PaintConverter.LinearGradientConverter;
-import com.sun.javafx.css.converters.PaintConverter.RadialGradientConverter;
-import com.sun.javafx.css.parser.CSSParser;
-import com.sun.javafx.css.parser.DeriveColorConverter;
-import com.sun.javafx.css.parser.LadderConverter;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CSSPaintPaser {
@@ -62,7 +64,7 @@ public class CSSPaintPaser {
 
   public Optional<Paint> parsePaint(String text) {
     return Observable.from(getTasks())
-        .map(f -> TaskUtil.uncatch(() -> f.apply(text)))
+        .map(f -> uncatch(() -> f.apply(text)))
         .filter(p -> p != null)
         .firstOrDefault(null)
         .map(Optional::ofNullable)
@@ -73,7 +75,7 @@ public class CSSPaintPaser {
   private ParsedValue<?, ?> getParsedValue(String text) {
     inlineNode.setStyle("-fx-color:" + text);
     Stylesheet css = new CSSParser().parseInlineStyle(inlineNode);
-    ParsedValue parsedValue = TaskUtil.uncatch(() -> css.getRules().get(0).getDeclarations().get(0).getParsedValue());
+    ParsedValue parsedValue = uncatch(() -> css.getRules().get(0).getDeclarations().get(0).getParsedValue());
     return parsedValue;
   }
 }

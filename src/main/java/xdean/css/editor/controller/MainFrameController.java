@@ -1,5 +1,6 @@
 package xdean.css.editor.controller;
 
+import static xdean.jex.util.lang.ExceptionUtil.*;
 import static xdean.jex.util.task.TaskUtil.*;
 import static xdean.jfx.ex.util.bean.BeanConvertUtil.*;
 import static xdean.jfx.ex.util.bean.BeanUtil.*;
@@ -67,6 +68,7 @@ import xdean.jex.extra.IntSequence;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
+import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.RecentFileMenuSupport;
 import xdean.jfx.ex.support.skin.SkinStyle;
 import xdean.jfx.ex.util.bean.CollectionUtil;
@@ -162,8 +164,8 @@ public class MainFrameController implements Initializable {
 
       // recent
       file.addListener((ob, o, n) -> todoAll(
-          () -> ifThat(n != null).todo(() -> recentSupport.setLastFile(n)),
-          () -> ifThat(o == null && n != null).todo(() -> releaseName())
+          () -> If.that(n != null).todo(() -> recentSupport.setLastFile(n)),
+          () -> If.that(o == null && n != null).todo(() -> releaseName())
           ));
     }
 
@@ -182,7 +184,7 @@ public class MainFrameController implements Initializable {
 
     /**
      * Rename as "new i"
-     * 
+     *
      * @param i
      * @return success or not
      */
@@ -373,7 +375,7 @@ public class MainFrameController implements Initializable {
       return false;
     } else {
       return andFinal(() -> saveToFile(selectedFile),
-          b -> ifThat(b).todo(() -> currentTabEntity().getValue().file.setValue(selectedFile)));
+          b -> If.that(b).todo(() -> currentTabEntity().getValue().file.setValue(selectedFile)));
     }
   }
 
@@ -579,7 +581,7 @@ public class MainFrameController implements Initializable {
 
   private ObservableValue<CodeArea> currentCodeArea() {
     return CacheUtil.cache(this, "currentCodeArea", () -> {
-      ObjectProperty<CodeArea> op = new SimpleObjectProperty<CodeArea>();
+      ObjectProperty<CodeArea> op = new SimpleObjectProperty<>();
       op.bind(map(currentManager(), m -> uncatch(() -> m.getCodeArea())));
       return op;
     });

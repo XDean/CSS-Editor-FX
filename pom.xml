@@ -11,10 +11,11 @@
 		<mainClass>xdean.css.editor.CSSMain</mainClass>
 	</properties>
 
+
 	<repositories>
 		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
+			<id>snapshots-repo</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 		</repository>
 	</repositories>
 
@@ -65,15 +66,10 @@
 			<version>0.7-M2</version>
 		</dependency>
 		<dependency>
-			<groupId>xdean</groupId>
+			<groupId>com.github.XDean</groupId>
 			<artifactId>JavaFX-EX</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>com.github.XDean</groupId> -->
-		<!-- <artifactId>JavaFX-EX</artifactId> -->
-		<!-- <version>-SNAPSHOT</version> -->
-		<!-- </dependency> -->
 	</dependencies>
 
 	<build>

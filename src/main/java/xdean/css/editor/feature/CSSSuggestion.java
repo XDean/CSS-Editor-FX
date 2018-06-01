@@ -8,8 +8,8 @@ import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.reactivex.Observable;
 import javafx.scene.control.IndexRange;
-import rx.Observable;
 import xdean.css.CSSConstants;
 import xdean.css.context.CSSContext;
 import xdean.jex.util.string.StringUtil;
@@ -123,7 +123,7 @@ public class CSSSuggestion {
   private static Collection<String> filterSuggestion(Collection<String> suggestions, String keyWord) {
     String input = keyWord.toLowerCase();// XXX lower can be option
     List<String> list = new ArrayList<>();
-    Observable.from(suggestions)
+    Observable.fromIterable(suggestions)
         .distinct()
         .groupBy(s -> {
           if (filterByStart.test(s, input)) {

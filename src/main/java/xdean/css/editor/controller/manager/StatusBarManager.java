@@ -1,10 +1,10 @@
 package xdean.css.editor.controller.manager;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
-import static xdean.jfx.ex.util.LayoutUtil.margin;
-import static xdean.jfx.ex.util.LayoutUtil.minWidth;
-import static xdean.jfx.ex.util.bean.BeanUtil.nestValue;
-import static xdean.jfx.ex.util.bean.BeanUtil.yep;
+import static xdean.jfxex.bean.BeanConvertUtil.toBooleanBinding;
+import static xdean.jfxex.bean.BeanUtil.nestValue;
+import static xdean.jfxex.util.LayoutUtil.margin;
+import static xdean.jfxex.util.LayoutUtil.minWidth;
 
 import java.util.function.Function;
 
@@ -59,7 +59,7 @@ public class StatusBarManager {
     caretColumn.textProperty().bind(map(getCodeAreaValue(c -> c.caretColumnProperty()), t -> t));
     select.textProperty().bind(mapString(getCodeAreaValue(c -> c.selectedTextProperty()), t -> t.length() + " | " + StringUtil.countLine(t)));
     charset.textProperty().bind(mapString(Options.charset.property(), t -> t.toString()));
-    inputType.textProperty().bind(Bindings.when(yep(overrideProperty)).then("Override").otherwise("Insert"));
+    inputType.textProperty().bind(Bindings.when(toBooleanBinding(overrideProperty)).then("Override").otherwise("Insert"));
 
     bar.getRightItems().addAll(
         margin(new Text("lines"), 0, 5), minWidth(lines, 60),

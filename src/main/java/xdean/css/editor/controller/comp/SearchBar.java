@@ -9,20 +9,20 @@ import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import rx.functions.Func3;
 import xdean.css.editor.config.Options;
+import xdean.jex.extra.function.Func3;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
-import xdean.jfx.ex.util.bean.BeanUtil;
 
 public final class SearchBar extends HBox {
 
@@ -32,11 +32,11 @@ public final class SearchBar extends HBox {
   private CheckBox regex;
   private CheckBox wrapSearch;
 
-  private ObservableValue<CodeArea> codeArea;
+  private ObservableObjectValue<CodeArea> codeArea;
 
   private BooleanProperty showing;
 
-  public SearchBar(ObservableValue<CodeArea> codeArea) {
+  public SearchBar(ObservableObjectValue<CodeArea> codeArea) {
     super();
     this.codeArea = codeArea;
     this.showing = new SimpleBooleanProperty(false);
@@ -67,7 +67,7 @@ public final class SearchBar extends HBox {
             v -> If.that(v)
                 .todo(() -> findField.requestFocus())
                 .ordo(() -> uncatch(() -> codeArea.getValue().requestFocus())));
-    visibleProperty().bind(showing.and(BeanUtil.isNotNull(codeArea)));
+    visibleProperty().bind(showing.and(Bindings.isNotNull(codeArea)));
     managedProperty().bind(visibleProperty());
     findButton.setOnAction(e -> find());
     findField.setOnAction(e -> find());

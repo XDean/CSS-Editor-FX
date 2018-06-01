@@ -1,9 +1,20 @@
 package xdean.css.editor.controller;
 
-import static xdean.jex.util.lang.ExceptionUtil.*;
-import static xdean.jex.util.task.TaskUtil.*;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.*;
-import static xdean.jfx.ex.util.bean.BeanUtil.*;
+import static javafx.beans.binding.Bindings.isNotNull;
+import static javafx.beans.binding.Bindings.isNull;
+import static javafx.beans.binding.Bindings.not;
+import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
+import static xdean.jex.util.lang.ExceptionUtil.uncheck;
+import static xdean.jex.util.task.TaskUtil.andFinal;
+import static xdean.jex.util.task.TaskUtil.todoAll;
+import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
+import static xdean.jfxex.bean.BeanConvertUtil.toObjectBinding;
+import static xdean.jfxex.bean.BeanConvertUtil.toStringBinding;
+import static xdean.jfxex.bean.BeanUtil.map;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
+import static xdean.jfxex.bean.BeanUtil.nestProp;
+import static xdean.jfxex.bean.BeanUtil.nestValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +28,13 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
+import org.controlsfx.control.StatusBar;
+import org.fxmisc.richtext.CodeArea;
+
+import com.sun.javafx.binding.BidirectionalBinding;
+
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
@@ -28,6 +46,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -51,10 +71,8 @@ import javafx.stage.Stage;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-
-import org.controlsfx.control.StatusBar;
-import org.fxmisc.richtext.CodeArea;
-
+import xdean.css.Config;
+import xdean.css.editor.IntSequence;
 import xdean.css.editor.Util;
 import xdean.css.editor.config.ConfigKey;
 import xdean.css.editor.config.Context;
@@ -63,20 +81,13 @@ import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.comp.SearchBar;
 import xdean.css.editor.controller.manager.CodeAreaManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
-import xdean.jex.config.Config;
-import xdean.jex.extra.IntSequence;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.task.If;
-import xdean.jfx.ex.support.RecentFileMenuSupport;
-import xdean.jfx.ex.support.skin.SkinStyle;
-import xdean.jfx.ex.util.bean.CollectionUtil;
-
-import com.sun.javafx.binding.BidirectionalBinding;
-
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import xdean.jfxex.bean.CollectionUtil;
+import xdean.jfxex.support.RecentFileMenuSupport;
+import xdean.jfxex.support.skin.SkinStyle;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -165,8 +176,7 @@ public class MainFrameController implements Initializable {
       // recent
       file.addListener((ob, o, n) -> todoAll(
           () -> If.that(n != null).todo(() -> recentSupport.setLastFile(n)),
-          () -> If.that(o == null && n != null).todo(() -> releaseName())
-          ));
+          () -> If.that(o == null && n != null).todo(() -> releaseName())));
     }
 
     void loadFile() {
@@ -266,8 +276,8 @@ public class MainFrameController implements Initializable {
     formatItem.disableProperty().bind(nullArea);
     commentItem.disableProperty().bind(nullArea);
     findItem.disableProperty().bind(nullArea);
-    undoItem.disableProperty().bind(nullArea.or(not(getCodeAreaValue(c -> c.undoAvailableProperty()))));
-    redoItem.disableProperty().bind(nullArea.or(not(getCodeAreaValue(c -> c.redoAvailableProperty()))));
+    undoItem.disableProperty().bind(nullArea.or(not(getCodeAreaBooleanValue(c -> c.undoAvailableProperty()))));
+    redoItem.disableProperty().bind(nullArea.or(not(getCodeAreaBooleanValue(c -> c.redoAvailableProperty()))));
     undoButton.disableProperty().bind(undoItem.disableProperty());
     redoButton.disableProperty().bind(redoItem.disableProperty());
     closeItem.disableProperty().bind(nullArea);
@@ -311,14 +321,11 @@ public class MainFrameController implements Initializable {
     CollectionUtil.bind(tabList, tabPane.getTabs(),
         tabEntity -> tabEntity.tab,
         tab -> findEntity(tab).orElseThrow(() -> new RuntimeException("Tab not found " + tab)));
-    tabList.addListener(new ListChangeListener<TabEntity>() {
-      @Override
-      public void onChanged(Change<? extends TabEntity> c) {
-        while (c.next()) {
-          if (c.wasRemoved()) {
-            for (TabEntity te : c.getRemoved()) {
-              te.releaseName();
-            }
+    tabList.addListener((ListChangeListener<TabEntity>) c -> {
+      while (c.next()) {
+        if (c.wasRemoved()) {
+          for (TabEntity te : c.getRemoved()) {
+            te.releaseName();
           }
         }
       }
@@ -537,8 +544,8 @@ public class MainFrameController implements Initializable {
     });
   }
 
-  private ObservableValue<Boolean> modifiedProperty() {
-    return CacheUtil.cache(this, "modified", () -> nestValue(currentManager(), m -> m.modifiedProperty()));
+  private ObservableBooleanValue modifiedProperty() {
+    return CacheUtil.cache(this, "modified", () -> nestBooleanValue(currentManager(), m -> m.modifiedProperty()));
   }
 
   private boolean isModified() {
@@ -571,15 +578,15 @@ public class MainFrameController implements Initializable {
     });
   }
 
-  private ObservableValue<File> currentFile() {
+  private ObservableObjectValue<File> currentFile() {
     return CacheUtil.cache(this, "currentFile", () -> nestValue(currentTabEntity(), t -> t.file));
   }
 
-  private ObservableValue<CodeAreaManager> currentManager() {
+  private ObservableObjectValue<CodeAreaManager> currentManager() {
     return CacheUtil.cache(this, "currentManager", () -> map(currentTabEntity(), t -> t.manager));
   }
 
-  private ObservableValue<CodeArea> currentCodeArea() {
+  private ObservableObjectValue<CodeArea> currentCodeArea() {
     return CacheUtil.cache(this, "currentCodeArea", () -> {
       ObjectProperty<CodeArea> op = new SimpleObjectProperty<>();
       op.bind(map(currentManager(), m -> uncatch(() -> m.getCodeArea())));
@@ -593,5 +600,9 @@ public class MainFrameController implements Initializable {
 
   private <T> ObservableValue<T> getCodeAreaValue(Function<CodeArea, ObservableValue<T>> func) {
     return nestValue(currentCodeArea(), c -> func.apply(c));
+  }
+
+  private <T> ObservableBooleanValue getCodeAreaBooleanValue(Function<CodeArea, ObservableBooleanValue> func) {
+    return nestBooleanValue(currentCodeArea(), c -> func.apply(c));
   }
 }

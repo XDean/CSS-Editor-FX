@@ -7,14 +7,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javafx.css.ParsedValue;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
-import lombok.extern.slf4j.Slf4j;
-import rx.Observable;
-import xdean.jex.util.collection.ListUtil;
-import xdean.jex.util.task.TaskUtil;
-
 import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
@@ -23,6 +15,14 @@ import com.sun.javafx.css.ParsedValueImpl;
 import com.sun.javafx.css.Selector;
 import com.sun.javafx.css.Stylesheet;
 import com.sun.javafx.css.parser.CSSParser;
+
+import io.reactivex.Observable;
+import javafx.css.ParsedValue;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import lombok.extern.slf4j.Slf4j;
+import xdean.jex.util.collection.ListUtil;
+import xdean.jex.util.task.TaskUtil;
 
 @Slf4j
 public class CSSContext {
@@ -115,8 +115,8 @@ public class CSSContext {
 
   private void loadSelector(Stylesheet css) {
     Observable.just(css)
-        .flatMap(s -> Observable.from(s.getRules()))
-        .flatMap(r -> Observable.from(r.getSelectors()))
+        .flatMap(s -> Observable.fromIterable(s.getRules()))
+        .flatMap(r -> Observable.fromIterable(r.getSelectors()))
         .map(Selector::toString)
         .map(s -> s.replace("*", ""))
         .subscribe(s -> {
@@ -211,14 +211,14 @@ public class CSSContext {
         } else {
           V value = pv.getValue();
           if (value instanceof ParsedValue) {
-            return new ParsedValueImpl<V, T>((V) resolve((ParsedValue<?, ?>) value), pv.getConverter());
+            return new ParsedValueImpl<>((V) resolve((ParsedValue<?, ?>) value), pv.getConverter());
           } else if (value instanceof ParsedValue[]) {
             ParsedValue[] originPvs = (ParsedValue[]) value;
             ParsedValue[] pvs = new ParsedValue[originPvs.length];
             for (int i = 0; i < pvs.length; i++) {
               pvs[i] = resolve(originPvs[i]);
             }
-            return new ParsedValueImpl<V, T>((V) pvs, pv.getConverter());
+            return new ParsedValueImpl<>((V) pvs, pv.getConverter());
           }
         }
       }

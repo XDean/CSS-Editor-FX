@@ -1,8 +1,8 @@
 package xdean.css.context;
 
-import javafx.css.ParsedValue;
-
 import com.google.common.base.Supplier;
+
+import javafx.css.ParsedValue;
 
 class Util {
 

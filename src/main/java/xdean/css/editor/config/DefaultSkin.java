@@ -1,7 +1,7 @@
 package xdean.css.editor.config;
 
 import xdean.jex.util.string.StringUtil;
-import xdean.jfx.ex.support.skin.SkinStyle;
+import xdean.jfxex.support.skin.SkinStyle;
 
 public enum DefaultSkin implements SkinStyle {
   CLASSIC("classic"),

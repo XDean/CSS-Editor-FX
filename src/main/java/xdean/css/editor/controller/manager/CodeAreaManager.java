@@ -34,6 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import xdean.css.context.CSSContext;
 import xdean.css.editor.Util;
+import xdean.css.editor.WeakUtil;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.comp.AutoCompletionCodeAreaBind;
@@ -44,11 +45,10 @@ import xdean.css.editor.feature.CSSSuggestion;
 import xdean.css.parser.CSSPaintPaser;
 import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.extra.StringURL;
-import xdean.jex.util.ref.WeakUtil;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
-import xdean.jfx.ex.extra.ModifiableObject;
+import xdean.jfxex.extra.ModifiableObject;
 
 public class CodeAreaManager extends ModifiableObject {
   CodeArea codeArea;

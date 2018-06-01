@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.function.Consumer;
 
+import com.sun.javafx.tk.Toolkit;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -24,8 +26,6 @@ import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import xdean.css.editor.config.Context;
 import xdean.css.editor.config.Options;
-
-import com.sun.javafx.tk.Toolkit;
 
 @Slf4j
 public class Util {

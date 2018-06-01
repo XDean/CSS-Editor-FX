@@ -1,19 +1,18 @@
 package xdean.css.editor.controller.comp;
 
-import impl.org.controlsfx.skin.AutoCompletePopup;
-import impl.org.controlsfx.skin.AutoCompletePopupSkin;
-
 import java.util.Collection;
 import java.util.function.BiFunction;
 
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.PopupAlignment;
+
+import impl.org.controlsfx.skin.AutoCompletePopup;
+import impl.org.controlsfx.skin.AutoCompletePopupSkin;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Skin;
 import javafx.stage.PopupWindow;
-
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.PopupAlignment;
 
 public final class AutoCompletionCodeAreaBind {
 

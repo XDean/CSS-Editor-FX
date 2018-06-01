@@ -39,10 +39,6 @@
 		</filter>
 	</appender>
 
-	<logger name="log.sync" level="DEBUG" addtivity="true">
-		<appender-ref ref="SYNC_FILE" />
-	</logger>
-
 	<root>
 		<level value="DEBUG" />
 		<appender-ref ref="STDOUT" />

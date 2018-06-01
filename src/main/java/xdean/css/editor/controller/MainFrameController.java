@@ -1,19 +1,20 @@
 package xdean.css.editor.controller;
 
+import static javafx.beans.binding.Bindings.isNotNull;
+import static javafx.beans.binding.Bindings.isNull;
+import static javafx.beans.binding.Bindings.not;
 import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jex.util.task.TaskUtil.todoAll;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.toObjectBinding;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.toStringBinding;
-import static xdean.jfx.ex.util.bean.BeanUtil.isNotNull;
-import static xdean.jfx.ex.util.bean.BeanUtil.isNull;
-import static xdean.jfx.ex.util.bean.BeanUtil.map;
-import static xdean.jfx.ex.util.bean.BeanUtil.nestProp;
-import static xdean.jfx.ex.util.bean.BeanUtil.nestValue;
-import static xdean.jfx.ex.util.bean.BeanUtil.not;
+import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
+import static xdean.jfxex.bean.BeanConvertUtil.toObjectBinding;
+import static xdean.jfxex.bean.BeanConvertUtil.toStringBinding;
+import static xdean.jfxex.bean.BeanUtil.map;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
+import static xdean.jfxex.bean.BeanUtil.nestProp;
+import static xdean.jfxex.bean.BeanUtil.nestValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -68,7 +71,7 @@ import javafx.stage.Stage;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import xdean.css.editor.Util;
+import xdean.css.editor.config.Config;
 import xdean.css.editor.config.ConfigKey;
 import xdean.css.editor.config.Context;
 import xdean.css.editor.config.Key;
@@ -76,17 +79,17 @@ import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.comp.SearchBar;
 import xdean.css.editor.controller.manager.CodeAreaManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
-import xdean.jex.config.Config;
-import xdean.jex.extra.IntSequence;
+import xdean.css.editor.util.IntSequence;
+import xdean.css.editor.util.Util;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.task.If;
-import xdean.jfx.ex.support.RecentFileMenuSupport;
-import xdean.jfx.ex.support.skin.SkinStyle;
-import xdean.jfx.ex.util.bean.CollectionUtil;
 import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.annotation.FxController;
+import xdean.jfxex.bean.CollectionUtil;
+import xdean.jfxex.support.RecentFileMenuSupport;
+import xdean.jfxex.support.skin.SkinStyle;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -176,8 +179,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
       // recent
       file.addListener((ob, o, n) -> todoAll(
           () -> If.that(n != null).todo(() -> recentSupport.setLastFile(n)),
-          () -> If.that(o == null && n != null).todo(() -> releaseName())
-          ));
+          () -> If.that(o == null && n != null).todo(() -> releaseName())));
     }
 
     void loadFile() {
@@ -277,8 +279,8 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     formatItem.disableProperty().bind(nullArea);
     commentItem.disableProperty().bind(nullArea);
     findItem.disableProperty().bind(nullArea);
-    undoItem.disableProperty().bind(nullArea.or(not(getCodeAreaValue(c -> c.undoAvailableProperty()))));
-    redoItem.disableProperty().bind(nullArea.or(not(getCodeAreaValue(c -> c.redoAvailableProperty()))));
+    undoItem.disableProperty().bind(nullArea.or(not(getCodeAreaBooleanValue(c -> c.undoAvailableProperty()))));
+    redoItem.disableProperty().bind(nullArea.or(not(getCodeAreaBooleanValue(c -> c.redoAvailableProperty()))));
     undoButton.disableProperty().bind(undoItem.disableProperty());
     redoButton.disableProperty().bind(redoItem.disableProperty());
     closeItem.disableProperty().bind(nullArea);
@@ -545,8 +547,8 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     });
   }
 
-  private ObservableValue<Boolean> modifiedProperty() {
-    return CacheUtil.cache(this, "modified", () -> nestValue(currentManager(), m -> m.modifiedProperty()));
+  private ObservableBooleanValue modifiedProperty() {
+    return CacheUtil.cache(this, "modified", () -> nestBooleanValue(currentManager(), m -> m.modifiedProperty()));
   }
 
   private boolean isModified() {
@@ -579,15 +581,15 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     });
   }
 
-  private ObservableValue<File> currentFile() {
+  private ObservableObjectValue<File> currentFile() {
     return CacheUtil.cache(this, "currentFile", () -> nestValue(currentTabEntity(), t -> t.file));
   }
 
-  private ObservableValue<CodeAreaManager> currentManager() {
+  private ObservableObjectValue<CodeAreaManager> currentManager() {
     return CacheUtil.cache(this, "currentManager", () -> map(currentTabEntity(), t -> t.manager));
   }
 
-  private ObservableValue<CodeArea> currentCodeArea() {
+  private ObservableObjectValue<CodeArea> currentCodeArea() {
     return CacheUtil.cache(this, "currentCodeArea", () -> {
       ObjectProperty<CodeArea> op = new SimpleObjectProperty<>();
       op.bind(map(currentManager(), m -> uncatch(() -> m.getCodeArea())));
@@ -601,5 +603,9 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   private <T> ObservableValue<T> getCodeAreaValue(Function<CodeArea, ObservableValue<T>> func) {
     return nestValue(currentCodeArea(), c -> func.apply(c));
+  }
+
+  private <T> ObservableBooleanValue getCodeAreaBooleanValue(Function<CodeArea, ObservableBooleanValue> func) {
+    return nestBooleanValue(currentCodeArea(), c -> func.apply(c));
   }
 }

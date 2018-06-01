@@ -13,6 +13,10 @@ import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 
+import io.reactivex.Observable;
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
+import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
+import io.reactivex.schedulers.Schedulers;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -28,12 +32,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import rx.Observable;
-import rx.observables.JavaFxObservable;
-import rx.schedulers.JavaFxScheduler;
-import rx.schedulers.Schedulers;
 import xdean.css.context.CSSContext;
-import xdean.css.editor.Util;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.comp.AutoCompletionCodeAreaBind;
@@ -41,14 +40,15 @@ import xdean.css.editor.controller.comp.PreviewCodeAreaBind;
 import xdean.css.editor.feature.CSSFormat;
 import xdean.css.editor.feature.CSSHighLight;
 import xdean.css.editor.feature.CSSSuggestion;
+import xdean.css.editor.util.Util;
+import xdean.css.editor.util.WeakUtil;
 import xdean.css.parser.CSSPaintPaser;
 import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.extra.StringURL;
-import xdean.jex.util.ref.WeakUtil;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
-import xdean.jfx.ex.extra.ModifiableObject;
+import xdean.jfxex.extra.ModifiableObject;
 
 public class CodeAreaManager extends ModifiableObject {
   CodeArea codeArea;
@@ -73,12 +73,11 @@ public class CodeAreaManager extends ModifiableObject {
     codeArea.getStylesheets().add(
         TaskUtil.firstSuccess(
             () -> CodeAreaManager.class.getResource("/css/css-highlighting.css").toExternalForm(),
-            () -> CodeAreaManager.class.getResource("/css/css-highlighting.bss").toExternalForm()
-            ));
+            () -> CodeAreaManager.class.getResource("/css/css-highlighting.bss").toExternalForm()));
   }
 
   private void initBind() {
-    Observable<KeyEvent> keyPress = JavaFxObservable.fromNodeEvents(codeArea, KeyEvent.KEY_PRESSED).share();
+    Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED).share();
     // font and line number
     bindFont(codeArea);
     bindLineNumber(codeArea, idx -> {
@@ -87,19 +86,19 @@ public class CodeAreaManager extends ModifiableObject {
       return node;
     });
     // refresh highlight
-    JavaFxObservable.fromObservableValue(codeArea.textProperty())
+    JavaFxObservable.valuesOf(codeArea.textProperty())
         .debounce(300, TimeUnit.MILLISECONDS)
-        .observeOn(JavaFxScheduler.getInstance())
+        .observeOn(JavaFxScheduler.platform())
         .subscribe(this::refreshCodeAreaStyle);
     // zoom
     keyPress.map(KeyEvent::getCode)
         .filter(KeyCode.CONTROL::equals)
         .subscribe(e -> codeArea.addEventFilter(ScrollEvent.SCROLL, zoom));
     Observable.merge(
-        JavaFxObservable.fromNodeEvents(codeArea, KeyEvent.KEY_RELEASED)
+        JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_RELEASED)
             .map(KeyEvent::getCode)
             .filter(KeyCode.CONTROL::equals),
-        JavaFxObservable.fromObservableValue(codeArea.focusedProperty())
+        JavaFxObservable.valuesOf(codeArea.focusedProperty())
             .filter(b -> b == false))
         .subscribe(e -> codeArea.removeEventFilter(ScrollEvent.SCROLL, zoom));
     // auto completion
@@ -108,35 +107,34 @@ public class CodeAreaManager extends ModifiableObject {
         CSSSuggestion::getReplaceRange);
     keyPress.debounce(100, TimeUnit.MILLISECONDS)
         .filter(CodeAreaManager::shouldSuggest)
-        .observeOn(JavaFxScheduler.getInstance())
+        .observeOn(JavaFxScheduler.platform())
         .subscribe(e -> suggest());
     // selection preview
     context = CSSContext.createByDefault();
     preview = new PreviewCodeAreaBind(codeArea);
     paintPaser = new CSSPaintPaser(context);
-    JavaFxObservable.fromObservableValue(codeArea.selectedTextProperty())
+    JavaFxObservable.valuesOf(codeArea.selectedTextProperty())
         .map(CodeAreaManager::extractValue)
         .map(String::trim)
         .observeOn(Schedulers.computation())
-        .switchMap(text ->
-            Observable.merge(
-                Observable.from(paintPaser.getTasks())
-                    .observeOn(Schedulers.computation())
-                    .map(f -> uncatch(() -> f.apply(text)))
-                    .filter(p -> p != null)
-                    .observeOn(JavaFxScheduler.getInstance())
-                    .doOnNext(p -> preview.showPaint(p)),
-                Observable.just(text)
-                    .map(s -> StringUtil.unWrap(s, "\"", "\""))
-                    .filter(CSSSVGPaser::verify)
-                    .doOnNext(t -> Platform.runLater(() -> preview.showSVG(t)))
-                )
-                .firstOrDefault(null)
-                .observeOn(JavaFxScheduler.getInstance())
-                .doOnNext(e -> If.that(e == null).todo(() -> preview.hidePopup())))
+        .switchMap(text -> Observable.merge(
+            Observable.fromIterable(paintPaser.getTasks())
+                .observeOn(Schedulers.computation())
+                .map(f -> uncatch(() -> f.apply(text)))
+                .filter(p -> p != null)
+                .observeOn(JavaFxScheduler.platform())
+                .doOnNext(p -> preview.showPaint(p)),
+            Observable.just(text)
+                .map(s -> StringUtil.unWrap(s, "\"", "\""))
+                .filter(CSSSVGPaser::verify)
+                .doOnNext(t -> Platform.runLater(() -> preview.showSVG(t))))
+            .first(null)
+            .toObservable()
+            .observeOn(JavaFxScheduler.platform())
+            .doOnNext(e -> If.that(e == null).todo(() -> preview.hidePopup())))
         .subscribe();
     // context add to suggestion
-    JavaFxObservable.fromObservableValue(codeArea.textProperty())
+    JavaFxObservable.valuesOf(codeArea.textProperty())
         .debounce(700, TimeUnit.MILLISECONDS)
         .subscribe(this::refreshContextSuggestion);
     // wrap word
@@ -146,7 +144,7 @@ public class CodeAreaManager extends ModifiableObject {
         .doOnNext(KeyEvent::consume)
         .subscribe(e -> comment());
     // auto select word's first '-'
-    JavaFxObservable.fromNodeEvents(codeArea, MouseEvent.MOUSE_PRESSED)
+    JavaFxObservable.eventsOf(codeArea, MouseEvent.MOUSE_PRESSED)
         .filter(e -> e.getClickCount() == 2)
         .subscribe(e -> {
           if (e.isConsumed()) {
@@ -161,7 +159,7 @@ public class CodeAreaManager extends ModifiableObject {
     StringProperty overrideCSS = new SimpleStringProperty();
     keyPress.filter(e -> e.getCode() == KeyCode.INSERT)
         .subscribe(e -> override.set(!override.get()));
-    JavaFxObservable.fromObservableValue(codeArea.caretPositionProperty())
+    JavaFxObservable.valuesOf(codeArea.caretPositionProperty())
         .filter(c -> override.get())
         .map(c -> uncatch(() -> codeArea.getText().charAt(c)))
         .map(c -> c == null ? '\n' : c)
@@ -293,7 +291,7 @@ public class CodeAreaManager extends ModifiableObject {
   private static void bindFont(Node node) {
     Runnable update = WeakUtil.weak(node, n -> updateFont(n));
     Observable.just(Options.fontSize.property(), Options.fontFamily.property())
-        .flatMap(JavaFxObservable::fromObservableValue)
+        .flatMap(JavaFxObservable::valuesOf)
         .subscribe(e -> update.run());
   }
 
@@ -337,8 +335,7 @@ public class CodeAreaManager extends ModifiableObject {
             + "-fx-scale-x: %f; "
             + "-fx-translate-x: %f;"
             + "}",
-        width, width / 2
-        ));
+        width, width / 2));
   }
 
   private static String extractValue(String text) {

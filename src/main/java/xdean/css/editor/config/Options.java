@@ -16,7 +16,6 @@ import xdean.css.editor.config.option.IntegerOption;
 import xdean.css.editor.config.option.Option;
 import xdean.css.editor.config.option.OptionGroup;
 import xdean.css.editor.config.option.ValueOption;
-import xdean.jex.config.Config;
 
 @Slf4j
 public class Options {

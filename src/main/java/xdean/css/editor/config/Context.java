@@ -7,17 +7,16 @@ import java.nio.file.Paths;
 
 import com.sun.javafx.util.Logging;
 
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
-import rx.observables.JavaFxObservable;
 import sun.util.logging.PlatformLogger.Level;
-import xdean.css.editor.Util;
-import xdean.jex.config.Config;
+import xdean.css.editor.util.Util;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.lang.ExceptionUtil;
 import xdean.jex.util.string.StringUtil;
-import xdean.jfx.ex.support.skin.SkinManager;
-import xdean.jfx.ex.support.skin.SkinStyle;
+import xdean.jfxex.support.skin.SkinManager;
+import xdean.jfxex.support.skin.SkinStyle;
 
 /**
  * LOG, CONFIG, SKIN
@@ -112,7 +111,7 @@ public class Context {
           .findAny()
           .ifPresent(s -> SKIN.changeSkin(s));
     }
-    JavaFxObservable.fromObservableValue(SKIN.skinProperty())
+    JavaFxObservable.valuesOf(SKIN.skinProperty())
         .subscribe(skin -> Config.setProperty(ConfigKey.SKIN, skin.getName()));
   }
 }

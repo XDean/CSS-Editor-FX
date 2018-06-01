@@ -11,7 +11,6 @@ import com.google.common.collect.BoundType;
 
 import javafx.scene.text.Font;
 import lombok.extern.slf4j.Slf4j;
-import xdean.css.Config;
 import xdean.css.editor.config.option.BooleanOption;
 import xdean.css.editor.config.option.IntegerOption;
 import xdean.css.editor.config.option.Option;

@@ -1,4 +1,4 @@
-package xdean.css;
+package xdean.css.editor.config;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package xdean.css.editor;
+package xdean.css.editor.util;
 
 import java.util.Iterator;
 

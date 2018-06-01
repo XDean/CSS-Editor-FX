@@ -37,7 +37,6 @@ import javafx.scene.text.Font;
 import javafx.stage.Window;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
-import xdean.css.editor.Util;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.config.option.BooleanOption;
 import xdean.css.editor.config.option.ConstraintOption;
@@ -45,6 +44,7 @@ import xdean.css.editor.config.option.IntegerOption;
 import xdean.css.editor.config.option.Option;
 import xdean.css.editor.config.option.OptionGroup;
 import xdean.css.editor.config.option.ValueOption;
+import xdean.css.editor.util.Util;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
 

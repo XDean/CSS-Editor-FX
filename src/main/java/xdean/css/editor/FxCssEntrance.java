@@ -6,12 +6,9 @@ import xdean.css.editor.config.Context;
 import xdean.jfx.spring.annotation.SpringFxApplication;
 
 @SpringFxApplication
-public class FxCssApp {
+public class FxCssEntrance {
   public static void main(String[] args) {
-    SpringApplication.run(FxCssApp.class, args);
-  }
-
-  public FxCssApp() {
     Context.class.getName();
+    SpringApplication.run(FxCssEntrance.class, args);
   }
 }

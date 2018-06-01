@@ -85,10 +85,13 @@ import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.RecentFileMenuSupport;
 import xdean.jfx.ex.support.skin.SkinStyle;
 import xdean.jfx.ex.util.bean.CollectionUtil;
+import xdean.jfx.spring.FxGetRoot;
+import xdean.jfx.spring.annotation.FxController;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MainFrameController implements Initializable {
+@FxController("/fxml/MainFrame.fxml")
+public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   @FXML
   MenuItem suggestItem, formatItem, undoItem, redoItem, commentItem,
@@ -319,14 +322,11 @@ public class MainFrameController implements Initializable {
     CollectionUtil.bind(tabList, tabPane.getTabs(),
         tabEntity -> tabEntity.tab,
         tab -> findEntity(tab).orElseThrow(() -> new RuntimeException("Tab not found " + tab)));
-    tabList.addListener(new ListChangeListener<TabEntity>() {
-      @Override
-      public void onChanged(Change<? extends TabEntity> c) {
-        while (c.next()) {
-          if (c.wasRemoved()) {
-            for (TabEntity te : c.getRemoved()) {
-              te.releaseName();
-            }
+    tabList.addListener((ListChangeListener<TabEntity>) c -> {
+      while (c.next()) {
+        if (c.wasRemoved()) {
+          for (TabEntity te : c.getRemoved()) {
+            te.releaseName();
           }
         }
       }

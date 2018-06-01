@@ -1,5 +1,8 @@
 package xdean.css.editor.controller.comp;
 
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.PopupAlignment;
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.PopupControl;
@@ -12,10 +15,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.PopupWindow;
-
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.PopupAlignment;
-
 import xdean.jfx.ex.support.DragSupport;
 import xdean.jfx.ex.util.LayoutUtil;
 

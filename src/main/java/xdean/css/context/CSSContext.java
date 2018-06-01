@@ -7,14 +7,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javafx.css.ParsedValue;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
-import lombok.extern.slf4j.Slf4j;
-import rx.Observable;
-import xdean.jex.util.collection.ListUtil;
-import xdean.jex.util.task.TaskUtil;
-
 import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
@@ -23,6 +15,14 @@ import com.sun.javafx.css.ParsedValueImpl;
 import com.sun.javafx.css.Selector;
 import com.sun.javafx.css.Stylesheet;
 import com.sun.javafx.css.parser.CSSParser;
+
+import javafx.css.ParsedValue;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import lombok.extern.slf4j.Slf4j;
+import rx.Observable;
+import xdean.jex.util.collection.ListUtil;
+import xdean.jex.util.task.TaskUtil;
 
 @Slf4j
 public class CSSContext {

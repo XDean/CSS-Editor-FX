@@ -1,9 +1,19 @@
 package xdean.css.editor.controller;
 
-import static xdean.jex.util.lang.ExceptionUtil.*;
-import static xdean.jex.util.task.TaskUtil.*;
-import static xdean.jfx.ex.util.bean.BeanConvertUtil.*;
-import static xdean.jfx.ex.util.bean.BeanUtil.*;
+import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
+import static xdean.jex.util.lang.ExceptionUtil.uncatch;
+import static xdean.jex.util.lang.ExceptionUtil.uncheck;
+import static xdean.jex.util.task.TaskUtil.andFinal;
+import static xdean.jex.util.task.TaskUtil.todoAll;
+import static xdean.jfx.ex.util.bean.BeanConvertUtil.toDoubleBinding;
+import static xdean.jfx.ex.util.bean.BeanConvertUtil.toObjectBinding;
+import static xdean.jfx.ex.util.bean.BeanConvertUtil.toStringBinding;
+import static xdean.jfx.ex.util.bean.BeanUtil.isNotNull;
+import static xdean.jfx.ex.util.bean.BeanUtil.isNull;
+import static xdean.jfx.ex.util.bean.BeanUtil.map;
+import static xdean.jfx.ex.util.bean.BeanUtil.nestProp;
+import static xdean.jfx.ex.util.bean.BeanUtil.nestValue;
+import static xdean.jfx.ex.util.bean.BeanUtil.not;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +27,13 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 
+import org.controlsfx.control.StatusBar;
+import org.fxmisc.richtext.CodeArea;
+
+import com.sun.javafx.binding.BidirectionalBinding;
+
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
@@ -51,10 +68,6 @@ import javafx.stage.Stage;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-
-import org.controlsfx.control.StatusBar;
-import org.fxmisc.richtext.CodeArea;
-
 import xdean.css.editor.Util;
 import xdean.css.editor.config.ConfigKey;
 import xdean.css.editor.config.Context;
@@ -72,11 +85,6 @@ import xdean.jex.util.task.If;
 import xdean.jfx.ex.support.RecentFileMenuSupport;
 import xdean.jfx.ex.support.skin.SkinStyle;
 import xdean.jfx.ex.util.bean.CollectionUtil;
-
-import com.sun.javafx.binding.BidirectionalBinding;
-
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)

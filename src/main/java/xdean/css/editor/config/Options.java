@@ -7,6 +7,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import com.google.common.collect.BoundType;
+
 import javafx.scene.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import xdean.css.editor.config.option.BooleanOption;
@@ -15,8 +17,6 @@ import xdean.css.editor.config.option.Option;
 import xdean.css.editor.config.option.OptionGroup;
 import xdean.css.editor.config.option.ValueOption;
 import xdean.jex.config.Config;
-
-import com.google.common.collect.BoundType;
 
 @Slf4j
 public class Options {

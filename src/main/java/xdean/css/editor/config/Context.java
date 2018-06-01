@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.sun.javafx.util.Logging;
+
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
 import rx.observables.JavaFxObservable;
@@ -17,8 +19,6 @@ import xdean.jex.util.string.StringUtil;
 import xdean.jfx.ex.support.skin.SkinManager;
 import xdean.jfx.ex.support.skin.SkinStyle;
 
-import com.sun.javafx.util.Logging;
-
 /**
  * LOG, CONFIG, SKIN
  *
@@ -26,6 +26,7 @@ import com.sun.javafx.util.Logging;
  *
  */
 @Slf4j
+@SuppressWarnings("restriction")
 public class Context {
   public static final Path HOME_PATH = Paths.get(System.getProperty("user.home"), ".xdean", "css");
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");

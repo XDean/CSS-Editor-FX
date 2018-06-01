@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
 
+import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -18,7 +19,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import rx.functions.Func3;
-import rx.observables.JavaFxObservable;
 import xdean.css.editor.config.Options;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
@@ -62,7 +62,7 @@ public final class SearchBar extends HBox {
     caseSensitive.selectedProperty().bindBidirectional(Options.findCaseSensitive.property());
     wrapSearch.selectedProperty().bindBidirectional(Options.findWrapText.property());
 
-    JavaFxObservable.fromObservableValue(visibleProperty())
+    JavaFxObservable.valuesOf(visibleProperty())
         .subscribe(
             v -> If.that(v)
                 .todo(() -> findField.requestFocus())

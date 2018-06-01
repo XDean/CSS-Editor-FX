@@ -81,6 +81,7 @@ import xdean.css.editor.controller.manager.CodeAreaManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
 import xdean.css.editor.util.IntSequence;
 import xdean.css.editor.util.Util;
+import xdean.jex.extra.tryto.Try;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
@@ -128,7 +129,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   IntSequence nameOrder = new IntSequence(1);
   SearchBar searchBar;
 
-  @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+  final TabEntity EMPTY = new TabEntity();
   private class TabEntity {
     Tab tab;
     CodeArea codeArea;
@@ -576,7 +577,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     return CacheUtil.cache(this, "currentTabEntity", () -> {
       ObjectProperty<TabEntity> op = new SimpleObjectProperty<>();
       op.bind(map(tabPane.getSelectionModel().selectedIndexProperty(),
-          i -> uncatch(() -> tabList.get(i.intValue()))));
+          i -> Try.to(() -> tabList.get(i.intValue())).getOrElse(EMPTY)));
       return op;
     });
   }

@@ -2,12 +2,15 @@ package xdean.css.editor;
 
 import javax.inject.Inject;
 
+import org.springframework.stereotype.Component;
+
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import xdean.css.editor.controller.MainFrameController;
 import xdean.jfx.spring.FxApplication;
 
+@Component
 public class FxCssApplication implements FxApplication {
   
   @Inject

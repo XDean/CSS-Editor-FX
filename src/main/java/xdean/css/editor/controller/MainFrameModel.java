@@ -11,6 +11,8 @@ import static xdean.jfxex.bean.BeanUtil.nestValue;
 import java.io.File;
 import java.nio.file.Files;
 
+import javax.inject.Inject;
+
 import org.fxmisc.richtext.CodeArea;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
@@ -30,14 +32,22 @@ import javafx.scene.control.Tab;
 import lombok.experimental.FieldDefaults;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.manager.CodeAreaManager;
+import xdean.css.editor.controller.manager.RecentFileManager;
 import xdean.css.editor.util.IntSequence;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.If;
+import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.ListPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
+@FxComponent
 public class MainFrameModel {
+
+  @Inject
+  RecentFileManager recentSupport;
+
+  // final TabEntity EMPTY = new TabEntity();
 
   final ListPropertyEX<TabEntity> tabEntities = new ListPropertyEX<>(this, "tabEntities");
   final ObjectPropertyEX<@CheckNull TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
@@ -50,7 +60,6 @@ public class MainFrameModel {
 
   @FieldDefaults(makeFinal = true)
   class TabEntity {
-    MainFrameController mainFrameController;
     Tab tab = new Tab();
     CodeAreaManager manager = new CodeAreaManager(new CodeArea());
     CodeArea codeArea = manager.getCodeArea();
@@ -61,7 +70,6 @@ public class MainFrameModel {
     BooleanBinding isNew = file.isNull();
 
     TabEntity(MainFrameController mainFrameController) {
-      this.mainFrameController = mainFrameController;
       init();
       tab.setUserData(this);
       // CacheUtil.cache(this.mainFrameController, tab, () -> this);
@@ -93,7 +101,7 @@ public class MainFrameModel {
 
       // recent
       file.addListener((ob, o, n) -> todoAll(
-          () -> If.that(n != null).todo(() -> this.mainFrameController.recentSupport.setLastFile(n)),
+          () -> If.that(n != null).todo(() -> recentSupport.setLastFile(n)),
           () -> If.that(o == null && n != null).todo(() -> releaseName())));
     }
 

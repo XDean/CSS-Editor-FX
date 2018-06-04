@@ -14,12 +14,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.controlsfx.control.StatusBar;
 import org.springframework.beans.factory.InitializingBean;
@@ -43,13 +43,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import xdean.css.editor.config.Config;
-import xdean.css.editor.config.ConfigKey;
 import xdean.css.editor.config.Context;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.MainFrameModel.TabEntity;
 import xdean.css.editor.controller.comp.SearchBar;
+import xdean.css.editor.controller.manager.RecentFileManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
 import xdean.css.editor.util.Util;
 import xdean.jex.util.cache.CacheUtil;
@@ -60,7 +59,6 @@ import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.annotation.FxSync;
 import xdean.jfxex.bean.CollectionUtil;
-import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @Slf4j
@@ -90,7 +88,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
 
   StatusBarManager statusBarManager;
   Stage stage;
-  RecentFileMenuSupport recentSupport;
 
   Path lastFilePath = Context.TEMP_PATH.resolve("last");
 
@@ -100,7 +97,8 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
   @Inject
   MainFrameModel model;
 
-  final TabEntity EMPTY = model.new TabEntity(this);
+  @Inject
+  RecentFileManager recentSupport;
 
   @FxSync
   @Override
@@ -113,39 +111,19 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     throwToReturn(() -> openLastFile()).ifPresent(e -> log.error("Load last closed file fail.", e));
   }
 
+  @Bean
+  @Named(RecentFileManager.RECENT_MENU)
+  public Menu menu() {
+    return openRecentMenu;
+  }
+
   private void initField() {
     searchBar.codeArea.bind(model.currentCodeArea);
     statusBarManager = new StatusBarManager(statusBar, model.currentCodeArea,
         nestProp(model.currentManager, m -> m.overrideProperty()));
   }
 
-  @Bean
-  public RecentFileMenuSupport recent() {
-    return new RecentFileMenuSupport(openRecentMenu) {
-      @Override
-      public List<String> load() {
-        return Arrays.asList(Config.getProperty(ConfigKey.RECENT_LOCATIONS, "").split(","));
-      }
-
-      @Override
-      public void save(List<String> s) {
-        Config.setProperty(ConfigKey.RECENT_LOCATIONS, String.join(", ", s));
-      }
-    };
-  }
-
   private void initMenu() {
-    recentSupport = new RecentFileMenuSupport(openRecentMenu) {
-      @Override
-      public List<String> load() {
-        return Arrays.asList(Config.getProperty(ConfigKey.RECENT_LOCATIONS, "").split(","));
-      }
-
-      @Override
-      public void save(List<String> s) {
-        Config.setProperty(ConfigKey.RECENT_LOCATIONS, String.join(", ", s));
-      }
-    };
     recentSupport.setOnAction(this::openFile);
 
     ToggleGroup group = new ToggleGroup();

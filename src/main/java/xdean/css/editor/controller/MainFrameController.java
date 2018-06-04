@@ -8,6 +8,7 @@ import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
 import static xdean.jfxex.bean.BeanUtil.nestProp;
+import static xdean.jfxex.bean.ListenerUtil.list;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +29,6 @@ import org.springframework.context.annotation.Bean;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -95,7 +93,6 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   Stage stage;
   RecentFileMenuSupport recentSupport;
 
-  ObservableList<TabEntity> tabList;
   Path lastFilePath = Context.TEMP_PATH.resolve("last");
 
   SearchBar searchBar;
@@ -115,7 +112,6 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   }
 
   private void initField() {
-    tabList = FXCollections.observableArrayList();
     // codeAreaManager = new CodeAreaManager(codeArea);
     statusBarManager = new StatusBarManager(statusBar, model.currentCodeArea,
         nestProp(model.currentManager, m -> m.overrideProperty()));
@@ -224,18 +220,10 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
         horizontalScrollBar.visibleProperty()));
 
     // tabList
-    CollectionUtil.bind(tabList, tabPane.getTabs(),
+    CollectionUtil.bind(model.tabEntities, tabPane.getTabs(),
         tabEntity -> tabEntity.tab,
         tab -> findEntity(tab).orElseThrow(() -> new RuntimeException("Tab not found " + tab)));
-    tabList.addListener((ListChangeListener<TabEntity>) c -> {
-      while (c.next()) {
-        if (c.wasRemoved()) {
-          for (TabEntity te : c.getRemoved()) {
-            te.releaseName();
-          }
-        }
-      }
-    });
+    model.tabEntities.addListener(list(b -> b.onRemoved(t -> t.releaseName())));
   }
 
   @FXML
@@ -302,7 +290,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     if (Options.openLastFile.get()) {
       uncheck(() -> FileUtil.createDirectory(lastFilePath));
       uncheck(() -> Files.newDirectoryStream(lastFilePath, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
-      ListUtil.forEach(tabList, (te, i) -> {
+      ListUtil.forEach(model.tabEntities, (te, i) -> {
         String nameString = te.file.get() == null ? Integer.toString(te.order.get()) : te.file.get().toString();
         String text = te.manager.isModified() ? te.codeArea.getText() : "";
         Path path = lastFilePath.resolve(String.format("%s.tmp", i));
@@ -382,7 +370,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   }
 
   protected boolean askToSaveAndShouldContinue() {
-    if (isModified()) {
+    if (model.currentModified.get()) {
       ButtonType result = Util.showConfirmCancelDialog(stage, "Save", "This file has been modified. Save changes?");
       if (result.equals(ButtonType.YES)) {
         return save();
@@ -407,10 +395,10 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   private TabEntity openFile(File file) {
     if (file != null) {
-      int index = getFileIndex(file);
-      if (index != -1) {
-        tabPane.getSelectionModel().select(index);
-        return tabList.get(index);
+      Optional<TabEntity> existTab = getExistTab(file);
+      if (existTab.isPresent()) {
+        tabPane.getSelectionModel().select(existTab.get().tab);
+        return existTab.get();
       }
     }
     TabEntity tabEntity = model.new TabEntity(this);
@@ -423,7 +411,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     tab.setContent(tabEntity.codeArea);
     tab.textProperty().bind(tabEntity.name);
 
-    tabList.add(tabEntity);
+    model.tabEntities.add(tabEntity);
     tabPane.getSelectionModel().select(tab);
 
     return tabEntity;
@@ -446,21 +434,14 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     });
   }
 
-  private boolean isModified() {
-    return tabList.isEmpty() == false && model.currentModified.get();
-  }
-
   private void saved() {
     model.currentManager.get().saved();
   }
 
-  private int getFileIndex(File file) {
-    for (int i = 0; i < tabList.size(); i++) {
-      if (Objects.equals(tabList.get(i).file.get(), file)) {
-        return i;
-      }
-    }
-    return -1;
+  private Optional<TabEntity> getExistTab(File file) {
+    return model.tabEntities.stream()
+        .filter(t -> Objects.equals(file, t.file.get()))
+        .findFirst();
   }
 
   Optional<TabEntity> findEntity(Tab t) {

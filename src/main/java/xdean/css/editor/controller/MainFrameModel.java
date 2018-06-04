@@ -34,10 +34,12 @@ import xdean.css.editor.util.IntSequence;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.If;
 import xdean.jfxex.bean.annotation.CheckNull;
+import xdean.jfxex.bean.property.ListPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 public class MainFrameModel {
 
+  final ListPropertyEX<TabEntity> tabEntities = new ListPropertyEX<>(this, "tabEntities");
   final ObjectPropertyEX<@CheckNull TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
   final ObjectBinding<File> currentFile = nestValue(currentTabEntity, t -> t.file);
   final ObjectBinding<CodeAreaManager> currentManager = map(currentTabEntity, t -> t.manager);

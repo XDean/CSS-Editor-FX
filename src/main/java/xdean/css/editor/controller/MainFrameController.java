@@ -12,25 +12,23 @@ import static xdean.jfxex.bean.ListenerUtil.list;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 
 import org.controlsfx.control.StatusBar;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Menu;
@@ -60,13 +58,14 @@ import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.annotation.FxController;
+import xdean.jfx.spring.annotation.FxSync;
 import xdean.jfxex.bean.CollectionUtil;
 import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @Slf4j
-@FxController("/fxml/MainFrame.fxml")
-public class MainFrameController implements Initializable, FxGetRoot<VBox> {
+@FxController(fxml = "/xdean/css/editor/MainFrame.fxml")
+public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
 
   @FXML
   MenuItem suggestItem, formatItem, undoItem, redoItem, commentItem,
@@ -95,6 +94,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   Path lastFilePath = Context.TEMP_PATH.resolve("last");
 
+  @Inject
   SearchBar searchBar;
 
   @Inject
@@ -102,8 +102,10 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   final TabEntity EMPTY = model.new TabEntity(this);
 
+  @FxSync
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void afterPropertiesSet() throws Exception {
+    tabPane.getTabs().clear();// DELETE
     initField();
     initMenu();
     initComp();
@@ -112,10 +114,9 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   }
 
   private void initField() {
-    // codeAreaManager = new CodeAreaManager(codeArea);
+    searchBar.codeArea.bind(model.currentCodeArea);
     statusBarManager = new StatusBarManager(statusBar, model.currentCodeArea,
         nestProp(model.currentManager, m -> m.overrideProperty()));
-    tabPane.getTabs().clear();// DELETE
   }
 
   @Bean
@@ -160,7 +161,6 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   }
 
   private void initComp() {
-    searchBar = new SearchBar(model.currentCodeArea);
     bottomExtraPane.getChildren().add(searchBar);
   }
 

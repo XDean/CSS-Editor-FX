@@ -12,10 +12,10 @@ import xdean.jfx.spring.FxApplication;
 
 @Component
 public class FxCssApplication implements FxApplication {
-  
+
   @Inject
   MainFrameController mainFrame;
-  
+
   @Override
   public void start(Stage stage) throws Exception {
     mainFrame.setStage(stage);

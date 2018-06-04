@@ -1,20 +1,13 @@
 package xdean.css.editor.controller;
 
-import static javafx.beans.binding.Bindings.isNotNull;
-import static javafx.beans.binding.Bindings.isNull;
-import static javafx.beans.binding.Bindings.not;
 import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
-import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
-import static xdean.jex.util.task.TaskUtil.todoAll;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfxex.bean.BeanConvertUtil.toObjectBinding;
-import static xdean.jfxex.bean.BeanConvertUtil.toStringBinding;
-import static xdean.jfxex.bean.BeanUtil.map;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
+import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
+import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
 import static xdean.jfxex.bean.BeanUtil.nestProp;
-import static xdean.jfxex.bean.BeanUtil.nestValue;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,33 +19,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.function.Function;
+
+import javax.inject.Inject;
 
 import org.controlsfx.control.StatusBar;
-import org.fxmisc.richtext.CodeArea;
+import org.springframework.context.annotation.Bean;
 
-import com.sun.javafx.binding.BidirectionalBinding;
-
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.StringBinding;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableObjectValue;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -68,20 +46,16 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import xdean.css.editor.config.Config;
 import xdean.css.editor.config.ConfigKey;
 import xdean.css.editor.config.Context;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
+import xdean.css.editor.controller.MainFrameModel.TabEntity;
 import xdean.css.editor.controller.comp.SearchBar;
-import xdean.css.editor.controller.manager.CodeAreaManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
-import xdean.css.editor.util.IntSequence;
 import xdean.css.editor.util.Util;
-import xdean.jex.extra.tryto.Try;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
@@ -93,7 +67,6 @@ import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @Slf4j
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @FxController("/fxml/MainFrame.fxml")
 public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
@@ -118,7 +91,6 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   @FXML
   StatusBar statusBar;
 
-  @SuppressWarnings("unused")
   StatusBarManager statusBarManager;
   Stage stage;
   RecentFileMenuSupport recentSupport;
@@ -126,97 +98,12 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   ObservableList<TabEntity> tabList;
   Path lastFilePath = Context.TEMP_PATH.resolve("last");
 
-  IntSequence nameOrder = new IntSequence(1);
   SearchBar searchBar;
 
-  final TabEntity EMPTY = new TabEntity();
-  private class TabEntity {
-    Tab tab;
-    CodeArea codeArea;
-    CodeAreaManager manager;
-    StringProperty name;
-    ObjectProperty<File> file;
-    FontAwesomeIconView icon;
-    IntegerProperty order;
+  @Inject
+  MainFrameModel model;
 
-    TabEntity() {
-      this.tab = new Tab();
-      this.manager = new CodeAreaManager(new CodeArea());
-      this.codeArea = manager.getCodeArea();
-      this.file = new SimpleObjectProperty<>();
-      this.name = new SimpleStringProperty();
-      this.icon = new FontAwesomeIconView();
-      this.order = new SimpleIntegerProperty(nameOrder.next());
-
-      init();
-
-      CacheUtil.cache(MainFrameController.this, tab, () -> this);
-    }
-
-    private void init() {
-      // name
-      name.bind(Bindings.when(file.isNull())
-          .then(Bindings.createStringBinding(() -> "new" + order.get(), order))
-          .otherwise(toStringBinding(map(file, f -> f.getName()))));
-
-      // graphics
-      tab.setGraphic(icon);
-      icon.setStyleClass("tab-icon");
-      icon.setIcon(FontAwesomeIcon.SAVE);
-      // Hold the object in cache to avoid gc
-      StringBinding state = CacheUtil.cache(this, "state",
-          () -> Bindings.when(Bindings.equal(toObjectBinding(currentTabEntity()), this))
-              .then(Bindings.when(manager.modifiedProperty())
-                  .then("selected-modified")
-                  .otherwise("selected"))
-              .otherwise(Bindings.when(manager.modifiedProperty())
-                  .then("modified")
-                  .otherwise("")));
-      state.addListener((ob, o, n) -> {
-        uncatch(() -> icon.pseudoClassStateChanged(PseudoClass.getPseudoClass(o), false));
-        uncatch(() -> icon.pseudoClassStateChanged(PseudoClass.getPseudoClass(n), true));
-      });
-
-      // recent
-      file.addListener((ob, o, n) -> todoAll(
-          () -> If.that(n != null).todo(() -> recentSupport.setLastFile(n)),
-          () -> If.that(o == null && n != null).todo(() -> releaseName())));
-    }
-
-    void loadFile() {
-      loadFile(file.get());
-    }
-
-    void loadFile(File file) {
-      uncatch(() -> {
-        codeArea.replaceText(new String(Files.readAllBytes(file.toPath()), Options.charset.get()));
-        codeArea.moveTo(0);
-        codeArea.getUndoManager().forgetHistory();
-        manager.saved();
-      });
-    }
-
-    /**
-     * Rename as "new i"
-     *
-     * @param i
-     * @return success or not
-     */
-    boolean renameNew(int i) {
-      if (file.get() == null) {
-        releaseName();
-        if (nameOrder.use(i)) {
-          order.set(i);
-          return true;
-        }
-      }
-      return false;
-    }
-
-    void releaseName() {
-      nameOrder.release(order.get());
-    }
-  }
+  final TabEntity EMPTY = model.new TabEntity(this);
 
   @Override
   public void initialize(URL location, ResourceBundle resources) {
@@ -230,9 +117,24 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   private void initField() {
     tabList = FXCollections.observableArrayList();
     // codeAreaManager = new CodeAreaManager(codeArea);
-    statusBarManager = new StatusBarManager(statusBar, currentCodeArea(), nestProp(currentManager(),
-        m -> m.overrideProperty()));
+    statusBarManager = new StatusBarManager(statusBar, model.currentCodeArea,
+        nestProp(model.currentManager, m -> m.overrideProperty()));
     tabPane.getTabs().clear();// DELETE
+  }
+
+  @Bean
+  public RecentFileMenuSupport recent() {
+    return new RecentFileMenuSupport(openRecentMenu) {
+      @Override
+      public List<String> load() {
+        return Arrays.asList(Config.getProperty(ConfigKey.RECENT_LOCATIONS, "").split(","));
+      }
+
+      @Override
+      public void save(List<String> s) {
+        Config.setProperty(ConfigKey.RECENT_LOCATIONS, String.join(", ", s));
+      }
+    };
   }
 
   private void initMenu() {
@@ -262,7 +164,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   }
 
   private void initComp() {
-    searchBar = new SearchBar(currentCodeArea());
+    searchBar = new SearchBar(model.currentCodeArea);
     bottomExtraPane.getChildren().add(searchBar);
   }
 
@@ -275,47 +177,47 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     closeItem.acceleratorProperty().bind(Key.CLOSE.property());
 
     // disable
-    BooleanBinding nullArea = isNull(currentCodeArea());
+    BooleanBinding nullArea = model.currentCodeArea.isNull();
     suggestItem.disableProperty().bind(nullArea);
     formatItem.disableProperty().bind(nullArea);
     commentItem.disableProperty().bind(nullArea);
     findItem.disableProperty().bind(nullArea);
-    undoItem.disableProperty().bind(nullArea.or(not(getCodeAreaBooleanValue(c -> c.undoAvailableProperty()))));
-    redoItem.disableProperty().bind(nullArea.or(not(getCodeAreaBooleanValue(c -> c.redoAvailableProperty()))));
+    undoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentCodeArea, c -> c.undoAvailableProperty()).not()));
+    redoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentCodeArea, c -> c.redoAvailableProperty()).not()));
     undoButton.disableProperty().bind(undoItem.disableProperty());
     redoButton.disableProperty().bind(redoItem.disableProperty());
     closeItem.disableProperty().bind(nullArea);
     saveAsItem.disableProperty().bind(nullArea);
-    saveItem.disableProperty().bind(saveAsItem.disableProperty().or(not(modifiedProperty())));
+    saveItem.disableProperty().bind(saveAsItem.disableProperty().or(model.currentModified.not()));
     saveButton.disableProperty().bind(saveItem.disableProperty());
-    revertItem.disableProperty().bind(isNull(currentFile())
-        .or(not(modifiedProperty()))
-        .or(Bindings.createBooleanBinding(() -> isNewFile(), currentFile())));
+    revertItem.disableProperty().bind(model.currentFile.isNull()
+        .or(model.currentModified.not())
+        .or(nestBooleanValue(model.currentTabEntity, t -> t.isNew)));
 
     // scroll bar
-    DoubleBinding codeAreaTextHeight = toDoubleBinding(getCodeAreaValue(c -> c.totalHeightEstimateProperty()));
-    DoubleBinding codeAreaHeight = toDoubleBinding(getCodeAreaValue(c -> c.heightProperty()));
+    DoubleBinding codeAreaTextHeight = nestDoubleValue(model.currentCodeArea, c -> c.totalHeightEstimateProperty());
+    DoubleBinding codeAreaHeight = nestDoubleValue(model.currentCodeArea, c -> c.heightProperty());
     verticalScrollBar.maxProperty().bind(codeAreaTextHeight.subtract(codeAreaHeight));
     verticalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, toDoubleBinding(verticalScrollBar.maxProperty())
             .multiply(codeAreaHeight).divide(codeAreaTextHeight)));
-    BidirectionalBinding.bindNumber(verticalScrollBar.valueProperty(),
-        getCodeAreaProperty(c -> c.estimatedScrollYProperty()));
-    verticalScrollBar.visibleProperty().bind(isNotNull(currentCodeArea())
+    verticalScrollBar.valueProperty()
+        .bindBidirectional(nestDoubleProp(model.currentCodeArea, c -> c.estimatedScrollYProperty()).normalize());
+    verticalScrollBar.visibleProperty().bind(model.currentCodeArea.isNotNull()
         .and(verticalScrollBar.maxProperty().greaterThan(verticalScrollBar.visibleAmountProperty())));
     verticalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
         () -> andFinal(() -> verticalScrollBar.isVisible(), v -> verticalScrollBar.getParent().layout()),
         verticalScrollBar.visibleProperty()));
 
-    DoubleBinding codeAreaTextWidth = toDoubleBinding(getCodeAreaValue(c -> c.totalWidthEstimateProperty()));
-    DoubleBinding codeAreaWidth = toDoubleBinding(getCodeAreaValue(c -> c.widthProperty()));
+    DoubleBinding codeAreaTextWidth = nestDoubleValue(model.currentCodeArea, c -> c.totalWidthEstimateProperty());
+    DoubleBinding codeAreaWidth = nestDoubleValue(model.currentCodeArea, c -> c.widthProperty());
     horizontalScrollBar.maxProperty().bind(codeAreaTextWidth.subtract(codeAreaWidth));
     horizontalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, horizontalScrollBar.maxProperty()
             .multiply(codeAreaWidth).divide(codeAreaTextWidth)));
-    BidirectionalBinding.bindNumber(horizontalScrollBar.valueProperty(),
-        getCodeAreaProperty(c -> c.estimatedScrollXProperty()));
-    horizontalScrollBar.visibleProperty().bind(Options.wrapText.property().not().and(isNotNull(currentCodeArea()))
+    horizontalScrollBar.valueProperty()
+        .bindBidirectional(nestDoubleProp(model.currentCodeArea, c -> c.estimatedScrollXProperty()).normalize());
+    horizontalScrollBar.visibleProperty().bind(Options.wrapText.property().not().and(model.currentCodeArea.isNotNull())
         .and(horizontalScrollBar.maxProperty().greaterThan(horizontalScrollBar.visibleAmountProperty())));
     horizontalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
         () -> andFinal(() -> horizontalScrollBar.isVisible(), v -> horizontalScrollBar.getParent().layout()),
@@ -367,10 +269,10 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   @FXML
   public boolean save() {
-    if (isNewFile()) {
+    if (model.currentTabEntity.get().isNew()) {
       return saveAs();
     } else {
-      return saveToFile(currentFile().getValue());
+      return saveToFile(model.currentFile.get());
     }
   }
 
@@ -380,19 +282,19 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     fileChooser.setTitle("Save");
     fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
     fileChooser.setInitialDirectory(recentSupport.getLastFile().getParentFile());
-    fileChooser.setInitialFileName(currentTabEntity().getValue().name.get());
+    fileChooser.setInitialFileName(model.currentTabEntity.get().name.get());
     File selectedFile = fileChooser.showSaveDialog(stage);
     if (selectedFile == null) {
       return false;
     } else {
       return andFinal(() -> saveToFile(selectedFile),
-          b -> If.that(b).todo(() -> currentTabEntity().getValue().file.setValue(selectedFile)));
+          b -> If.that(b).todo(() -> model.currentTabEntity.get().file.setValue(selectedFile)));
     }
   }
 
   @FXML
   public void revert() {
-    currentTabEntity().getValue().loadFile();
+    model.currentTabEntity.get().loadFile();
   }
 
   @FXML
@@ -414,12 +316,12 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   @FXML
   public void undo() {
-    currentCodeArea().getValue().undo();
+    model.currentCodeArea.get().undo();
   }
 
   @FXML
   public void redo() {
-    currentCodeArea().getValue().redo();
+    model.currentCodeArea.get().redo();
   }
 
   @FXML
@@ -429,17 +331,17 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   @FXML
   public void suggest() {
-    currentManager().getValue().suggest();
+    model.currentManager.get().suggest();
   }
 
   @FXML
   public void format() {
-    currentManager().getValue().format();
+    model.currentManager.get().format();
   }
 
   @FXML
   public void comment() {
-    currentManager().getValue().comment();
+    model.currentManager.get().comment();
   }
 
   @FXML
@@ -479,10 +381,6 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     }
   }
 
-  protected boolean isNewFile() {
-    return currentFile().getValue() == null;
-  }
-
   protected boolean askToSaveAndShouldContinue() {
     if (isModified()) {
       ButtonType result = Util.showConfirmCancelDialog(stage, "Save", "This file has been modified. Save changes?");
@@ -496,7 +394,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   protected boolean saveToFile(File file) {
     try {
-      Files.write(file.toPath(), currentCodeArea().getValue().getText().getBytes(Options.charset.get()));
+      Files.write(file.toPath(), model.currentCodeArea.get().getText().getBytes(Options.charset.get()));
       saved();
       return true;
     } catch (UnsupportedOperationException e) {
@@ -515,7 +413,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
         return tabList.get(index);
       }
     }
-    TabEntity tabEntity = new TabEntity();
+    TabEntity tabEntity = model.new TabEntity(this);
     tabEntity.file.set(file);
     tabEntity.loadFile();
 
@@ -534,7 +432,7 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
   public void setStage(Stage stage) {
     this.stage = stage;
     stage.setTitle("CSS Editor FX");
-    currentTabEntity().addListener((ob, o, n) -> {
+    model.currentTabEntity.addListener((ob, o, n) -> {
       String title = n == null ? null : (n.file.get() == null ? n.name.get() : n.file.get().getAbsolutePath());
       if (title == null || title.trim().length() == 0) {
         stage.setTitle("CSS Editor FX");
@@ -548,16 +446,12 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
     });
   }
 
-  private ObservableBooleanValue modifiedProperty() {
-    return CacheUtil.cache(this, "modified", () -> nestBooleanValue(currentManager(), m -> m.modifiedProperty()));
-  }
-
   private boolean isModified() {
-    return tabList.isEmpty() == false && modifiedProperty().getValue();
+    return tabList.isEmpty() == false && model.currentModified.get();
   }
 
   private void saved() {
-    currentManager().getValue().saved();
+    model.currentManager.get().saved();
   }
 
   private int getFileIndex(File file) {
@@ -571,42 +465,5 @@ public class MainFrameController implements Initializable, FxGetRoot<VBox> {
 
   Optional<TabEntity> findEntity(Tab t) {
     return CacheUtil.get(MainFrameController.this, t);
-  }
-
-  private ObservableValue<TabEntity> currentTabEntity() {
-    return CacheUtil.cache(this, "currentTabEntity", () -> {
-      ObjectProperty<TabEntity> op = new SimpleObjectProperty<>();
-      op.bind(map(tabPane.getSelectionModel().selectedIndexProperty(),
-          i -> Try.to(() -> tabList.get(i.intValue())).getOrElse(EMPTY)));
-      return op;
-    });
-  }
-
-  private ObservableObjectValue<File> currentFile() {
-    return CacheUtil.cache(this, "currentFile", () -> nestValue(currentTabEntity(), t -> t.file));
-  }
-
-  private ObservableObjectValue<CodeAreaManager> currentManager() {
-    return CacheUtil.cache(this, "currentManager", () -> map(currentTabEntity(), t -> t.manager));
-  }
-
-  private ObservableObjectValue<CodeArea> currentCodeArea() {
-    return CacheUtil.cache(this, "currentCodeArea", () -> {
-      ObjectProperty<CodeArea> op = new SimpleObjectProperty<>();
-      op.bind(map(currentManager(), m -> uncatch(() -> m.getCodeArea())));
-      return op;
-    });
-  }
-
-  private <T> Property<T> getCodeAreaProperty(Function<CodeArea, Property<T>> func) {
-    return nestProp(currentCodeArea(), c -> func.apply(c));
-  }
-
-  private <T> ObservableValue<T> getCodeAreaValue(Function<CodeArea, ObservableValue<T>> func) {
-    return nestValue(currentCodeArea(), c -> func.apply(c));
-  }
-
-  private <T> ObservableBooleanValue getCodeAreaBooleanValue(Function<CodeArea, ObservableBooleanValue> func) {
-    return nestBooleanValue(currentCodeArea(), c -> func.apply(c));
   }
 }

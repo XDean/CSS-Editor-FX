@@ -147,7 +147,7 @@ public class CSSContext {
           ParsedValue<?, ?> pv = d.getParsedValue();
           ParsedValue<?, ?> resolve = resolve(pv);
           if (classifyValue(resolve.getValue(), d.getProperty(), d.getParsedValue()) == false) {
-            classifyValue(resolve.convert(FONT), d.getProperty(), Util.createParsedValue(() -> resolve(pv).convert(FONT)));
+            classifyValue(resolve.convert(FONT), d.getProperty(), new FunctionParsedValue<>(() -> resolve(pv).convert(FONT)));
           }
         });
   }
@@ -207,7 +207,7 @@ public class CSSContext {
         } else if (pvi.isLookup()) {
           T lookup = lookup(pv.getValue());
           // System.out.printf("lookup %s find %s\n", pv.getValue(), lookup);
-          return Util.createParsedValue(lookup);
+          return new SimpleParsedValue<>(lookup);
         } else {
           V value = pv.getValue();
           if (value instanceof ParsedValue) {

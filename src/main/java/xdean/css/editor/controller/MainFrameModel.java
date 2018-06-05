@@ -1,14 +1,13 @@
 package xdean.css.editor.controller;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
-import static xdean.jex.util.task.TaskUtil.todoAll;
 import static xdean.jfxex.bean.BeanConvertUtil.toStringBinding;
 import static xdean.jfxex.bean.BeanUtil.map;
+import static xdean.jfxex.bean.BeanUtil.mapToBoolean;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestValue;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import javax.inject.Inject;
 
@@ -26,17 +25,19 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Tab;
 import lombok.experimental.FieldDefaults;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.manager.CodeAreaManager;
 import xdean.css.editor.controller.manager.RecentFileManager;
+import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.util.IntSequence;
 import xdean.jex.util.cache.CacheUtil;
-import xdean.jex.util.task.If;
 import xdean.jfx.spring.annotation.FxComponent;
-import xdean.jfxex.bean.property.ListPropertyEX;
+import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @FxComponent
@@ -47,38 +48,26 @@ public class MainFrameModel {
 
   final IntSequence nameOrder = new IntSequence(1);
 
-  final ListPropertyEX<TabEntity> tabEntities = new ListPropertyEX<>(this, "tabEntities");
-  final ObjectPropertyEX<TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
-  final ObjectBinding<Path> currentFile = nestValue(currentTabEntity, t -> t.file);
-  final ObjectBinding<CodeAreaManager> currentManager = map(currentTabEntity, t -> t.manager);
-  final ObjectBinding<CodeArea> currentCodeArea = map(currentTabEntity, t -> t.codeArea);
+  final ObservableList<TabEntity> tabEntities = FXCollections.observableArrayList();
+  final ObjectPropertyEX<@CheckNull TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
+  final ObjectBinding<@CheckNull FileWrapper> currentFile = nestValue(currentTabEntity, t -> t.file);
+  final ObjectBinding<@CheckNull CodeAreaManager> currentManager = map(currentTabEntity, t -> t == null ? null : t.manager);
+  final ObjectBinding<@CheckNull CodeArea> currentCodeArea = map(currentTabEntity, t -> t == null ? null : t.codeArea);
   final BooleanBinding currentModified = nestBooleanValue(currentManager, m -> m.modifiedProperty());
 
-  final TabEntity EMPTY = new TabEntity();
-  
-  public MainFrameModel() {
-    currentTabEntity.defaultForNull(EMPTY);
-  }
-
   @FieldDefaults(makeFinal = true)
-  class TabEntity {
-    Tab tab = new Tab();
+  class TabEntity extends Tab {
     CodeAreaManager manager = new CodeAreaManager(new CodeArea());
     CodeArea codeArea = manager.getCodeArea();
-    StringProperty name = new SimpleStringProperty();
-    ObjectProperty<Path> file = new SimpleObjectProperty<>();
+    ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
+    ObjectBinding<String> name = map(file, f -> f.getFileName());
     FontAwesomeIconView icon = new FontAwesomeIconView();
     IntegerProperty order = new SimpleIntegerProperty(nameOrder.next());
-    BooleanBinding isNew = file.isNull();
+    BooleanBinding isNew = mapToBoolean(file, f -> f.isNewFile());
 
     TabEntity() {
-      // name
-      name.bind(Bindings.when(file.isNull())
-          .then(Bindings.createStringBinding(() -> "new" + order.get(), order))
-          .otherwise(toStringBinding(map(file, f -> f.getFileName().toString()))));
-
       // graphics
-      tab.setGraphic(icon);
+      setGraphic(icon);
       icon.setStyleClass("tab-icon");
       icon.setIcon(FontAwesomeIcon.SAVE);
       // Hold the object in cache to avoid gc
@@ -96,25 +85,26 @@ public class MainFrameModel {
       });
 
       // recent
-      file.addListener((ob, o, n) -> todoAll(
-          () -> If.that(n != null).todo(() -> recentSupport.setLatestFile(n)),
-          () -> If.that(o == null && n != null).todo(() -> releaseName())));
+      file.addListener((ob, o, n) -> {
+        if (n.isExistFile()) {
+          recentSupport.setLatestFile(n.getExistFile().get());
+          if (o.isNewFile()) {
+            releaseName();
+          }
+        }
+      });
 
-      tab.setUserData(this);
+      reload();
       // CacheUtil.cache(this.mainFrameController, tab, () -> this);
     }
 
-    void loadFile() {
-      loadFile(file.get());
-    }
-
-    void loadFile(Path file) {
-      uncatch(() -> {
-        codeArea.replaceText(new String(Files.readAllBytes(file), Options.charset.get()));
+    void reload() {
+      file.get().getExistFile().ifPresent(p -> uncatch(() -> {
+        codeArea.replaceText(new String(Files.readAllBytes(p), Options.charset.get()));
         codeArea.moveTo(0);
         codeArea.getUndoManager().forgetHistory();
         manager.saved();
-      });
+      }));
     }
 
     /**
@@ -136,7 +126,7 @@ public class MainFrameModel {
     }
 
     boolean isNew() {
-      return file.get() == null;
+      return file.get().isNewFile();
     }
   }
 }

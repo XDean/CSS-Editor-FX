@@ -3,24 +3,14 @@ package xdean.css.editor.controller.manager;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.springframework.stereotype.Component;
 
-import javafx.scene.control.Menu;
 import xdean.css.editor.config.Config;
 import xdean.css.editor.config.ConfigKey;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
 @Component
 public class RecentFileManager extends RecentFileMenuSupport {
-  public static final String RECENT_MENU = "recent_menu";
-
-  @Inject
-  public RecentFileManager(@Named(RECENT_MENU) Menu menu) {
-    super(menu);
-  }
 
   @Override
   public List<String> load() {

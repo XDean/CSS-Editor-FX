@@ -4,6 +4,7 @@ import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
+import static xdean.jfxex.bean.BeanUtil.map;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
@@ -18,13 +19,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.controlsfx.control.StatusBar;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.annotation.Bean;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -51,7 +52,9 @@ import xdean.css.editor.controller.MainFrameModel.TabEntity;
 import xdean.css.editor.controller.comp.SearchBar;
 import xdean.css.editor.controller.manager.RecentFileManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
+import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.util.Util;
+import xdean.jex.extra.tryto.Try;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
@@ -59,7 +62,6 @@ import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.starter.FxContext;
-import xdean.jfxex.bean.CollectionUtil;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @Slf4j
@@ -109,13 +111,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     initMenu();
     initComp();
     initBind();
-    throwToReturn(() -> openLatestFile()).ifPresent(e -> log.error("Load last closed file fail.", e));
-  }
-
-  @Bean
-  @Named(RecentFileManager.RECENT_MENU)
-  public Menu menu() {
-    return openRecentMenu;
+    throwToReturn(() -> openLastFile()).ifPresent(e -> log.error("Load last closed file fail.", e));
   }
 
   private void initField() {
@@ -125,7 +121,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
   }
 
   private void initMenu() {
-    recentSupport.bind(openRecentMenu, this::openFile);
+    recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
 
     ToggleGroup group = new ToggleGroup();
     for (SkinStyle style : Context.SKIN.getSkinList()) {
@@ -199,9 +195,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
         horizontalScrollBar.visibleProperty()));
 
     // tabList
-    CollectionUtil.bind(model.tabEntities, tabPane.getTabs(),
-        tabEntity -> tabEntity.tab,
-        tab -> findEntity(tab).orElseThrow(() -> new RuntimeException("Tab not found " + tab)));
+    Bindings.bindContent(tabPane.getTabs(), model.tabEntities);
     model.tabEntities.addListener(list(b -> b.onRemoved(t -> t.releaseName())));
   }
 
@@ -218,7 +212,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
     File selectedFile = fileChooser.showOpenDialog(stage);
     if (selectedFile != null) {
-      openFile(selectedFile.toPath());
+      openFile(FileWrapper.existFile(selectedFile.toPath()));
     }
   }
 
@@ -236,11 +230,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
 
   @FXML
   public boolean save() {
-    if (model.currentTabEntity.get().isNew()) {
-      return saveAs();
-    } else {
-      return saveToFile(model.currentFile.get());
-    }
+    return model.currentFile.get().fileOrNew.unify(p -> saveToFile(p), i -> saveAs());
   }
 
   @FXML
@@ -256,13 +246,13 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     } else {
       Path path = selectedFile.toPath();
       return andFinal(() -> saveToFile(path),
-          b -> If.that(b).todo(() -> model.currentTabEntity.get().file.setValue(path)));
+          b -> If.that(b).todo(() -> model.currentTabEntity.get().file.set(FileWrapper.existFile(path))));
     }
   }
 
   @FXML
   public void revert() {
-    model.currentTabEntity.get().loadFile();
+    model.currentTabEntity.get().reload();
   }
 
   @FXML
@@ -327,24 +317,24 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     // TODO About
   }
 
-  private void openLatestFile() throws IOException {
+  private void openLastFile() throws IOException {
     if (Options.openLastFile.get()) {
       FileUtil.createDirectory(lastFilePath);
       Files.newDirectoryStream(lastFilePath, "*.tmp").forEach(p -> uncheck(() -> {
-        TabEntity te = openFile(null);
         List<String> lines = Files.readAllLines(p, Options.charset.get());
-        Optional.ofNullable(lines.get(0)).ifPresent(s -> throwToReturn(() -> Integer.valueOf(s))
-            .ifLeft(i -> te.renameNew(i))
-            .ifRight(e -> te.file.set(Paths.get(s))));
-        Optional<String> text = lines.stream()
-            .skip(1)
-            .reduce((a, b) -> String.join(System.lineSeparator(), a, b));
-        if (text.isPresent()) {
-          te.codeArea.replaceText(text.get());
-          te.codeArea.getUndoManager().forgetHistory();
-        } else {
-          te.loadFile();
+        if (lines.isEmpty()) {
+          return;
         }
+        String head = lines.get(0);
+        TabEntity te = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
+            .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
+        lines.stream()
+            .skip(1)
+            .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
+            .ifPresent(t -> {
+              te.codeArea.replaceText(t);
+              te.codeArea.getUndoManager().forgetHistory();
+            });
       }));
     }
   }
@@ -373,24 +363,22 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     }
   }
 
-  private TabEntity openFile(Path file) {
-    Optional<TabEntity> existTab = findExistTab(file);
+  private TabEntity openFile(FileWrapper file) {
+    Optional<TabEntity> existTab = file.getExistFile().flatMap(f -> findExistTab(f));
     if (existTab.isPresent()) {
-      tabPane.getSelectionModel().select(existTab.get().tab);
+      tabPane.getSelectionModel().select(existTab.get());
       return existTab.get();
     }
     TabEntity tabEntity = model.new TabEntity();
     tabEntity.file.set(file);
-    tabEntity.loadFile();
+    tabEntity.reload();
 
-    Tab tab = tabEntity.tab;
-
-    tab.setOnCloseRequest(e -> andFinal(() -> close(), () -> e.consume()));
-    tab.setContent(tabEntity.codeArea);
-    tab.textProperty().bind(tabEntity.name);
+    tabEntity.setOnCloseRequest(e -> andFinal(() -> close(), () -> e.consume()));
+    tabEntity.setContent(tabEntity.codeArea);
+    tabEntity.textProperty().bind(tabEntity.name);
 
     model.tabEntities.add(tabEntity);
-    tabPane.getSelectionModel().select(tab);
+    tabPane.getSelectionModel().select(tabEntity);
 
     return tabEntity;
   }
@@ -399,14 +387,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
   public void setStage(@Named(FxContext.FX_PRIMARY_STAGE) Stage stage) {
     this.stage = stage;
     stage.setTitle("CSS Editor FX");
-    model.currentTabEntity.addListener((ob, o, n) -> {
-      String title = n == null ? null : (n.file.get() == null ? n.name.get() : n.file.get().toAbsolutePath().toString());
-      if (title == null || title.trim().length() == 0) {
-        stage.setTitle("CSS Editor FX");
-      } else {
-        stage.setTitle(String.join(" - ", "CSS Editor FX", title));
-      }
-    });
+    stage.titleProperty().bind(map(model.currentFile, f -> (f == null ? "" : f.getFileName()) + " - CSS Editor FX"));
     stage.setOnCloseRequest(e -> {
       e.consume();
       exit();

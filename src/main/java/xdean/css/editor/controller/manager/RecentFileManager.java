@@ -6,11 +6,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.springframework.stereotype.Component;
+
 import javafx.scene.control.Menu;
 import xdean.css.editor.config.Config;
 import xdean.css.editor.config.ConfigKey;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
+@Component
 public class RecentFileManager extends RecentFileMenuSupport {
   public static final String RECENT_MENU = "recent_menu";
 

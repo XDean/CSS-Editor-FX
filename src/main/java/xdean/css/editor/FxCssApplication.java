@@ -18,8 +18,6 @@ public class FxCssApplication implements FxApplication {
 
   @Override
   public void start(Stage stage) throws Exception {
-    mainFrame.setStage(stage);
-
     Scene scene = Util.createScene(mainFrame.getRoot());
 
     stage.setScene(scene);

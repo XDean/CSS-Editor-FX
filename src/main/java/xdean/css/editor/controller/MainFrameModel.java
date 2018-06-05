@@ -2,14 +2,13 @@ package xdean.css.editor.controller;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jex.util.task.TaskUtil.todoAll;
-import static xdean.jfxex.bean.BeanConvertUtil.toObjectBinding;
 import static xdean.jfxex.bean.BeanConvertUtil.toStringBinding;
 import static xdean.jfxex.bean.BeanUtil.map;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestValue;
 
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.inject.Inject;
 
@@ -37,7 +36,6 @@ import xdean.css.editor.util.IntSequence;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.If;
 import xdean.jfx.spring.annotation.FxComponent;
-import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.ListPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
@@ -47,16 +45,20 @@ public class MainFrameModel {
   @Inject
   RecentFileManager recentSupport;
 
-  // final TabEntity EMPTY = new TabEntity();
+  final IntSequence nameOrder = new IntSequence(1);
 
   final ListPropertyEX<TabEntity> tabEntities = new ListPropertyEX<>(this, "tabEntities");
-  final ObjectPropertyEX<@CheckNull TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
-  final ObjectBinding<File> currentFile = nestValue(currentTabEntity, t -> t.file);
+  final ObjectPropertyEX<TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
+  final ObjectBinding<Path> currentFile = nestValue(currentTabEntity, t -> t.file);
   final ObjectBinding<CodeAreaManager> currentManager = map(currentTabEntity, t -> t.manager);
   final ObjectBinding<CodeArea> currentCodeArea = map(currentTabEntity, t -> t.codeArea);
   final BooleanBinding currentModified = nestBooleanValue(currentManager, m -> m.modifiedProperty());
 
-  IntSequence nameOrder = new IntSequence(1);
+  final TabEntity EMPTY = new TabEntity();
+  
+  public MainFrameModel() {
+    currentTabEntity.defaultForNull(EMPTY);
+  }
 
   @FieldDefaults(makeFinal = true)
   class TabEntity {
@@ -64,22 +66,16 @@ public class MainFrameModel {
     CodeAreaManager manager = new CodeAreaManager(new CodeArea());
     CodeArea codeArea = manager.getCodeArea();
     StringProperty name = new SimpleStringProperty();
-    ObjectProperty<File> file = new SimpleObjectProperty<>();
+    ObjectProperty<Path> file = new SimpleObjectProperty<>();
     FontAwesomeIconView icon = new FontAwesomeIconView();
     IntegerProperty order = new SimpleIntegerProperty(nameOrder.next());
     BooleanBinding isNew = file.isNull();
 
-    TabEntity(MainFrameController mainFrameController) {
-      init();
-      tab.setUserData(this);
-      // CacheUtil.cache(this.mainFrameController, tab, () -> this);
-    }
-
-    private void init() {
+    TabEntity() {
       // name
       name.bind(Bindings.when(file.isNull())
           .then(Bindings.createStringBinding(() -> "new" + order.get(), order))
-          .otherwise(toStringBinding(map(file, f -> f.getName()))));
+          .otherwise(toStringBinding(map(file, f -> f.getFileName().toString()))));
 
       // graphics
       tab.setGraphic(icon);
@@ -87,7 +83,7 @@ public class MainFrameModel {
       icon.setIcon(FontAwesomeIcon.SAVE);
       // Hold the object in cache to avoid gc
       StringBinding state = CacheUtil.cache(this, "state",
-          () -> Bindings.when(Bindings.equal(toObjectBinding(currentTabEntity), this))
+          () -> Bindings.when(currentTabEntity.isEqualTo(this))
               .then(Bindings.when(manager.modifiedProperty())
                   .then("selected-modified")
                   .otherwise("selected"))
@@ -101,17 +97,20 @@ public class MainFrameModel {
 
       // recent
       file.addListener((ob, o, n) -> todoAll(
-          () -> If.that(n != null).todo(() -> recentSupport.setLastFile(n)),
+          () -> If.that(n != null).todo(() -> recentSupport.setLatestFile(n)),
           () -> If.that(o == null && n != null).todo(() -> releaseName())));
+
+      tab.setUserData(this);
+      // CacheUtil.cache(this.mainFrameController, tab, () -> this);
     }
 
     void loadFile() {
       loadFile(file.get());
     }
 
-    void loadFile(File file) {
+    void loadFile(Path file) {
       uncatch(() -> {
-        codeArea.replaceText(new String(Files.readAllBytes(file.toPath()), Options.charset.get()));
+        codeArea.replaceText(new String(Files.readAllBytes(file), Options.charset.get()));
         codeArea.moveTo(0);
         codeArea.getUndoManager().forgetHistory();
         manager.saved();

@@ -13,7 +13,9 @@ import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
@@ -114,24 +116,24 @@ public class CodeAreaManager extends ModifiableObject {
     preview = new PreviewCodeAreaBind(codeArea);
     paintPaser = new CSSPaintPaser(context);
     JavaFxObservable.valuesOf(codeArea.selectedTextProperty())
+        .debounce(300, TimeUnit.MILLISECONDS)
         .map(CodeAreaManager::extractValue)
         .map(String::trim)
         .observeOn(Schedulers.computation())
-        .switchMap(text -> Observable.merge(
+        .switchMapMaybe(text -> Observable.merge(
             Observable.fromIterable(paintPaser.getTasks())
                 .observeOn(Schedulers.computation())
-                .map(f -> uncatch(() -> f.apply(text)))
-                .filter(p -> p != null)
+                .concatMapMaybe(f -> Maybe.fromCallable(() -> f.apply(text)).onErrorComplete())
                 .observeOn(JavaFxScheduler.platform())
-                .doOnNext(p -> preview.showPaint(p)),
+                .doOnNext(preview::showPaint),
             Observable.just(text)
                 .map(s -> StringUtil.unWrap(s, "\"", "\""))
                 .filter(CSSSVGPaser::verify)
-                .doOnNext(t -> Platform.runLater(() -> preview.showSVG(t))))
-            .first(null)
-            .toObservable()
+                .observeOn(JavaFxScheduler.platform())
+                .doOnNext(preview::showSVG))
             .observeOn(JavaFxScheduler.platform())
-            .doOnNext(e -> If.that(e == null).todo(() -> preview.hidePopup())))
+            .firstElement()
+            .doOnComplete(preview::hidePopup))
         .subscribe();
     // context add to suggestion
     JavaFxObservable.valuesOf(codeArea.textProperty())

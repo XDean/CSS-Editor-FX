@@ -55,8 +55,6 @@ public class Options {
   }
 
   static {
-    Context.loadClass();
-
     fontSize.setRange(DefaultValue.MIN_FONT_SIZE, BoundType.CLOSED, DefaultValue.MAX_FONT_SIZE, BoundType.CLOSED);
     fontFamily.addAll(Arrays.asList(DefaultValue.DEF_FONT_FAMILIES));
     fontFamily.addAll(Font.getFamilies());

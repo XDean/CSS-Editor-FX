@@ -1,6 +1,5 @@
 package xdean.css.editor.controller;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -34,8 +32,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.stage.Window;
-import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.config.option.BooleanOption;
@@ -44,24 +40,14 @@ import xdean.css.editor.config.option.IntegerOption;
 import xdean.css.editor.config.option.Option;
 import xdean.css.editor.config.option.OptionGroup;
 import xdean.css.editor.config.option.ValueOption;
-import xdean.css.editor.util.Util;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
+import xdean.jfx.spring.FxGetRoot;
+import xdean.jfx.spring.annotation.FxController;
 
 @Slf4j
-public class OptionsController implements Initializable {
-
-  static void show(Window window) {
-    try {
-      Pair<OptionsController, DialogPane> pair = Util.renderFxml(OptionsController.class);
-      Dialog<Void> dialog = new Dialog<>();
-      dialog.initOwner(window);
-      dialog.setDialogPane(pair.getValue());
-      dialog.show();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+@FxController(fxml = "/fxml/Options.fxml")
+public class OptionsController implements Initializable, FxGetRoot<DialogPane> {
 
   @FXML
   DialogPane dialogPane;
@@ -101,7 +87,7 @@ public class OptionsController implements Initializable {
     commandColumn.setCellValueFactory(cdf -> new SimpleStringProperty(cdf.getValue().getDescribe()));
     bindingColumn.setCellValueFactory(cdf -> CacheUtil.cache(OptionsController.this,
         cdf.getValue(), () -> new SimpleObjectProperty<>(cdf.getValue().get())));
-//    bindingColumn.setCellValueFactory(cdf -> new SimpleObjectProperty<>(cdf.getValue().get()));
+    // bindingColumn.setCellValueFactory(cdf -> new SimpleObjectProperty<>(cdf.getValue().get()));
 
     bindingColumn.setEditable(true);
     bindingColumn.setCellFactory(column -> new KeyEditField());

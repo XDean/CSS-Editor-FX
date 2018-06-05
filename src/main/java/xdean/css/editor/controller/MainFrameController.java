@@ -33,6 +33,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -44,15 +45,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import xdean.css.editor.config.Context;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.MainFrameModel.TabEntity;
 import xdean.css.editor.controller.comp.SearchBar;
 import xdean.css.editor.controller.manager.RecentFileManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
+import xdean.css.editor.controller.service.MessageService;
+import xdean.css.editor.controller.service.SkinService;
 import xdean.css.editor.domain.FileWrapper;
-import xdean.css.editor.util.Util;
 import xdean.jex.extra.tryto.Try;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
@@ -104,6 +105,15 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   @Inject
   StatusBarManager statusBarManager;
 
+  @Inject
+  OptionsController oc;
+
+  @Inject
+  SkinService skinManager;
+
+  @Inject
+  MessageService messageService;
+
   @Override
   public void afterPropertiesSet() throws Exception {
     tabPane.getTabs().clear();// DELETE
@@ -113,7 +123,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
     initBind();
     throwToReturn(() -> openLastFile()).ifPresent(e -> error("Load last closed file fail.", e));
 
-    stage.setTitle("CSS Editor FX");
     stage.titleProperty().bind(map(model.currentFile, f -> (f == null ? "" : f.getFileName()) + " - CSS Editor FX"));
     stage.setOnCloseRequest(e -> {
       e.consume();
@@ -131,11 +140,11 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
   private void initMenu() {
     ToggleGroup group = new ToggleGroup();
-    for (SkinStyle style : Context.SKIN.getSkinList()) {
+    for (SkinStyle style : skinManager.getSkinList()) {
       RadioMenuItem item = new RadioMenuItem(style.getName());
       item.setToggleGroup(group);
-      item.setOnAction(e -> Context.SKIN.changeSkin(style));
-      if (Context.SKIN.currentSkin() == style) {
+      item.setOnAction(e -> skinManager.changeSkin(style));
+      if (skinManager.currentSkin() == style) {
         item.setSelected(true);
       }
       skinMenu.getItems().add(item);
@@ -312,12 +321,15 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
   @FXML
   public void option() {
-    OptionsController.show(tabPane.getScene().getWindow());
+    Dialog<Void> dialog = new Dialog<>();
+    dialog.initOwner(stage);
+    dialog.setDialogPane(oc.getRoot());
+    dialog.show();
   }
 
   @FXML
   public void help() {
-    Util.showMessageDialog(stage, "Help", "Send email to xuda1107@gmail.com for help.");
+    messageService.showMessageDialog(stage, "Help", "Send email to xuda1107@gmail.com for help.");
   }
 
   @FXML
@@ -349,7 +361,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
   protected boolean askToSaveAndShouldContinue() {
     if (model.currentModified.get()) {
-      ButtonType result = Util.showConfirmCancelDialog(stage, "Save", "This file has been modified. Save changes?");
+      ButtonType result = messageService.showConfirmCancelDialog(stage, "Save", "This file has been modified. Save changes?");
       if (result.equals(ButtonType.YES)) {
         return save();
       }

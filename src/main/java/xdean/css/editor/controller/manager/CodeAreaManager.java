@@ -293,6 +293,7 @@ public class CodeAreaManager extends ModifiableObject {
   private static void bindFont(Node node) {
     Options.fontSize.property().addListener(weak(node, (ob, obj) -> updateFont(obj)));
     Options.fontFamily.property().addListener(weak(node, (ob, obj) -> updateFont(obj)));
+    updateFont(node);
   }
 
   private static void updateFont(Node node) {

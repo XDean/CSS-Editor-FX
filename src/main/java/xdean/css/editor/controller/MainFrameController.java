@@ -1,14 +1,15 @@
 package xdean.css.editor.controller;
 
+import static xdean.css.editor.config.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
 import static xdean.jfxex.bean.BeanUtil.map;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanProp;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
-import static xdean.jfxex.bean.BeanUtil.nestProp;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import lombok.extern.slf4j.Slf4j;
 import xdean.css.editor.config.Context;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
@@ -88,9 +88,9 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   @FXML
   StatusBar statusBar;
 
+  @Inject
+  @Named(FxContext.FX_PRIMARY_STAGE)
   Stage stage;
-
-  Path lastFilePath = Context.TEMP_PATH.resolve("last");
 
   @Inject
   SearchBar searchBar;
@@ -101,6 +101,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   @Inject
   RecentFileManager recentSupport;
 
+  @Inject
   StatusBarManager statusBarManager;
 
   @Override
@@ -111,12 +112,20 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
     initComp();
     initBind();
     throwToReturn(() -> openLastFile()).ifPresent(e -> error("Load last closed file fail.", e));
+
+    stage.setTitle("CSS Editor FX");
+    stage.titleProperty().bind(map(model.currentFile, f -> (f == null ? "" : f.getFileName()) + " - CSS Editor FX"));
+    stage.setOnCloseRequest(e -> {
+      e.consume();
+      exit();
+    });
   }
 
   private void initField() {
     searchBar.codeArea.bind(model.currentCodeArea);
-    statusBarManager = new StatusBarManager(statusBar, model.currentCodeArea,
-        nestProp(model.currentManager, m -> m.overrideProperty()));
+    statusBarManager.bind(statusBar);
+    statusBarManager.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
+    statusBarManager.area.bind(model.currentCodeArea);
   }
 
   private void initMenu() {
@@ -258,12 +267,12 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   @FXML
   public void exit() {
     if (Options.openLastFile.get()) {
-      uncheck(() -> FileUtil.createDirectory(lastFilePath));
-      uncheck(() -> Files.newDirectoryStream(lastFilePath, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
+      uncheck(() -> FileUtil.createDirectory(LAST_FILE_PATH));
+      uncheck(() -> Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
       ListUtil.forEach(model.tabEntities, (te, i) -> {
         String nameString = te.file.get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
         String text = te.manager.isModified() ? te.codeArea.getText() : "";
-        Path path = lastFilePath.resolve(String.format("%s.tmp", i));
+        Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(Options.charset.get())));
       });
       stage.close();
@@ -319,8 +328,8 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
   private void openLastFile() throws IOException {
     if (Options.openLastFile.get()) {
-      FileUtil.createDirectory(lastFilePath);
-      Files.newDirectoryStream(lastFilePath, "*.tmp").forEach(p -> uncheck(() -> {
+      FileUtil.createDirectory(LAST_FILE_PATH);
+      Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> {
         List<String> lines = Files.readAllLines(p, Options.charset.get());
         if (lines.isEmpty()) {
           return;
@@ -381,17 +390,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
     tabPane.getSelectionModel().select(tabEntity);
 
     return tabEntity;
-  }
-
-  @Inject
-  public void setStage(@Named(FxContext.FX_PRIMARY_STAGE) Stage stage) {
-    this.stage = stage;
-    stage.setTitle("CSS Editor FX");
-    stage.titleProperty().bind(map(model.currentFile, f -> (f == null ? "" : f.getFileName()) + " - CSS Editor FX"));
-    stage.setOnCloseRequest(e -> {
-      e.consume();
-      exit();
-    });
   }
 
   private void saved() {

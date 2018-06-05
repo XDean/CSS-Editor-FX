@@ -1,7 +1,7 @@
 package xdean.css.editor.controller.manager;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
-import static xdean.jfxex.bean.BeanConvertUtil.toBooleanBinding;
+import static xdean.jfxex.bean.BeanUtil.mapToString;
 import static xdean.jfxex.bean.BeanUtil.nestValue;
 import static xdean.jfxex.util.LayoutUtil.margin;
 import static xdean.jfxex.util.LayoutUtil.minWidth;
@@ -15,9 +15,7 @@ import org.fxmisc.richtext.CodeArea;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.Property;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -28,38 +26,34 @@ import javafx.scene.text.Text;
 import xdean.css.editor.config.Options;
 import xdean.jex.util.calc.MathUtil;
 import xdean.jex.util.string.StringUtil;
+import xdean.jfx.spring.annotation.FxComponent;
+import xdean.jfxex.bean.property.BooleanPropertyEX;
+import xdean.jfxex.bean.property.ObjectPropertyEX;
 
+@FxComponent
 public class StatusBarManager {
 
-  private StatusBar bar;
-  private ObservableValue<CodeArea> area;
-  private Property<Boolean> overrideProperty;
+  public final ObjectPropertyEX<CodeArea> area = new ObjectPropertyEX<>(this, "area");
+  public final BooleanPropertyEX override = new BooleanPropertyEX(this, "override");
 
-  private Label length = new Label(),
-      lines = new Label(),
-      caretLine = new Label(),
-      caretColumn = new Label(),
-      select = new Label(),
-      charset = new Label(),
-      inputType = new Label();
+  public void bind(StatusBar bar) {
+    Label length = new Label(),
+        lines = new Label(),
+        caretLine = new Label(),
+        caretColumn = new Label(),
+        select = new Label(),
+        charset = new Label(),
+        inputType = new Label();
 
-  public StatusBarManager(StatusBar bar, ObservableValue<CodeArea> codeArea, Property<Boolean> overrideProperty) {
-    this.bar = bar;
-    this.area = codeArea;
-    this.overrideProperty = overrideProperty;
-    initBar();
-    initEvent();
-  }
-
-  private void initBar() {
-    length.textProperty().bind(map(getCodeAreaValue(c -> c.textProperty()), t -> t.length()));
-    lines.textProperty().bind(map(getCodeAreaValue(c -> c.textProperty()), t -> StringUtil.countLine(t)));
-    caretLine.textProperty().bind(
-        map(getCodeAreaValue(c -> c.caretPositionProperty()), t -> StringUtil.countLine(area.getValue().getText().substring(0, t))));
-    caretColumn.textProperty().bind(map(getCodeAreaValue(c -> c.caretColumnProperty()), t -> t));
-    select.textProperty().bind(mapString(getCodeAreaValue(c -> c.selectedTextProperty()), t -> t.length() + " | " + StringUtil.countLine(t)));
-    charset.textProperty().bind(mapString(Options.charset.property(), t -> t.toString()));
-    inputType.textProperty().bind(Bindings.when(toBooleanBinding(overrideProperty)).then("Override").otherwise("Insert"));
+    length.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> t.length()));
+    lines.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> StringUtil.countLine(t)));
+    caretLine.textProperty().bind(map(nestValue(area, c -> c.caretPositionProperty()),
+        t -> StringUtil.countLine(area.getValue().getText().substring(0, t))));
+    caretColumn.textProperty().bind(map(nestValue(area, c -> c.caretColumnProperty()), t -> t));
+    select.textProperty()
+        .bind(map(nestValue(area, c -> c.selectedTextProperty()), t -> t.length() + " | " + StringUtil.countLine(t)));
+    charset.textProperty().bind(map(Options.charset.property(), t -> t.toString()));
+    inputType.textProperty().bind(Bindings.when(override.normalize()).then("Override").otherwise("Insert"));
 
     bar.getRightItems().addAll(
         margin(new Text("lines"), 0, 5), minWidth(lines, 60),
@@ -73,25 +67,21 @@ public class StatusBarManager {
         minWidth(charset, 60),
         new Separator(Orientation.VERTICAL),
         minWidth(inputType, 60),
-        new Separator(Orientation.VERTICAL)
-        );
+        new Separator(Orientation.VERTICAL));
+
+    inputType.setOnMouseClicked(this::toggleType);
+    caretLine.setOnMouseClicked(this::jumpLine);
   }
 
-  private void initEvent() {
-    inputType.setOnMouseClicked(hanlder);
-    caretLine.setOnMouseClicked(hanlder);
+  public void toggleType(MouseEvent e) {
+    override.setValue(!override.getValue());
   }
 
-  private EventHandler<MouseEvent> hanlder = e -> {
+  public void jumpLine(MouseEvent e) {
     if (e.getClickCount() == 2) {
-      if (e.getSource() == inputType) {
-        overrideProperty.setValue(!overrideProperty.getValue());
-      }
-      if (e.getSource() == caretLine) {
-        showLineJumpDialog();
-      }
+      showLineJumpDialog();
     }
-  };
+  }
 
   private void showLineJumpDialog() {
     TextInputDialog dialog = new TextInputDialog();
@@ -113,28 +103,7 @@ public class StatusBarManager {
     });
   }
 
-  private <T> ObservableValue<T> getCodeAreaValue(Function<CodeArea, ObservableValue<T>> func) {
-    return nestValue(area, c -> func.apply(c));
-  }
-
-  private static <T> StringBinding mapString(ObservableValue<T> v, Function<T, String> func) {
-    return new StringBinding() {
-      {
-        bind(v);
-      }
-
-      @Override
-      protected String computeValue() {
-        if (v.getValue() == null) {
-          return "";
-        } else {
-          return func.apply(v.getValue());
-        }
-      }
-    };
-  }
-
-  private static <T> StringBinding map(ObservableValue<T> v, Function<T, Integer> func) {
-    return mapString(v, t -> Integer.toString(func.apply(t)));
+  private static <T> StringBinding map(ObservableValue<T> v, Function<T, Object> func) {
+    return mapToString(v, t -> t == null ? "" : func.apply(t).toString());
   }
 }

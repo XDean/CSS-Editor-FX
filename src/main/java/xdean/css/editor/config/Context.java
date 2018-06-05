@@ -31,6 +31,7 @@ public class Context {
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");
   public static final Path CONFIG_PATH = HOME_PATH.resolve("config.properties");
   public static final Path DEFAULT_CONFIG_PATH = Paths.get("/default_config.properties");
+  public static final Path LAST_FILE_PATH = Context.TEMP_PATH.resolve("last");
 
   public static final SkinManager SKIN = new SkinManager();
   static {

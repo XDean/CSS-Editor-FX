@@ -122,6 +122,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   }
 
   private void initField() {
+    recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
     searchBar.codeArea.bind(model.currentCodeArea);
     statusBarManager.bind(statusBar);
     statusBarManager.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
@@ -129,8 +130,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   }
 
   private void initMenu() {
-    recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
-
     ToggleGroup group = new ToggleGroup();
     for (SkinStyle style : Context.SKIN.getSkinList()) {
       RadioMenuItem item = new RadioMenuItem(style.getName());

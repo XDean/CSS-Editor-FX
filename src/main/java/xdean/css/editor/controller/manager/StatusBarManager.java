@@ -25,7 +25,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import xdean.css.editor.config.Options;
 import xdean.jex.util.calc.MathUtil;
-import xdean.jex.util.string.StringUtil;
 import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
@@ -37,21 +36,21 @@ public class StatusBarManager {
   public final BooleanPropertyEX override = new BooleanPropertyEX(this, "override");
 
   public void bind(StatusBar bar) {
-    Label length = new Label(),
-        lines = new Label(),
+    Label lines = new Label(),
+        length = new Label(),
         caretLine = new Label(),
         caretColumn = new Label(),
         select = new Label(),
         charset = new Label(),
         inputType = new Label();
 
+    lines.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> countLine(t)));
     length.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> t.length()));
-    lines.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> StringUtil.countLine(t)));
-    caretLine.textProperty().bind(map(nestValue(area, c -> c.caretPositionProperty()),
-        t -> StringUtil.countLine(area.getValue().getText().substring(0, t))));
     caretColumn.textProperty().bind(map(nestValue(area, c -> c.caretColumnProperty()), t -> t));
+    caretLine.textProperty().bind(map(nestValue(area, c -> c.caretPositionProperty()),
+        t -> countLine(area.getValue().getText().substring(0, t))));
     select.textProperty()
-        .bind(map(nestValue(area, c -> c.selectedTextProperty()), t -> t.length() + " | " + StringUtil.countLine(t)));
+        .bind(map(nestValue(area, c -> c.selectedTextProperty()), t -> t.length() + " | " + countLine(t)));
     charset.textProperty().bind(map(Options.charset.property(), t -> t.toString()));
     inputType.textProperty().bind(Bindings.when(override.normalize()).then("Override").otherwise("Insert"));
 
@@ -70,6 +69,7 @@ public class StatusBarManager {
         new Separator(Orientation.VERTICAL));
 
     inputType.setOnMouseClicked(this::toggleType);
+    lines.setOnMouseClicked(this::jumpLine);
     caretLine.setOnMouseClicked(this::jumpLine);
   }
 
@@ -90,7 +90,7 @@ public class StatusBarManager {
     dialog.initOwner(area.getValue().getScene().getWindow());
     TextField tf = dialog.getEditor();
 
-    int lines = StringUtil.countLine(area.getValue().getText());
+    int lines = countLine(area.getValue().getText());
     ValidationSupport vs = new ValidationSupport();
     vs.registerValidator(tf, Validator.<String> createPredicateValidator(
         s -> uncatch(() -> MathUtil.inRange(Integer.valueOf(s), 1, lines)) == Boolean.TRUE,
@@ -101,6 +101,10 @@ public class StatusBarManager {
         area.getValue().moveTo(Integer.valueOf(s) - 1, 0);
       }
     });
+  }
+
+  private static int countLine(String str) {
+    return (str + " ").split("\\R").length;
   }
 
   private static <T> StringBinding map(ObservableValue<T> v, Function<T, Object> func) {

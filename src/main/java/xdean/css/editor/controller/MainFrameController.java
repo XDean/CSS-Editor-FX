@@ -54,6 +54,7 @@ import xdean.css.editor.controller.manager.StatusBarManager;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.util.Util;
 import xdean.jex.extra.tryto.Try;
+import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
@@ -63,9 +64,8 @@ import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.starter.FxContext;
 import xdean.jfxex.support.skin.SkinStyle;
 
-@Slf4j
 @FxController(fxml = "/fxml/MainFrame.fxml")
-public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
+public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, Logable {
 
   @FXML
   MenuItem suggestItem, formatItem, undoItem, redoItem, commentItem,
@@ -110,7 +110,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     initMenu();
     initComp();
     initBind();
-    throwToReturn(() -> openLastFile()).ifPresent(e -> log.error("Load last closed file fail.", e));
+    throwToReturn(() -> openLastFile()).ifPresent(e -> error("Load last closed file fail.", e));
   }
 
   private void initField() {
@@ -358,7 +358,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
     } catch (UnsupportedOperationException e) {
       throw e;
     } catch (IOException e) {
-      log.error("Save fail.");
+      error("Save fail.");
       return false;
     }
   }

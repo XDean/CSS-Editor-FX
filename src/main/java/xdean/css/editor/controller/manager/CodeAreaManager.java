@@ -1,6 +1,7 @@
 package xdean.css.editor.controller.manager;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
+import static xdean.jfxex.bean.ListenerUtil.weak;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,6 +13,8 @@ import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
+
+import com.sun.javafx.tk.Toolkit;
 
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -32,6 +35,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.text.Font;
 import xdean.css.context.CSSContext;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
@@ -40,8 +44,6 @@ import xdean.css.editor.controller.comp.PreviewCodeAreaBind;
 import xdean.css.editor.feature.CSSFormat;
 import xdean.css.editor.feature.CSSHighLight;
 import xdean.css.editor.feature.CSSSuggestion;
-import xdean.css.editor.util.Util;
-import xdean.css.editor.util.WeakUtil;
 import xdean.css.parser.CSSPaintPaser;
 import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.extra.StringURL;
@@ -289,10 +291,8 @@ public class CodeAreaManager extends ModifiableObject {
   }
 
   private static void bindFont(Node node) {
-    Runnable update = WeakUtil.weak(node, n -> updateFont(n));
-    Observable.just(Options.fontSize.property(), Options.fontFamily.property())
-        .flatMap(JavaFxObservable::valuesOf)
-        .subscribe(e -> update.run());
+    Options.fontSize.property().addListener(weak(node, (ob, obj) -> updateFont(obj)));
+    Options.fontFamily.property().addListener(weak(node, (ob, obj) -> updateFont(obj)));
   }
 
   private static void updateFont(Node node) {
@@ -329,13 +329,18 @@ public class CodeAreaManager extends ModifiableObject {
   }
 
   private static String getOverrideCaretCSS(char c) {
-    double width = Math.max(Util.getTextSize(c + ""), 1);
+    double width = Math.max(getTextSize(c + ""), 1);
     return StringURL.createURLString(String.format(
         ".caret {"
             + "-fx-scale-x: %f; "
             + "-fx-translate-x: %f;"
             + "}",
         width, width / 2));
+  }
+
+  public static double getTextSize(String text) {
+    return Toolkit.getToolkit().getFontLoader().computeStringWidth(text,
+        Font.font(Options.fontFamily.get(), Options.fontSize.get()));
   }
 
   private static String extractValue(String text) {

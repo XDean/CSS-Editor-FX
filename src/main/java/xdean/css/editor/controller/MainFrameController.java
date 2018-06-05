@@ -9,7 +9,6 @@ import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
 import static xdean.jfxex.bean.BeanUtil.nestProp;
-import static xdean.jfxex.bean.ListenerUtil.list;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +64,7 @@ import xdean.jfx.spring.starter.FxContext;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @Slf4j
-@FxController(fxml = "/xdean/css/editor/MainFrame.fxml")
+@FxController(fxml = "/fxml/MainFrame.fxml")
 public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
 
   @FXML
@@ -196,12 +195,13 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
 
     // tabList
     Bindings.bindContent(tabPane.getTabs(), model.tabEntities);
-    model.tabEntities.addListener(list(b -> b.onRemoved(t -> t.releaseName())));
+    tabPane.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> model.currentTabEntity.set((TabEntity) n));
+    model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
   }
 
   @FXML
   public void newFile() {
-    openFile(null);
+    openFile(FileWrapper.newFile(model.nextNewOrder()));
   }
 
   @FXML
@@ -224,7 +224,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
   @FXML
   public void close() {
     if (askToSaveAndShouldContinue()) {
-      tabPane.getTabs().remove(tabPane.getSelectionModel().getSelectedIndex());
+      model.currentTabEntity.getSafe().ifPresent(model.tabEntities::remove);
     }
   }
 
@@ -261,7 +261,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
       uncheck(() -> FileUtil.createDirectory(lastFilePath));
       uncheck(() -> Files.newDirectoryStream(lastFilePath, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
       ListUtil.forEach(model.tabEntities, (te, i) -> {
-        String nameString = te.file.get() == null ? Integer.toString(te.order.get()) : te.file.get().toString();
+        String nameString = te.file.get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
         String text = te.manager.isModified() ? te.codeArea.getText() : "";
         Path path = lastFilePath.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(Options.charset.get())));
@@ -400,7 +400,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox> {
 
   private Optional<TabEntity> findExistTab(Path file) {
     return model.tabEntities.stream()
-        .filter(t -> Objects.equals(file, t.file.get()))
+        .filter(t -> t.file.get().getExistFile().map(p -> Objects.equals(file, p)).orElse(false))
         .findFirst();
   }
 

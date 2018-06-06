@@ -1,4 +1,4 @@
-package xdean.css.editor.controller.manager;
+package xdean.css.editor.controller;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jfxex.bean.ListenerUtil.weak;
@@ -52,7 +52,7 @@ import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfxex.extra.ModifiableObject;
 
-public class CodeAreaManager extends ModifiableObject {
+public class CodeAreaController extends ModifiableObject {
   CodeArea codeArea;
 
   CSSContext lastContext;
@@ -65,7 +65,7 @@ public class CodeAreaManager extends ModifiableObject {
 
   BooleanProperty override;
 
-  public CodeAreaManager(CodeArea codeArea) {
+  public CodeAreaController(CodeArea codeArea) {
     this.codeArea = codeArea;
     initProp();
     initBind();
@@ -74,8 +74,8 @@ public class CodeAreaManager extends ModifiableObject {
   private void initProp() {
     codeArea.getStylesheets().add(
         TaskUtil.firstSuccess(
-            () -> CodeAreaManager.class.getResource("/css/css-highlighting.css").toExternalForm(),
-            () -> CodeAreaManager.class.getResource("/css/css-highlighting.bss").toExternalForm()));
+            () -> CodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm(),
+            () -> CodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm()));
   }
 
   private void initBind() {
@@ -108,7 +108,7 @@ public class CodeAreaManager extends ModifiableObject {
         (t, c) -> CSSSuggestion.getSuggestion(t, c, context),
         CSSSuggestion::getReplaceRange);
     keyPress.debounce(100, TimeUnit.MILLISECONDS)
-        .filter(CodeAreaManager::shouldSuggest)
+        .filter(CodeAreaController::shouldSuggest)
         .observeOn(JavaFxScheduler.platform())
         .subscribe(e -> suggest());
     // selection preview
@@ -117,7 +117,7 @@ public class CodeAreaManager extends ModifiableObject {
     paintPaser = new CSSPaintPaser(context);
     JavaFxObservable.valuesOf(codeArea.selectedTextProperty())
         .debounce(300, TimeUnit.MILLISECONDS)
-        .map(CodeAreaManager::extractValue)
+        .map(CodeAreaController::extractValue)
         .map(String::trim)
         .observeOn(Schedulers.computation())
         .switchMapMaybe(text -> Observable.merge(
@@ -165,7 +165,7 @@ public class CodeAreaManager extends ModifiableObject {
         .filter(c -> override.get())
         .map(c -> uncatch(() -> codeArea.getText().charAt(c)))
         .map(c -> c == null ? '\n' : c)
-        .map(CodeAreaManager::getOverrideCaretCSS)
+        .map(CodeAreaController::getOverrideCaretCSS)
         .subscribe(s -> overrideCSS.set(s));
     ChangeListener<? super String> overrideCSSListener = (ob, o, n) -> {
       codeArea.getStylesheets().remove(o);

@@ -26,7 +26,6 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.Tab;
 import lombok.experimental.FieldDefaults;
 import xdean.css.editor.config.Options;
-import xdean.css.editor.controller.manager.CodeAreaManager;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jfx.spring.annotation.FxComponent;
@@ -43,7 +42,7 @@ public class MainFrameModel {
   final ObservableList<TabEntity> tabEntities = FXCollections.observableArrayList();
   final ObjectPropertyEX<@CheckNull TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
   final ObjectBinding<@CheckNull FileWrapper> currentFile = nestValue(currentTabEntity, t -> t.file);
-  final ObjectBinding<@CheckNull CodeAreaManager> currentManager = map(currentTabEntity, t -> t == null ? null : t.manager);
+  final ObjectBinding<xdean.css.editor.controller.CodeAreaController> currentManager = map(currentTabEntity, t -> t == null ? null : t.manager);
   final ObjectBinding<@CheckNull CodeArea> currentCodeArea = map(currentTabEntity, t -> t == null ? null : t.codeArea);
   final BooleanBinding currentModified = nestBooleanValue(currentManager, m -> m.modifiedProperty());
 
@@ -62,7 +61,7 @@ public class MainFrameModel {
 
   @FieldDefaults(makeFinal = true)
   class TabEntity extends Tab {
-    CodeAreaManager manager = new CodeAreaManager(new CodeArea());
+    CodeAreaController manager = new CodeAreaController(new CodeArea());
     CodeArea codeArea = manager.getCodeArea();
     ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
     ObjectBinding<String> name = map(file, f -> f.getFileName());

@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.controlsfx.control.StatusBar;
 import org.springframework.beans.factory.InitializingBean;
 
 import javafx.beans.binding.Bindings;
@@ -86,7 +85,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   VBox bottomExtraPane;
 
   @FXML
-  StatusBar statusBar;
+  StatusBarManager statusBarController;
 
   @Inject
   SearchBarController searchBar;
@@ -100,9 +99,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
   @Inject
   RecentFileManager recentSupport;
-
-  @Inject
-  StatusBarManager statusBarManager;
 
   @Inject
   OptionsController oc;
@@ -132,9 +128,8 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   private void initField() {
     recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
     searchBar.codeArea.bind(model.currentCodeArea);
-    statusBarManager.bind(statusBar);
-    statusBarManager.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
-    statusBarManager.area.bind(model.currentCodeArea);
+    statusBarController.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
+    statusBarController.area.bind(model.currentCodeArea);
   }
 
   private void initMenu() {

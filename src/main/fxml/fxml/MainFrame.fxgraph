@@ -278,9 +278,7 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
         ]
       },
       VBox id bottomExtraPane,
-      StatusBar id statusBar {
-        text : ""
-      }
+      include fxml.StatusBar as statusBar
     ]
   }
 }

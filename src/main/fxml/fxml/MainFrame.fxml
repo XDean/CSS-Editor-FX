@@ -20,7 +20,6 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-<?import org.controlsfx.control.StatusBar?>
 
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.MainFrameController" prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/global.css">
 
@@ -202,6 +201,6 @@
 			</items>
 		</SplitPane>
 		<VBox fx:id="bottomExtraPane"/> 
-		<StatusBar fx:id="statusBar" text=""/> 
+		<fx:include fx:id="statusBar" source="/fxml/StatusBar.fxml" />
 	</children>
 </VBox>

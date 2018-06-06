@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import xdean.css.editor.controller.MainFrameController;
-import xdean.css.editor.controller.service.NodeFactoryService;
+import xdean.css.editor.service.NodeFactoryService;
 import xdean.jfx.spring.FxApplication;
 
 @Component

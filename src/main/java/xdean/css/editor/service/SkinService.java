@@ -1,4 +1,4 @@
-package xdean.css.editor.controller.service;
+package xdean.css.editor.service;
 
 import java.io.IOException;
 import java.nio.file.Files;

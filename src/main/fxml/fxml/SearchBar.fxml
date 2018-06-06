@@ -9,7 +9,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.layout.HBox?>
 
-<HBox xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.comp.SearchBar" alignment="CENTER_LEFT" spacing="5">
+<HBox xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.SearchBarController" alignment="CENTER_LEFT" spacing="5">
 
 	<padding>
 		<Insets left="5" right="5" top="5" bottom="5"/> 

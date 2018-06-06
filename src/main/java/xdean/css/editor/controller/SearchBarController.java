@@ -1,4 +1,4 @@
-package xdean.css.editor.controller.comp;
+package xdean.css.editor.controller;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jfxex.bean.ListenerUtil.on;
@@ -25,7 +25,7 @@ import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @FxController(fxml = "/fxml/SearchBar.fxml")
-public class SearchBar implements FxGetRoot<HBox>, InitializingBean {
+public class SearchBarController implements FxGetRoot<HBox>, InitializingBean {
 
   TextField findField;
 

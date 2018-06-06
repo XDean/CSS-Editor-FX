@@ -1,4 +1,4 @@
-package xdean.css.editor.controller.service;
+package xdean.css.editor.service;
 
 import javax.inject.Inject;
 

@@ -12,7 +12,7 @@ import com.sun.javafx.util.Logging;
 
 import javafx.application.Platform;
 import sun.util.logging.PlatformLogger.Level;
-import xdean.css.editor.controller.service.MessageService;
+import xdean.css.editor.service.MessageService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.lang.ExceptionUtil;

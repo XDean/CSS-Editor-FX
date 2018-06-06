@@ -48,12 +48,11 @@ import javafx.stage.Stage;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.MainFrameModel.TabEntity;
-import xdean.css.editor.controller.comp.SearchBar;
 import xdean.css.editor.controller.manager.RecentFileManager;
 import xdean.css.editor.controller.manager.StatusBarManager;
-import xdean.css.editor.controller.service.MessageService;
-import xdean.css.editor.controller.service.SkinService;
 import xdean.css.editor.domain.FileWrapper;
+import xdean.css.editor.service.MessageService;
+import xdean.css.editor.service.SkinService;
 import xdean.jex.extra.tryto.Try;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
@@ -90,7 +89,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   StatusBar statusBar;
 
   @Inject
-  SearchBar searchBar;
+  SearchBarController searchBar;
 
   @Inject
   @Named(FxContext.FX_PRIMARY_STAGE)

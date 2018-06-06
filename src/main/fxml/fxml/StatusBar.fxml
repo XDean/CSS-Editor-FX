@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import org.controlsfx.control.StatusBar?>
 
-<StatusBar xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.manager.StatusBarManager" text="">
+<StatusBar xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.StatusBarController" text="">
 	<fx:define>
 		<Insets fx:id="right5" left="0" right="5" top="0" bottom="0"/> 
 	</fx:define>

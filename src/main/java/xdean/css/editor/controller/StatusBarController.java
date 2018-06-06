@@ -1,4 +1,4 @@
-package xdean.css.editor.controller.manager;
+package xdean.css.editor.controller;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jfxex.bean.BeanUtil.mapToString;
@@ -28,7 +28,7 @@ import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @FxController(fxml = "/fxml/StatusBar.fxml")
-public class StatusBarManager implements FxGetRoot<StatusBar>, FxInitializable {
+public class StatusBarController implements FxGetRoot<StatusBar>, FxInitializable {
 
   public final ObjectPropertyEX<CodeArea> area = new ObjectPropertyEX<>(this, "area");
   public final BooleanPropertyEX override = new BooleanPropertyEX(this, "override");

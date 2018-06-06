@@ -3,11 +3,12 @@ package fxml
 import javafx.scene.layout.HBox
 import org.controlsfx.control.StatusBar
 import javafx.scene.control.Label
-import javafx.geometry.Insets
+import javaxdean.css.editor.controller.manager.StatusBarControllerrator
+import xdean.css.editor.controller.StatusBarController
 import javafx.scene.control.Separator
-import xdean.css.editor.controller.manager.StatusBarManager
+import javafx.geometry.Insets
 
-component StatusBar controlledby StatusBarManager {
+component StatusBar controlledby StatusBarController {
   define Insets id right5 {
     left : 0,
     right : 5,

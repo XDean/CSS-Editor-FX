@@ -48,7 +48,6 @@ import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.MainFrameModel.TabEntity;
 import xdean.css.editor.controller.manager.RecentFileManager;
-import xdean.css.editor.controller.manager.StatusBarManager;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.MessageService;
 import xdean.css.editor.service.SkinService;
@@ -85,7 +84,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   VBox bottomExtraPane;
 
   @FXML
-  StatusBarManager statusBarController;
+  StatusBarController statusBarController;
 
   @Inject
   SearchBarController searchBar;

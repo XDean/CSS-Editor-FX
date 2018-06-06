@@ -12,10 +12,10 @@ import javafx.stage.Window;
 public class MessageService {
 
   @Inject
-  SkinService skinService;
+  NodeFactoryService nodeFactory;
 
   public void showMessageDialog(Window window, String title, String message) {
-    Dialog<ButtonType> dialog = skinService.createDialog();
+    Dialog<ButtonType> dialog = nodeFactory.createDialog();
     if (window != null) {
       dialog.initOwner(window);
     }
@@ -26,7 +26,7 @@ public class MessageService {
   }
 
   public boolean showConfirmDialog(Window window, String title, String message) {
-    Dialog<ButtonType> dialog = skinService.createDialog();
+    Dialog<ButtonType> dialog = nodeFactory.createDialog();
     if (window != null) {
       dialog.initOwner(window);
     }
@@ -43,7 +43,7 @@ public class MessageService {
    * @return {@code ButtonType.YES, ButtonType.NO, ButtonType.CANCEL}
    */
   public ButtonType showConfirmCancelDialog(Window window, String title, String message) {
-    Dialog<ButtonType> dialog = skinService.createDialog();
+    Dialog<ButtonType> dialog = nodeFactory.createDialog();
     if (window != null) {
       dialog.initOwner(window);
     }

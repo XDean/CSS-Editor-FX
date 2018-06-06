@@ -8,9 +8,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
 import xdean.css.editor.config.Config;
 import xdean.css.editor.config.ConfigKey;
 import xdean.css.editor.config.Context;
@@ -68,17 +65,5 @@ public class SkinService extends xdean.jfxex.support.skin.SkinManager implements
     }
     JavaFxObservable.valuesOf(skinProperty())
         .subscribe(skin -> Config.setProperty(ConfigKey.SKIN, skin.getName()));
-  }
-
-  public Scene createScene(Parent root) {
-    Scene scene = new Scene(root);
-    bind(scene);
-    return scene;
-  }
-
-  public <T> Dialog<T> createDialog() {
-    Dialog<T> dialog = new Dialog<>();
-    bind(dialog);
-    return dialog;
   }
 }

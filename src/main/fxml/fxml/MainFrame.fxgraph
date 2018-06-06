@@ -91,11 +91,8 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
                 onAction : controllermethod saveAs,
                 accelerator : KeyCodeCombination {
                   code : "S",
-                  control : "DOWN",
-                  alt : "DOWN",
-                  meta : "UP",
-                  shift : "UP",
-                  shortcut : "UP"
+                  modifiers : const KeyCodeCombination#CONTROL_DOWN,
+                  modifiers : const KeyCodeCombination#ALT_DOWN
                 }
               },
               MenuItem id revertItem {

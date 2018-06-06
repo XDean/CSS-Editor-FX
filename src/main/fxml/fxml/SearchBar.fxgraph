@@ -10,10 +10,7 @@ component SearchBar controlledby SearchBarController {
   HBox {
     alignment : "CENTER_LEFT",
     padding : Insets {
-      left : 5,
-      right : 5,
-      top : 5,
-      bottom : 5
+      topRightBottomLeft : 5
     },
     spacing : 5,
     children : [

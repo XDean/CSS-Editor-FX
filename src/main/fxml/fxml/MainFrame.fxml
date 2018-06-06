@@ -76,7 +76,10 @@
 						</MenuItem>
 						<MenuItem fx:id="saveAsItem" text="Save as..." onAction="#saveAs"> 
 							<accelerator>
-								<KeyCodeCombination code="S" control="DOWN" alt="DOWN" meta="UP" shift="UP" shortcut="UP"/> 
+								<KeyCodeCombination code="S"> 
+									<modifiers><KeyCodeCombination fx:constant="CONTROL_DOWN" /></modifiers>
+									<modifiers><KeyCodeCombination fx:constant="ALT_DOWN" /></modifiers>
+								</KeyCodeCombination>
 							</accelerator>
 						</MenuItem>
 						<MenuItem fx:id="revertItem" text="Revert" onAction="#revert"/> 

@@ -27,18 +27,18 @@ import javafx.scene.control.Tab;
 import lombok.experimental.FieldDefaults;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.manager.CodeAreaManager;
-import xdean.css.editor.controller.manager.RecentFileManager;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
+import xdean.jfxex.support.RecentFileMenuSupport;
 
 @FxComponent
 public class MainFrameModel {
 
   @Inject
-  RecentFileManager recentSupport;
+  RecentFileMenuSupport recentSupport;
 
   final ObservableList<TabEntity> tabEntities = FXCollections.observableArrayList();
   final ObjectPropertyEX<@CheckNull TabEntity> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");

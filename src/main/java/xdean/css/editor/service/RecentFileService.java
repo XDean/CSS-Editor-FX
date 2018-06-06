@@ -1,16 +1,16 @@
-package xdean.css.editor.controller.manager;
+package xdean.css.editor.service;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import xdean.css.editor.config.Config;
 import xdean.css.editor.config.ConfigKey;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
-@Component
-public class RecentFileManager extends RecentFileMenuSupport {
+@Service
+public class RecentFileService extends RecentFileMenuSupport {
 
   @Override
   public List<String> load() {

@@ -47,7 +47,6 @@ import javafx.stage.Stage;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.controller.MainFrameModel.TabEntity;
-import xdean.css.editor.controller.manager.RecentFileManager;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.MessageService;
 import xdean.css.editor.service.SkinService;
@@ -60,6 +59,7 @@ import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.starter.FxContext;
+import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @FxController(fxml = "/fxml/MainFrame.fxml")
@@ -97,7 +97,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   MainFrameModel model;
 
   @Inject
-  RecentFileManager recentSupport;
+  RecentFileMenuSupport recentSupport;
 
   @Inject
   OptionsController oc;

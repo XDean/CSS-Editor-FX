@@ -8,74 +8,73 @@ import java.util.regex.Pattern;
 
 import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
+import org.springframework.beans.factory.InitializingBean;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import xdean.css.editor.config.Options;
 import xdean.jex.extra.function.Func3;
 import xdean.jex.util.string.StringUtil;
-import xdean.jfx.spring.annotation.FxComponent;
+import xdean.jfx.spring.FxGetRoot;
+import xdean.jfx.spring.annotation.FxController;
 import xdean.jfxex.bean.annotation.CheckNull;
+import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
-@FxComponent
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public final class SearchBar extends HBox {
+@FxController(fxml = "/fxml/SearchBar.fxml")
+public class SearchBar implements FxGetRoot<HBox>, InitializingBean {
 
   TextField findField;
+
+  @FXML
+  HBox textContainer;
+
+  @FXML
   Button findButton;
+
+  @FXML
   CheckBox caseSensitive;
+
+  @FXML
   CheckBox regex;
+
+  @FXML
   CheckBox wrapSearch;
 
-  BooleanProperty showing = new SimpleBooleanProperty(false);
+  public final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
 
   public final ObjectPropertyEX<@CheckNull CodeArea> codeArea = new ObjectPropertyEX<>(this, "codeArea");
 
-  public SearchBar() {
-    super();
+  @Override
+  public void afterPropertiesSet() throws Exception {
     findField = TextFields.createClearableTextField();
-    findButton = new Button("Find");
-    caseSensitive = new CheckBox("Case Sensitive");
-    regex = new CheckBox("Regex");
-    wrapSearch = new CheckBox("Wrap Search");
+    textContainer.getChildren().add(findField);
 
-    getChildren().addAll(findField, findButton, regex, caseSensitive, wrapSearch);
-    setPadding(new Insets(5));
-    setSpacing(5);
-    setAlignment(Pos.CENTER_LEFT);
-
-    initBind();
-  }
-
-  private void initBind() {
     regex.selectedProperty().bindBidirectional(Options.findRegex.property());
     caseSensitive.selectedProperty().bindBidirectional(Options.findCaseSensitive.property());
     wrapSearch.selectedProperty().bindBidirectional(Options.findWrapText.property());
+    visible.and(codeArea.isNotNull());
 
-    visibleProperty().addListener(on(true, findField::requestFocus)
+    HBox root = getRoot();
+
+    root.visibleProperty().addListener(on(true, findField::requestFocus)
         .on(false, () -> uncatch(() -> codeArea.getValue().requestFocus())));
-    visibleProperty().bind(showing.and(codeArea.isNotNull()));
-    managedProperty().bind(visibleProperty());
-    findButton.setOnAction(e -> find());
+    root.visibleProperty().bind(visible);
+    root.managedProperty().bind(root.visibleProperty());
     findField.setOnAction(e -> find());
   }
 
-  private void find() {
-    if (find(codeArea.getValue().getCaretPosition()) == false && wrapSearch.isSelected()) {
-      find(0);
+  @FXML
+  public void find() {
+    if (findFrom(codeArea.getValue().getCaretPosition()) == false && wrapSearch.isSelected()) {
+      findFrom(0);
     }
   }
 
-  private boolean find(int offset) {
+  private boolean findFrom(int offset) {
     CodeArea area = codeArea.getValue();
     String findText = findField.getText();
     if (regex.isSelected()) {
@@ -109,6 +108,6 @@ public final class SearchBar extends HBox {
   }
 
   public void toggle() {
-    showing.set(!showing.get());
+    visible.set(!visible.get());
   }
 }

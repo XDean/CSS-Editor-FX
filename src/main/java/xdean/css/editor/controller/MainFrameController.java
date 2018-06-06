@@ -90,11 +90,11 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   StatusBar statusBar;
 
   @Inject
-  @Named(FxContext.FX_PRIMARY_STAGE)
-  Stage stage;
+  SearchBar searchBar;
 
   @Inject
-  SearchBar searchBar;
+  @Named(FxContext.FX_PRIMARY_STAGE)
+  Stage stage;
 
   @Inject
   MainFrameModel model;
@@ -152,7 +152,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   }
 
   private void initComp() {
-    bottomExtraPane.getChildren().add(searchBar);
+    bottomExtraPane.getChildren().add(searchBar.getRoot());
   }
 
   private void initBind() {

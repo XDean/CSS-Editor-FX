@@ -1,7 +1,6 @@
 package xdean.css.editor.controller;
 
 import static xdean.css.editor.config.Context.LAST_FILE_PATH;
-import static xdean.jex.util.lang.ExceptionUtil.throwToReturn;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
@@ -46,7 +45,6 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
-import xdean.css.editor.controller.MainFrameModel.TabEntity;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.MessageService;
 import xdean.css.editor.service.SkinService;
@@ -115,7 +113,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
     initMenu();
     initComp();
     initBind();
-    throwToReturn(() -> openLastFile()).ifPresent(e -> error("Load last closed file fail.", e));
+    Try.to(() -> openLastFile()).onException(e -> error("Load last closed file fail.", e));
 
     stage.titleProperty().bind(map(model.currentFile, f -> (f == null ? "" : f.getFileName()) + " - CSS Editor FX"));
     stage.setOnCloseRequest(e -> {
@@ -205,7 +203,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
     // tabList
     Bindings.bindContent(tabPane.getTabs(), model.tabEntities);
-    tabPane.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> model.currentTabEntity.set((TabEntity) n));
+    tabPane.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> model.currentTabEntity.set((CssTab) n));
     model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
   }
 
@@ -339,7 +337,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
           return;
         }
         String head = lines.get(0);
-        TabEntity te = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
+        CssTab te = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
             .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
         lines.stream()
             .skip(1)
@@ -376,23 +374,15 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
     }
   }
 
-  private TabEntity openFile(FileWrapper file) {
-    Optional<TabEntity> existTab = file.getExistFile().flatMap(f -> findExistTab(f));
+  private CssTab openFile(FileWrapper file) {
+    Optional<CssTab> existTab = file.getExistFile().flatMap(f -> findExistTab(f));
     if (existTab.isPresent()) {
       tabPane.getSelectionModel().select(existTab.get());
       return existTab.get();
     }
-    TabEntity tabEntity = model.new TabEntity();
-    tabEntity.file.set(file);
-    tabEntity.reload();
-
+    CssTab tabEntity = model.newTab(file);
     tabEntity.setOnCloseRequest(e -> andFinal(() -> close(), () -> e.consume()));
-    tabEntity.setContent(tabEntity.codeArea);
-    tabEntity.textProperty().bind(tabEntity.name);
-
-    model.tabEntities.add(tabEntity);
     tabPane.getSelectionModel().select(tabEntity);
-
     return tabEntity;
   }
 
@@ -400,13 +390,13 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
     model.currentManager.get().modify.saved();
   }
 
-  private Optional<TabEntity> findExistTab(Path file) {
+  private Optional<CssTab> findExistTab(Path file) {
     return model.tabEntities.stream()
         .filter(t -> t.file.get().getExistFile().map(p -> Objects.equals(file, p)).orElse(false))
         .findFirst();
   }
 
-  Optional<TabEntity> findEntity(Tab t) {
+  Optional<CssTab> findEntity(Tab t) {
     return CacheUtil.get(MainFrameController.this, t);
   }
 }

@@ -51,38 +51,31 @@ import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
+import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.extra.ModifiableObject;
 
+@FxComponent
 public class CodeAreaController {
-  
-  ModifiableObject modify = new ModifiableObject();
-  
-  CodeArea codeArea;
+
+  final CodeArea codeArea = new CodeArea();
 
   CSSContext lastContext;
   CSSContext context;
 
-  AutoCompletionCodeAreaBind autoCompletion;
-  PreviewCodeAreaBind preview;
+  final AutoCompletionCodeAreaBind autoCompletion;
+  final PreviewCodeAreaBind preview;
 
-  CSSPaintPaser paintPaser;
+  final CSSPaintPaser paintPaser;
 
-  BooleanProperty override;
+  final BooleanProperty override;
+  final ModifiableObject modify = new ModifiableObject();
 
-  public CodeAreaController(CodeArea codeArea) {
-    this.codeArea = codeArea;
-    initProp();
-    initBind();
-  }
-
-  private void initProp() {
+  public CodeAreaController() {
     codeArea.getStylesheets().add(
         TaskUtil.firstSuccess(
             () -> CodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
             () -> CodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm()));
-  }
 
-  private void initBind() {
     Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED).share();
     // font and line number
     bindFont(codeArea);

@@ -8,8 +8,6 @@ import java.nio.file.Files;
 
 import javax.inject.Inject;
 
-import org.fxmisc.richtext.CodeArea;
-
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.binding.Bindings;
@@ -25,25 +23,28 @@ import javafx.scene.control.Tab;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.jex.util.cache.CacheUtil;
+import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
 @FxComponent
-public class CssTab extends Tab {
+public class CssTab extends Tab implements FxInitializable{
   @Inject
   RecentFileMenuSupport recentSupport;
 
-  CodeAreaController manager = new CodeAreaController();
-  CodeArea codeArea = manager.getCodeArea();
+  @Inject
+  CodeAreaController manager;
+
   ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
   ObjectBinding<String> name = map(file, f -> f.getFileName());
-  FontAwesomeIconView icon = new FontAwesomeIconView();
   BooleanBinding isNew = mapToBoolean(file, f -> f.isNewFile());
   BooleanProperty active = new SimpleBooleanProperty(this, "active");
 
-  CssTab() {
+  @Override
+  public void initialize() {
     textProperty().bind(name);
     // graphics
+    FontAwesomeIconView icon = new FontAwesomeIconView();
     setGraphic(icon);
     icon.setStyleClass("tab-icon");
     icon.setIcon(FontAwesomeIcon.SAVE);
@@ -69,14 +70,14 @@ public class CssTab extends Tab {
       }
     });
 
-    setContent(codeArea);
+    setContent(manager.codeArea);
   }
 
   void reload() {
     file.get().getExistFile().ifPresent(p -> uncatch(() -> {
-      codeArea.replaceText(new String(Files.readAllBytes(p), Options.charset.get()));
-      codeArea.moveTo(0);
-      codeArea.getUndoManager().forgetHistory();
+      manager.codeArea.replaceText(new String(Files.readAllBytes(p), Options.charset.get()));
+      manager.codeArea.moveTo(0);
+      manager.codeArea.getUndoManager().forgetHistory();
       manager.modify.saved();
     }));
   }

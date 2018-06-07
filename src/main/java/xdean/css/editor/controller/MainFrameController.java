@@ -270,7 +270,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
       uncheck(() -> Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
       ListUtil.forEach(model.tabEntities, (te, i) -> {
         String nameString = te.file.get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
-        String text = te.manager.modify.isModified() ? te.codeArea.getText() : "";
+        String text = te.manager.modify.isModified() ? te.manager.codeArea.getText() : "";
         Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(Options.charset.get())));
       });
@@ -343,8 +343,8 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
             .skip(1)
             .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
             .ifPresent(t -> {
-              te.codeArea.replaceText(t);
-              te.codeArea.getUndoManager().forgetHistory();
+              te.manager.codeArea.replaceText(t);
+              te.manager.codeArea.getUndoManager().forgetHistory();
             });
       }));
     }

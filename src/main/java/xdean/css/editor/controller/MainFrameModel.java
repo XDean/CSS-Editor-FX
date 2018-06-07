@@ -27,9 +27,8 @@ public class MainFrameModel {
   final ObservableList<CssTab> tabEntities = FXCollections.observableArrayList();
   final ObjectPropertyEX<@CheckNull CssTab> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
   final ObjectBinding<@CheckNull FileWrapper> currentFile = nestValue(currentTabEntity, t -> t.file);
-  final ObjectBinding<xdean.css.editor.controller.CodeAreaController> currentManager = map(currentTabEntity,
-      t -> t == null ? null : t.manager);
-  final ObjectBinding<@CheckNull CodeArea> currentCodeArea = map(currentTabEntity, t -> t == null ? null : t.codeArea);
+  final ObjectBinding<@CheckNull CodeAreaController> currentManager = map(currentTabEntity, t -> t == null ? null : t.manager);
+  final ObjectBinding<@CheckNull CodeArea> currentCodeArea = map(currentManager, m -> m == null ? null : m.codeArea);
   final BooleanBinding currentModified = nestBooleanValue(currentManager, m -> m.modifiedProperty());
 
   public CssTab newTab(FileWrapper file) {

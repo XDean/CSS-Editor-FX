@@ -27,13 +27,12 @@ import xdean.jex.util.task.TaskUtil;
 @Slf4j
 public class CSSContext {
   private static final CSSContext MODENA = new CSSContext();
-  private static final String url = CSSContext.class.getResource(
-      "/com/sun/javafx/scene/control/skin/modena/modena.css").toExternalForm();
   private static final String ROOT = "*.root";;
   private static final Font FONT = Font.font(1);
   static {
     try {
-      MODENA.load(new URL(url));
+      MODENA.load(CSSContext.class.getResource(
+          "/com/sun/javafx/scene/control/skin/modena/modena.css"));
     } catch (IOException e) {
       log.error("Load modena.css fail!", e);
       throw new RuntimeException(e);
@@ -231,15 +230,13 @@ public class CSSContext {
   public <T> T lookup(Object o) {
     return TaskUtil.firstSuccess(
         () -> _lookup(o),
-        () -> this == MODENA ? null : MODENA._lookup(o)
-        );
+        () -> this == MODENA ? null : MODENA._lookup(o));
   }
 
   @SuppressWarnings("unchecked")
   private <T> T _lookup(Object o) {
     return TaskUtil.firstSuccess(
-        () -> (T) ListUtil.lastGet(paints.get(o.toString().trim().toLowerCase()), 0).convert(FONT)
-        );
+        () -> (T) ListUtil.lastGet(paints.get(o.toString().trim().toLowerCase()), 0).convert(FONT));
   }
 
   public Multiset<String> getSelectors() {

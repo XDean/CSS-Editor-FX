@@ -22,6 +22,7 @@ import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -52,7 +53,10 @@ import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfxex.extra.ModifiableObject;
 
-public class CodeAreaController extends ModifiableObject {
+public class CodeAreaController {
+  
+  ModifiableObject modify = new ModifiableObject();
+  
   CodeArea codeArea;
 
   CSSContext lastContext;
@@ -74,8 +78,8 @@ public class CodeAreaController extends ModifiableObject {
   private void initProp() {
     codeArea.getStylesheets().add(
         TaskUtil.firstSuccess(
-            () -> CodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm(),
-            () -> CodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm()));
+            () -> CodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
+            () -> CodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm()));
   }
 
   private void initBind() {
@@ -188,7 +192,9 @@ public class CodeAreaController extends ModifiableObject {
       if (n) {
         overrideCSS.addListener(overrideCSSListener);
         codeArea.addEventFilter(KeyEvent.KEY_TYPED, overrideListener);
-        codeArea.moveTo(codeArea.getCaretPosition() - 1);
+        int caretPosition = codeArea.getCaretPosition();
+        codeArea.moveTo(caretPosition - 1);
+        codeArea.moveTo(caretPosition);
       } else {
         overrideCSS.removeListener(overrideCSSListener);
         codeArea.removeEventFilter(KeyEvent.KEY_TYPED, overrideListener);
@@ -207,9 +213,9 @@ public class CodeAreaController extends ModifiableObject {
     // });
 
     // modified
-    bindModified(codeArea.textProperty());
-    codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> If.that(n).todo(() -> saved()));
-    modifiedProperty().addListener((ob, o, n) -> If.that(n).ordo(() -> codeArea.getUndoManager().mark()));
+    modify.bindModified(codeArea.textProperty());
+    codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> If.that(n).todo(() -> modify.saved()));
+    modify.modifiedProperty().addListener((ob, o, n) -> If.that(n).ordo(() -> codeArea.getUndoManager().mark()));
   }
 
   public void comment() {
@@ -355,5 +361,9 @@ public class CodeAreaController extends ModifiableObject {
       str = str.substring(colon + 1);
     }
     return str;
+  }
+
+  public ReadOnlyBooleanProperty modifiedProperty() {
+    return modify.modifiedProperty();
   }
 }

@@ -58,6 +58,7 @@ public class MainFrameModel {
       }
     }
   }
+  
 
   @FieldDefaults(makeFinal = true)
   class TabEntity extends Tab {
@@ -103,7 +104,7 @@ public class MainFrameModel {
         codeArea.replaceText(new String(Files.readAllBytes(p), Options.charset.get()));
         codeArea.moveTo(0);
         codeArea.getUndoManager().forgetHistory();
-        manager.saved();
+        manager.modify.saved();
       }));
     }
 

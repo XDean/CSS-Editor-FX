@@ -33,7 +33,7 @@ public class CssTab extends Tab implements FxInitializable {
   RecentFileService recentFileService;
 
   @Inject
-  CodeAreaController manager;
+  CssCodeAreaController manager;
 
   ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
   ObjectBinding<String> name = map(file, f -> f.getFileName());

@@ -24,7 +24,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.PopupWindow;
 import xdean.css.context.CSSContext;
 import xdean.css.editor.config.Key;
-import xdean.css.editor.controller.CodeAreaController;
+import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.suggestion.CssSuggestionService;
 
 @Service
@@ -38,8 +38,8 @@ public class AutoCompletionCodeAreaBind {
       new KeyCodeCombination(KeyCode.DIGIT3, KeyCombination.SHIFT_DOWN),
       new KeyCodeCombination(KeyCode.MINUS));
 
-  public void bind(CodeAreaController codeAreaController) {
-    new Inner(codeAreaController);
+  public void bind(CssCodeArea cssCodeArea) {
+    new Inner(cssCodeArea);
   }
 
   private boolean shouldSuggest(KeyEvent e) {
@@ -59,23 +59,23 @@ public class AutoCompletionCodeAreaBind {
 
     AutoCompletePopup<String> popup = new AutoCompletePopup<>();
 
-    public Inner(CodeAreaController codeAreaController) {
-      this.codeArea = codeAreaController.codeArea;
-      this.context = codeAreaController.context;
+    public Inner(CssCodeArea cssCodeArea) {
+      this.codeArea = cssCodeArea;
+      this.context = cssCodeArea.context;
 
-      codeAreaController.codeArea.textProperty().addListener((ob, o, n) -> {
+      codeArea.textProperty().addListener((ob, o, n) -> {
         if (codeArea.isFocused() && popup.isShowing()) {
           showPopup();
         }
       });
-      codeAreaController.codeArea.focusedProperty().addListener((ob, o, n) -> {
+      codeArea.focusedProperty().addListener((ob, o, n) -> {
         if (n == false) {
           hidePopup();
         }
       });
 
-      codeAreaController.codeArea.setPopupWindow(popup);
-      codeAreaController.codeArea.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
+      codeArea.setPopupWindow(popup);
+      codeArea.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
 
       popup.setOnSuggestion(sce -> {
         completeUserInput(sce.getSuggestion());

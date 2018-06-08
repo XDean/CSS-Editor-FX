@@ -3,6 +3,7 @@ package xdean.css.editor.controller;
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jfxex.bean.ListenerUtil.weak;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
 
@@ -37,10 +38,11 @@ import javafx.scene.text.Font;
 import xdean.css.context.CSSContext;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
-import xdean.css.editor.controller.comp.AutoCompletionCodeAreaBind;
+import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.controller.comp.PreviewCodeAreaBind;
 import xdean.css.editor.feature.CSSFormat;
 import xdean.css.editor.feature.CSSHighLight;
+import xdean.css.editor.feature.CssCodeAreaFeature;
 import xdean.css.parser.CSSPaintPaser;
 import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.extra.StringURL;
@@ -52,15 +54,14 @@ import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.extra.ModifiableObject;
 
 @FxComponent
-public class CodeAreaController implements FxInitializable {
+public class CssCodeAreaController implements FxInitializable {
 
-  public final CodeArea codeArea = new CodeArea();
-  public final CSSContext context = CSSContext.createByDefault();
+  public final CssCodeArea codeArea = new CssCodeArea();
 
   CSSContext lastContext;
 
   @Inject
-  AutoCompletionCodeAreaBind autoCompletion;
+  List<CssCodeAreaFeature> features;
 
   PreviewCodeAreaBind preview;
 
@@ -73,8 +74,8 @@ public class CodeAreaController implements FxInitializable {
   public void initAfterFxSpringReady() {
     codeArea.getStylesheets().add(
         TaskUtil.firstSuccess(
-            () -> CodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
-            () -> CodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm()));
+            () -> CssCodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
+            () -> CssCodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm()));
 
     Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED).share();
     // font and line number
@@ -101,13 +102,13 @@ public class CodeAreaController implements FxInitializable {
             .filter(b -> b == false))
         .subscribe(e -> codeArea.removeEventFilter(ScrollEvent.SCROLL, zoom));
     // auto completion
-    autoCompletion.bind(this);
+    features.forEach(f -> f.bind(codeArea));
     // selection preview
     preview = new PreviewCodeAreaBind(codeArea);
-    paintPaser = new CSSPaintPaser(context);
+    paintPaser = new CSSPaintPaser(codeArea.context);
     JavaFxObservable.valuesOf(codeArea.selectedTextProperty())
         .debounce(300, TimeUnit.MILLISECONDS)
-        .map(CodeAreaController::extractValue)
+        .map(CssCodeAreaController::extractValue)
         .map(String::trim)
         .observeOn(Schedulers.computation())
         .switchMapMaybe(text -> Observable.merge(
@@ -155,7 +156,7 @@ public class CodeAreaController implements FxInitializable {
         .filter(c -> override.get())
         .map(c -> uncatch(() -> codeArea.getText().charAt(c)))
         .map(c -> c == null ? '\n' : c)
-        .map(CodeAreaController::getOverrideCaretCSS)
+        .map(CssCodeAreaController::getOverrideCaretCSS)
         .subscribe(s -> overrideCSS.set(s));
     ChangeListener<? super String> overrideCSSListener = (ob, o, n) -> {
       codeArea.getStylesheets().remove(o);
@@ -220,11 +221,11 @@ public class CodeAreaController implements FxInitializable {
 
   private void refreshContextSuggestion(String text) {
     if (lastContext != null) {
-      context.remove(lastContext);
+      codeArea.context.remove(lastContext);
       lastContext = null;
     }
     lastContext = new CSSContext(text);
-    context.add(lastContext);
+    codeArea.context.add(lastContext);
   }
 
   private void refreshCodeAreaStyle(String newText) {

@@ -1,4 +1,4 @@
-package xdean.css.editor.controller.comp;
+package xdean.css.editor.feature;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,7 +28,7 @@ import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.suggestion.CssSuggestionService;
 
 @Service
-public class AutoCompletionCodeAreaBind {
+public class SuggestionFeature implements CssCodeAreaFeature {
 
   @Inject
   CssSuggestionService cssSuggestion;
@@ -38,6 +38,7 @@ public class AutoCompletionCodeAreaBind {
       new KeyCodeCombination(KeyCode.DIGIT3, KeyCombination.SHIFT_DOWN),
       new KeyCodeCombination(KeyCode.MINUS));
 
+  @Override
   public void bind(CssCodeArea cssCodeArea) {
     new Inner(cssCodeArea);
   }

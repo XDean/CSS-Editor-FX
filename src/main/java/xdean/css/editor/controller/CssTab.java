@@ -22,15 +22,15 @@ import javafx.css.PseudoClass;
 import javafx.scene.control.Tab;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.domain.FileWrapper;
+import xdean.css.editor.service.RecentFileService;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxComponent;
-import xdean.jfxex.support.RecentFileMenuSupport;
 
 @FxComponent
-public class CssTab extends Tab implements FxInitializable{
+public class CssTab extends Tab implements FxInitializable {
   @Inject
-  RecentFileMenuSupport recentSupport;
+  RecentFileService recentFileService;
 
   @Inject
   CodeAreaController manager;
@@ -41,7 +41,7 @@ public class CssTab extends Tab implements FxInitializable{
   BooleanProperty active = new SimpleBooleanProperty(this, "active");
 
   @Override
-  public void initialize() {
+  public void initAfterFxSpringReady() {
     textProperty().bind(name);
     // graphics
     FontAwesomeIconView icon = new FontAwesomeIconView();
@@ -65,7 +65,7 @@ public class CssTab extends Tab implements FxInitializable{
     // recent
     file.addListener((ob, o, n) -> {
       if (n.isExistFile()) {
-        recentSupport.setLatestFile(n.getExistFile().get());
+        recentFileService.setLatestFile(n.getExistFile().get());
         reload();
       }
     });
@@ -73,7 +73,7 @@ public class CssTab extends Tab implements FxInitializable{
     setContent(manager.codeArea);
   }
 
-  void reload() {
+  public void reload() {
     file.get().getExistFile().ifPresent(p -> uncatch(() -> {
       manager.codeArea.replaceText(new String(Files.readAllBytes(p), Options.charset.get()));
       manager.codeArea.moveTo(0);
@@ -82,7 +82,7 @@ public class CssTab extends Tab implements FxInitializable{
     }));
   }
 
-  boolean isNew() {
+  public boolean isNew() {
     return file.get().isNewFile();
   }
 }

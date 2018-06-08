@@ -23,8 +23,6 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.springframework.beans.factory.InitializingBean;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
@@ -55,16 +53,17 @@ import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxGetRoot;
+import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.starter.FxContext;
 import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @FxController(fxml = "/fxml/MainFrame.fxml")
-public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, Logable {
+public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Logable {
 
   @FXML
-  MenuItem suggestItem, formatItem, undoItem, redoItem, commentItem,
+  MenuItem formatItem, undoItem, redoItem, commentItem,
       closeItem, saveItem, saveAsItem, revertItem, findItem;
   @FXML
   Button newButton, openButton, saveButton, undoButton, redoButton;
@@ -107,8 +106,7 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   MessageService messageService;
 
   @Override
-  public void afterPropertiesSet() throws Exception {
-    tabPane.getTabs().clear();// DELETE
+  public void initAfterFxSpringReady() {
     initField();
     initMenu();
     initComp();
@@ -148,7 +146,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
   private void initBind() {
     // shortcut
-    suggestItem.acceleratorProperty().bind(Key.SUGGEST.property());
     formatItem.acceleratorProperty().bind(Key.FORMAT.property());
     commentItem.acceleratorProperty().bind(Key.COMMENT.property());
     findItem.acceleratorProperty().bind(Key.FIND.property());
@@ -156,7 +153,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
 
     // disable
     BooleanBinding nullArea = model.currentCodeArea.isNull();
-    suggestItem.disableProperty().bind(nullArea);
     formatItem.disableProperty().bind(nullArea);
     commentItem.disableProperty().bind(nullArea);
     findItem.disableProperty().bind(nullArea);
@@ -293,11 +289,6 @@ public class MainFrameController implements InitializingBean, FxGetRoot<VBox>, L
   @FXML
   public void find() {
     searchBar.toggle();
-  }
-
-  @FXML
-  public void suggest() {
-    model.currentManager.get().suggest();
   }
 
   @FXML

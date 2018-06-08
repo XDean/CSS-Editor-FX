@@ -140,10 +140,6 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
                 text : "Toggle Comment",
                 onAction : controllermethod comment
               },
-              MenuItem id suggestItem {
-                text : "Auto Completion",
-                onAction : controllermethod suggest
-              },
               MenuItem id formatItem {
                 text : "Format",
                 onAction : controllermethod format

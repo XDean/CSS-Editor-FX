@@ -42,7 +42,7 @@ public class StatusBarController implements FxGetRoot<StatusBar>, FxInitializabl
   private @FXML Label inputType;
 
   @Override
-  public void initialize() {
+  public void initAfterFxSpringReady() {
     lines.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> countLine(t)));
     length.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> t.length()));
     caretCol.textProperty().bind(map(nestValue(area, c -> c.caretColumnProperty()), t -> t));

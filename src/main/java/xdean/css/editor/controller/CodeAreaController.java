@@ -3,11 +3,10 @@ package xdean.css.editor.controller;
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jfxex.bean.ListenerUtil.weak;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
+
+import javax.inject.Inject;
 
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -31,8 +30,6 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -44,33 +41,36 @@ import xdean.css.editor.controller.comp.AutoCompletionCodeAreaBind;
 import xdean.css.editor.controller.comp.PreviewCodeAreaBind;
 import xdean.css.editor.feature.CSSFormat;
 import xdean.css.editor.feature.CSSHighLight;
-import xdean.css.editor.feature.CSSSuggestion;
 import xdean.css.parser.CSSPaintPaser;
 import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
+import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.extra.ModifiableObject;
 
 @FxComponent
-public class CodeAreaController {
+public class CodeAreaController implements FxInitializable {
 
-  final CodeArea codeArea = new CodeArea();
+  public final CodeArea codeArea = new CodeArea();
+  public final CSSContext context = CSSContext.createByDefault();
 
   CSSContext lastContext;
-  CSSContext context;
 
-  final AutoCompletionCodeAreaBind autoCompletion;
-  final PreviewCodeAreaBind preview;
+  @Inject
+  AutoCompletionCodeAreaBind autoCompletion;
 
-  final CSSPaintPaser paintPaser;
+  PreviewCodeAreaBind preview;
 
-  final BooleanProperty override;
-  final ModifiableObject modify = new ModifiableObject();
+  CSSPaintPaser paintPaser;
 
-  public CodeAreaController() {
+  BooleanProperty override;
+  ModifiableObject modify = new ModifiableObject();
+
+  @Override
+  public void initAfterFxSpringReady() {
     codeArea.getStylesheets().add(
         TaskUtil.firstSuccess(
             () -> CodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
@@ -101,15 +101,8 @@ public class CodeAreaController {
             .filter(b -> b == false))
         .subscribe(e -> codeArea.removeEventFilter(ScrollEvent.SCROLL, zoom));
     // auto completion
-    autoCompletion = new AutoCompletionCodeAreaBind(codeArea,
-        (t, c) -> CSSSuggestion.getSuggestion(t, c, context),
-        CSSSuggestion::getReplaceRange);
-    keyPress.debounce(100, TimeUnit.MILLISECONDS)
-        .filter(CodeAreaController::shouldSuggest)
-        .observeOn(JavaFxScheduler.platform())
-        .subscribe(e -> suggest());
+    autoCompletion.bind(this);
     // selection preview
-    context = CSSContext.createByDefault();
     preview = new PreviewCodeAreaBind(codeArea);
     paintPaser = new CSSPaintPaser(context);
     JavaFxObservable.valuesOf(codeArea.selectedTextProperty())
@@ -221,10 +214,6 @@ public class CodeAreaController {
     codeArea.moveTo(selection.getStart(), SelectionPolicy.EXTEND);
   }
 
-  public void suggest() {
-    autoCompletion.showPopup();
-  }
-
   public void format() {
     // TODO Format
   }
@@ -268,25 +257,6 @@ public class CodeAreaController {
 
   public CodeArea getCodeArea() {
     return codeArea;
-  }
-
-  private static final Set<KeyCombination> LEGAL_PREFIX;
-  static {
-    Set<KeyCombination> set = new HashSet<>();
-    set.add(new KeyCodeCombination(KeyCode.PERIOD));
-    set.add(new KeyCodeCombination(KeyCode.DIGIT3, KeyCombination.SHIFT_DOWN));
-    set.add(new KeyCodeCombination(KeyCode.MINUS));
-    LEGAL_PREFIX = Collections.unmodifiableSet(set);
-  }
-
-  private static boolean shouldSuggest(KeyEvent e) {
-    if (LEGAL_PREFIX.stream().filter(c -> c.match(e)).count() > 0) {
-      return true;
-    }
-    if (Key.SUGGEST.get().match(e)) {
-      return true;
-    }
-    return false;
   }
 
   private static void bindFont(Node node) {

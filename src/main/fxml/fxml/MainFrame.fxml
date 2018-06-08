@@ -111,7 +111,6 @@
 						<SeparatorMenuItem/> 
 						<MenuItem fx:id="findItem" text="Find" onAction="#find"/> 
 						<MenuItem fx:id="commentItem" text="Toggle Comment" onAction="#comment"/> 
-						<MenuItem fx:id="suggestItem" text="Auto Completion" onAction="#suggest"/> 
 						<MenuItem fx:id="formatItem" text="Format" onAction="#format"/> 
 					</items>
 				</Menu>

@@ -18,9 +18,9 @@ public class SimpleSuggestion implements CssSuggestionService {
   public Collection<String> getSuggestion(String text, int caretPos, CSSContext context) {
     String prePart = text.substring(0, caretPos);
     IndexRange replaceRange = getReplaceRange(text, caretPos, context);
-    char c;
+    char c = ' ';
     int index = replaceRange.getStart();
-    while (true) {
+    while (index > 0) {
       index--;
       c = text.charAt(index);
       if (c != ' ' && c != '\t') {

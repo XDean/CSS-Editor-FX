@@ -40,7 +40,7 @@ public class SuggestionFeature implements CssCodeAreaFeature {
 
   @Override
   public void bind(CssCodeArea cssCodeArea) {
-    new Inner(cssCodeArea);
+    new InnerController(cssCodeArea);
   }
 
   private boolean shouldSuggest(KeyEvent e) {
@@ -53,14 +53,14 @@ public class SuggestionFeature implements CssCodeAreaFeature {
     }
   }
 
-  private class Inner {
+  private class InnerController {
 
     CodeArea codeArea;
     CSSContext context;
 
     AutoCompletePopup<String> popup = new AutoCompletePopup<>();
 
-    public Inner(CssCodeArea cssCodeArea) {
+    public InnerController(CssCodeArea cssCodeArea) {
       this.codeArea = cssCodeArea;
       this.context = cssCodeArea.context;
 

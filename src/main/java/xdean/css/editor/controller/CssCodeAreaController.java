@@ -16,11 +16,9 @@ import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 
 import com.sun.javafx.tk.Toolkit;
 
-import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
-import io.reactivex.schedulers.Schedulers;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -39,12 +37,9 @@ import xdean.css.context.CSSContext;
 import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.control.CssCodeArea;
-import xdean.css.editor.controller.comp.PreviewCodeAreaBind;
 import xdean.css.editor.feature.CSSFormat;
 import xdean.css.editor.feature.CSSHighLight;
 import xdean.css.editor.feature.CssCodeAreaFeature;
-import xdean.css.parser.CSSPaintPaser;
-import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
@@ -62,10 +57,6 @@ public class CssCodeAreaController implements FxInitializable {
 
   @Inject
   List<CssCodeAreaFeature> features;
-
-  PreviewCodeAreaBind preview;
-
-  CSSPaintPaser paintPaser;
 
   BooleanProperty override;
   ModifiableObject modify = new ModifiableObject();
@@ -102,30 +93,8 @@ public class CssCodeAreaController implements FxInitializable {
             .filter(b -> b == false))
         .subscribe(e -> codeArea.removeEventFilter(ScrollEvent.SCROLL, zoom));
     // auto completion
-    features.forEach(f -> f.bind(codeArea));
     // selection preview
-    preview = new PreviewCodeAreaBind(codeArea);
-    paintPaser = new CSSPaintPaser(codeArea.context);
-    JavaFxObservable.valuesOf(codeArea.selectedTextProperty())
-        .debounce(300, TimeUnit.MILLISECONDS)
-        .map(CssCodeAreaController::extractValue)
-        .map(String::trim)
-        .observeOn(Schedulers.computation())
-        .switchMapMaybe(text -> Observable.merge(
-            Observable.fromIterable(paintPaser.getTasks())
-                .observeOn(Schedulers.computation())
-                .concatMapMaybe(f -> Maybe.fromCallable(() -> f.apply(text)).onErrorComplete())
-                .observeOn(JavaFxScheduler.platform())
-                .doOnNext(preview::showPaint),
-            Observable.just(text)
-                .map(s -> StringUtil.unWrap(s, "\"", "\""))
-                .filter(CSSSVGPaser::verify)
-                .observeOn(JavaFxScheduler.platform())
-                .doOnNext(preview::showSVG))
-            .observeOn(JavaFxScheduler.platform())
-            .firstElement()
-            .doOnComplete(preview::hidePopup))
-        .subscribe();
+    features.forEach(f -> f.bind(codeArea));
     // context add to suggestion
     JavaFxObservable.valuesOf(codeArea.textProperty())
         .debounce(700, TimeUnit.MILLISECONDS)
@@ -312,19 +281,6 @@ public class CssCodeAreaController implements FxInitializable {
   public static double getTextSize(String text) {
     return Toolkit.getToolkit().getFontLoader().computeStringWidth(text,
         Font.font(Options.fontFamily.get(), Options.fontSize.get()));
-  }
-
-  private static String extractValue(String text) {
-    String str = text.trim();
-    int colon = str.indexOf(':');
-    int semicolon = str.indexOf(';');
-    if (semicolon != -1 && semicolon == str.length() - 1) {
-      str = str.substring(0, str.length() - 1);
-    }
-    if (colon != -1) {
-      str = str.substring(colon + 1);
-    }
-    return str;
   }
 
   public ReadOnlyBooleanProperty modifiedProperty() {

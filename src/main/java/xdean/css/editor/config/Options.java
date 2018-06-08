@@ -20,8 +20,7 @@ import xdean.css.editor.config.option.ValueOption;
 @Slf4j
 public class Options {
 
-  public static final OptionGroup
-      ALL = new OptionGroup("All"),
+  public static final OptionGroup ALL = new OptionGroup("All"),
       GENERAL = ALL.add(new OptionGroup("General")),
       KEY = ALL.add(new OptionGroup("Key")),
       COMMON = GENERAL.add(new OptionGroup("Common")),
@@ -33,12 +32,17 @@ public class Options {
   public static final BooleanOption showLineNo = COMMON.add(Option.create(true, "Show Line Number"));
   public static final BooleanOption openLastFile = COMMON.add(Option.create(true, "Auto Open Last Closed File"));
   public static final ValueOption<Charset> charset = COMMON.add(Option.createValue(DefaultValue.DEFAULT_CHARSET, "Charset"));
-  public static final ValueOption<String> fontFamily = TEXT.add(Option.createValue(DefaultValue.DEFAULT_FONT_FAMILY, "Font Family"));
+  public static final ValueOption<String> fontFamily = TEXT
+      .add(Option.createValue(DefaultValue.DEFAULT_FONT_FAMILY, "Font Family"));
   public static final IntegerOption fontSize = TEXT.add(Option.create(DefaultValue.DEFAULT_FONT_SIZE, "Font Size"));
   public static final BooleanOption wrapText = TEXT.add(Option.create(true, "Wrap text"));
   public static final BooleanOption findRegex = FIND.add(Option.create(false, "Find Regex"));
   public static final BooleanOption findWrapText = FIND.add(Option.create(true, "Find Wrap Text"));
   public static final BooleanOption findCaseSensitive = FIND.add(Option.create(false, "Find Case Sensitive"));
+
+  static {
+    Key.values();
+  }
 
   public static final class DefaultValue {
     public static final int DEFAULT_FONT_SIZE = 16;
@@ -74,11 +78,6 @@ public class Options {
 
   /**
    * Bind the option with configuration by the converter
-   * 
-   * @param o
-   * @param converter
-   * @param toString
-   * @return
    */
   static <T, O extends Option<T>> O bind(O o, Function<String, T> converter, Function<T, String> toString) {
     String key = o.getDescribe();
@@ -127,8 +126,8 @@ public class Options {
   }
 
   /**
-   * Check whether font family is null or invalid (family not available on
-   * system) and search for an available family.
+   * Check whether font family is null or invalid (family not available on system) and search for an
+   * available family.
    */
   private static String safeFontFamily(String fontFamily) {
     List<String> fontFamilies = Font.getFamilies();

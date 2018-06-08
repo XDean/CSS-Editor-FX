@@ -1,15 +1,12 @@
 package xdean.css.editor.controller;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
@@ -32,7 +29,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import lombok.extern.slf4j.Slf4j;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.config.option.BooleanOption;
 import xdean.css.editor.config.option.ConstraintOption;
@@ -40,18 +36,15 @@ import xdean.css.editor.config.option.IntegerOption;
 import xdean.css.editor.config.option.Option;
 import xdean.css.editor.config.option.OptionGroup;
 import xdean.css.editor.config.option.ValueOption;
+import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfx.spring.FxGetRoot;
+import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 
-@Slf4j
 @FxController(fxml = "/fxml/Options.fxml")
-public class OptionsController implements Initializable, FxGetRoot<DialogPane> {
-
-  @FXML
-  DialogPane dialogPane;
-
+public class OptionsController implements FxInitializable, FxGetRoot<DialogPane>, Logable {
   @FXML
   VBox generalPane;
 
@@ -68,11 +61,11 @@ public class OptionsController implements Initializable, FxGetRoot<DialogPane> {
   private List<Runnable> onSubmit = new ArrayList<>();
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initAfterFxSpringReady() {
     initGeneral();
     initKey();
 
-    dialogPane.lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> {
+    getRoot().lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> {
       onSubmit.forEach(Runnable::run);
       e.consume();
     });
@@ -119,7 +112,7 @@ public class OptionsController implements Initializable, FxGetRoot<DialogPane> {
         add((ValueOption<T>) o);
       }
     } else {
-      log.error("Can't handle this option: " + o);
+      error("Can't handle this option: " + o);
     }
     nowTab--;
   }

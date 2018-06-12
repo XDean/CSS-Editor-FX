@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 
 import com.sun.javafx.tk.Toolkit;
 
@@ -33,10 +32,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 import xdean.css.context.CSSContext;
-import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.control.CssCodeArea;
-import xdean.css.editor.feature.CSSFormat;
 import xdean.css.editor.feature.CssCodeAreaFeature;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
@@ -93,10 +90,6 @@ public class CssCodeAreaController implements FxInitializable {
         .subscribe(this::refreshContextSuggestion);
     // wrap word
     codeArea.wrapTextProperty().bind(Options.wrapText.property());
-    keyPress.filter(Key.COMMENT.get()::match)
-        .filter(e -> e.isConsumed() == false)
-        .doOnNext(KeyEvent::consume)
-        .subscribe(e -> comment());
     // auto select word's first '-'
     JavaFxObservable.eventsOf(codeArea, MouseEvent.MOUSE_PRESSED)
         .filter(e -> e.getClickCount() == 2)
@@ -166,16 +159,6 @@ public class CssCodeAreaController implements FxInitializable {
     modify.modifiedProperty().addListener((ob, o, n) -> If.that(n).ordo(() -> codeArea.getUndoManager().mark()));
   }
 
-  public void comment() {
-    selectLines(codeArea);
-    String selectedText = codeArea.getSelectedText();
-    IndexRange selection = codeArea.getSelection();
-    codeArea.getUndoManager().preventMerge();
-    codeArea.replaceSelection(CSSFormat.toggleComment(selectedText));
-    codeArea.getUndoManager().preventMerge();
-    codeArea.moveTo(selection.getStart(), SelectionPolicy.EXTEND);
-  }
-
   public void format() {
     // TODO Format
   }
@@ -240,20 +223,6 @@ public class CssCodeAreaController implements FxInitializable {
     if (Options.showLineNo.get()) {
       textArea.setParagraphGraphicFactory(factory);
     }
-  }
-
-  private static void selectLines(CodeArea area) {
-    IndexRange origin = area.getSelection();
-
-    area.moveTo(origin.getStart());
-    area.lineStart(SelectionPolicy.CLEAR);
-    int start = area.getCaretPosition();
-
-    area.moveTo(origin.getEnd());
-    area.lineEnd(SelectionPolicy.CLEAR);
-    int end = area.getCaretPosition();
-
-    area.selectRange(start, end);
   }
 
   private static String getOverrideCaretCSS(char c) {

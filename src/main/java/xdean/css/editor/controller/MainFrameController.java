@@ -291,7 +291,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void comment() {
-    model.currentManager.get().comment();
+//    model.currentManager.get().comment();
   }
 
   @FXML

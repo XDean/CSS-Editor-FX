@@ -13,7 +13,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.VBox?>
 
-<DialogPane xmlns:fx="http://javafx.com/fxml" fx:id="dialogPane" fx:controller="xdean.css.editor.controller.OptionsController" expanded="true">
+<DialogPane xmlns:fx="http://javafx.com/fxml" fx:id="root" fx:controller="xdean.css.editor.controller.OptionsController" expanded="true">
 
 	<buttonTypes><ButtonType fx:constant="FINISH" /></buttonTypes>
 	<buttonTypes><ButtonType fx:constant="CANCEL" /></buttonTypes>

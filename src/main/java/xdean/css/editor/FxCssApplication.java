@@ -4,18 +4,20 @@ import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import xdean.css.editor.controller.MainFrameController;
 import xdean.css.editor.service.NodeFactoryService;
 import xdean.jfx.spring.FxApplication;
+import xdean.jfx.spring.FxmlResult;
 
 @Component
 public class FxCssApplication implements FxApplication {
 
   @Inject
-  MainFrameController mainFrame;
+  FxmlResult<MainFrameController, Parent> mainFrame;
 
   @Inject
   NodeFactoryService nodeFactory;

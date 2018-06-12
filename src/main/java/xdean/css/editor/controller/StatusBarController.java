@@ -6,7 +6,6 @@ import static xdean.jfxex.bean.BeanUtil.nestValue;
 
 import java.util.function.Function;
 
-import org.controlsfx.control.StatusBar;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.fxmisc.richtext.CodeArea;
@@ -21,14 +20,13 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import xdean.css.editor.config.Options;
 import xdean.jex.util.calc.MathUtil;
-import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @FxController(fxml = "/fxml/StatusBar.fxml")
-public class StatusBarController implements FxGetRoot<StatusBar>, FxInitializable {
+public class StatusBarController implements FxInitializable {
 
   public final ObjectPropertyEX<CodeArea> area = new ObjectPropertyEX<>(this, "area");
   public final BooleanPropertyEX override = new BooleanPropertyEX(this, "override");

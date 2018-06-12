@@ -12,7 +12,7 @@ import javafx.scene.input.KeyCombination
 import xdean.css.editor.config.option.Option
 
 component Options controlledby xdean.css.editor.controller.OptionsController {
-  DialogPane id dialogPane {
+  DialogPane id root {
     expanded : true,
     buttonTypes : const ButtonType#FINISH,
     buttonTypes : const ButtonType#CANCEL,

@@ -12,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -29,6 +30,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.config.option.BooleanOption;
 import xdean.css.editor.config.option.ConstraintOption;
@@ -39,12 +41,14 @@ import xdean.css.editor.config.option.ValueOption;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
-import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 
 @FxController(fxml = "/fxml/Options.fxml")
-public class OptionsController implements FxInitializable, FxGetRoot<DialogPane>, Logable {
+public class OptionsController implements FxInitializable, Logable {
+  @FXML
+  DialogPane root;
+
   @FXML
   VBox generalPane;
 
@@ -65,10 +69,17 @@ public class OptionsController implements FxInitializable, FxGetRoot<DialogPane>
     initGeneral();
     initKey();
 
-    getRoot().lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> {
+    root.lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> {
       onSubmit.forEach(Runnable::run);
       e.consume();
     });
+  }
+  
+  public void open(Stage stage) {
+    Dialog<Void> dialog = new Dialog<>();
+    dialog.initOwner(stage);
+    dialog.setDialogPane(root);
+    dialog.show();
   }
 
   private void initGeneral() {

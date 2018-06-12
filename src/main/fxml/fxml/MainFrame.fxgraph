@@ -273,7 +273,11 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
           }
         ]
       },
-      VBox id bottomExtraPane,
+      VBox id bottomExtraPane {
+        children : [
+          include fxml.SearchBar as searchBar
+        ]
+      },
       include fxml.StatusBar as statusBar
     ]
   }

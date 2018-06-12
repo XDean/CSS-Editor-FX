@@ -199,7 +199,11 @@
 				</BorderPane>
 			</items>
 		</SplitPane>
-		<VBox fx:id="bottomExtraPane"/> 
+		<VBox fx:id="bottomExtraPane"> 
+			<children>
+				<fx:include fx:id="searchBar" source="/fxml/SearchBar.fxml" />
+			</children>
+		</VBox>
 		<fx:include fx:id="statusBar" source="/fxml/StatusBar.fxml" />
 	</children>
 </VBox>

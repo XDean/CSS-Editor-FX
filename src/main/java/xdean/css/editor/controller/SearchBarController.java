@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
-import org.springframework.beans.factory.InitializingBean;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -18,14 +17,18 @@ import javafx.scene.layout.HBox;
 import xdean.css.editor.config.Options;
 import xdean.jex.extra.function.Func3;
 import xdean.jex.util.string.StringUtil;
-import xdean.jfx.spring.FxGetRoot;
+import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
+import xdean.jfxex.util.DebugUtil;
 
 @FxController(fxml = "/fxml/SearchBar.fxml")
-public class SearchBarController implements FxGetRoot<HBox>, InitializingBean {
+public class SearchBarController implements FxInitializable {
+
+  @FXML
+  HBox root;
 
   TextField findField;
 
@@ -49,7 +52,7 @@ public class SearchBarController implements FxGetRoot<HBox>, InitializingBean {
   public final ObjectPropertyEX<@CheckNull CodeArea> codeArea = new ObjectPropertyEX<>(this, "codeArea");
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void initAfterFxSpringReady() {
     findField = TextFields.createClearableTextField();
     textContainer.getChildren().add(findField);
 
@@ -58,7 +61,8 @@ public class SearchBarController implements FxGetRoot<HBox>, InitializingBean {
     wrapSearch.selectedProperty().bindBidirectional(Options.findWrapText.property());
     visible.and(codeArea.isNotNull());
 
-    HBox root = getRoot();
+    DebugUtil.traceBean(root.managedProperty());
+    DebugUtil.traceBean(root.visibleProperty());
 
     root.visibleProperty().addListener(on(true, findField::requestFocus)
         .on(false, () -> uncatch(() -> codeArea.getValue().requestFocus())));

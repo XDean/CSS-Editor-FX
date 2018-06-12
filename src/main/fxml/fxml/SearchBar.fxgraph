@@ -7,7 +7,7 @@ import xdean.css.editor.controller.SearchBarController
 import javafx.geometry.Insets
 
 component SearchBar controlledby SearchBarController {
-  HBox {
+  HBox id root{
     alignment : "CENTER_LEFT",
     padding : Insets {
       topRightBottomLeft : 5

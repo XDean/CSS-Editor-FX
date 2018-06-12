@@ -29,7 +29,6 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
@@ -52,7 +51,6 @@ import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.task.If;
-import xdean.jfx.spring.FxGetRoot;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.starter.FxContext;
@@ -60,7 +58,7 @@ import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @FxController(fxml = "/fxml/MainFrame.fxml")
-public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Logable {
+public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   MenuItem formatItem, undoItem, redoItem, commentItem,
@@ -83,8 +81,8 @@ public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Lo
   @FXML
   StatusBarController statusBarController;
 
-  @Inject
-  SearchBarController searchBar;
+  @FXML
+  SearchBarController searchBarController;
 
   @Inject
   @Named(FxContext.FX_PRIMARY_STAGE)
@@ -109,7 +107,6 @@ public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Lo
   public void initAfterFxSpringReady() {
     initField();
     initMenu();
-    initComp();
     initBind();
     Try.to(() -> openLastFile()).onException(e -> error("Load last closed file fail.", e));
 
@@ -122,7 +119,7 @@ public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Lo
 
   private void initField() {
     recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
-    searchBar.codeArea.bind(model.currentCodeArea);
+    searchBarController.codeArea.bind(model.currentCodeArea);
     statusBarController.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
     statusBarController.area.bind(model.currentCodeArea);
   }
@@ -138,10 +135,6 @@ public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Lo
       }
       skinMenu.getItems().add(item);
     }
-  }
-
-  private void initComp() {
-    bottomExtraPane.getChildren().add(searchBar.getRoot());
   }
 
   private void initBind() {
@@ -288,7 +281,7 @@ public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Lo
 
   @FXML
   public void find() {
-    searchBar.toggle();
+    searchBarController.toggle();
   }
 
   @FXML
@@ -303,10 +296,7 @@ public class MainFrameController implements FxInitializable, FxGetRoot<VBox>, Lo
 
   @FXML
   public void option() {
-    Dialog<Void> dialog = new Dialog<>();
-    dialog.initOwner(stage);
-    dialog.setDialogPane(oc.getRoot());
-    dialog.show();
+    oc.open(stage);
   }
 
   @FXML

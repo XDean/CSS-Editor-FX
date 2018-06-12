@@ -16,13 +16,14 @@ import xdean.css.editor.service.MessageService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.lang.ExceptionUtil;
+import xdean.jfx.spring.starter.FxContextPostProcessor;
 
 /**
  * @author XDean
  */
 @Configuration
 @SuppressWarnings("restriction")
-public class Context implements Logable {
+public class Context implements Logable, FxContextPostProcessor {
   public static final Path HOME_PATH = Paths.get(System.getProperty("user.home"), ".xdean", "css");
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");
   public static final Path CONFIG_PATH = HOME_PATH.resolve("config.properties");
@@ -32,8 +33,8 @@ public class Context implements Logable {
   @Inject
   MessageService messageService;
 
-  @Inject
-  private void prepare() {
+  @Override
+  public void beforeStart() {
     // create directories
     try {
       FileUtil.createDirectory(HOME_PATH);
@@ -51,11 +52,7 @@ public class Context implements Logable {
       }
       Platform.runLater(() -> messageService.showMessageDialog(null, "ERROR", ExceptionUtil.getStackTraceString(e)));
     });
-  }
 
-  @Inject
-  private void loadConfig() {
     Config.locate(CONFIG_PATH, DEFAULT_CONFIG_PATH);
   }
-
 }

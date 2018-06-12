@@ -1,4 +1,4 @@
-package xdean.css.editor.config;
+package xdean.css.editor.context.config;
 public enum ConfigKey {
 	LANGUAGE,
 	CHARSET,

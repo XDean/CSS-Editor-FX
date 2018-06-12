@@ -20,7 +20,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Tab;
-import xdean.css.editor.config.Options;
+import xdean.css.editor.context.option.Options;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.RecentFileService;
 import xdean.jex.util.cache.CacheUtil;

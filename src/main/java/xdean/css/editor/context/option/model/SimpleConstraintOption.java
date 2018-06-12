@@ -1,4 +1,4 @@
-package xdean.css.editor.config.option;
+package xdean.css.editor.context.option.model;
 
 public abstract class SimpleConstraintOption<T> extends SimpleOption<T> implements ConstraintOption<T> {
 

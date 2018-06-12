@@ -1,4 +1,4 @@
-package xdean.css.editor.config;
+package xdean.css.editor.context;
 
 import xdean.jex.util.string.StringUtil;
 import xdean.jfxex.support.skin.SkinStyle;

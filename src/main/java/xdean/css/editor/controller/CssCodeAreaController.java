@@ -32,7 +32,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 import xdean.css.context.CSSContext;
-import xdean.css.editor.config.Options;
+import xdean.css.editor.context.option.Options;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.CssCodeAreaFeature;
 import xdean.jex.extra.StringURL;

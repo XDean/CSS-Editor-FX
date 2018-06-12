@@ -8,10 +8,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
-import xdean.css.editor.config.Config;
-import xdean.css.editor.config.ConfigKey;
-import xdean.css.editor.config.Context;
-import xdean.css.editor.config.DefaultSkin;
+import xdean.css.editor.context.Context;
+import xdean.css.editor.context.DefaultSkin;
+import xdean.css.editor.context.config.Config;
+import xdean.css.editor.context.config.ConfigKey;
 import xdean.jex.log.Logable;
 import xdean.jex.util.string.StringUtil;
 import xdean.jfxex.support.skin.SkinStyle;

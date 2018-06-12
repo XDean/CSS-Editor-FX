@@ -1,4 +1,4 @@
-package xdean.css.editor.config;
+package xdean.css.editor.context.option;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -11,11 +11,12 @@ import com.google.common.collect.BoundType;
 
 import javafx.scene.text.Font;
 import lombok.extern.slf4j.Slf4j;
-import xdean.css.editor.config.option.BooleanOption;
-import xdean.css.editor.config.option.IntegerOption;
-import xdean.css.editor.config.option.Option;
-import xdean.css.editor.config.option.OptionGroup;
-import xdean.css.editor.config.option.ValueOption;
+import xdean.css.editor.context.config.Config;
+import xdean.css.editor.context.option.model.BooleanOption;
+import xdean.css.editor.context.option.model.IntegerOption;
+import xdean.css.editor.context.option.model.Option;
+import xdean.css.editor.context.option.model.OptionGroup;
+import xdean.css.editor.context.option.model.ValueOption;
 
 @Slf4j
 public class Options {

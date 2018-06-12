@@ -3,7 +3,7 @@ package xdean.css.editor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
 
-import xdean.css.editor.config.Context;
+import xdean.css.editor.context.Context;
 import xdean.jfx.spring.annotation.SpringFxApplication;
 
 @SpringFxApplication

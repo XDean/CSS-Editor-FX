@@ -1,4 +1,4 @@
-package xdean.css.editor.config;
+package xdean.css.editor.context;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,6 +12,7 @@ import com.sun.javafx.util.Logging;
 
 import javafx.application.Platform;
 import sun.util.logging.PlatformLogger.Level;
+import xdean.css.editor.context.config.Config;
 import xdean.css.editor.service.MessageService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.file.FileUtil;

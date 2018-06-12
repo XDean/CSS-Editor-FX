@@ -15,7 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import xdean.css.editor.config.Options;
+import xdean.css.editor.context.option.Options;
 import xdean.jex.extra.function.Func3;
 import xdean.jex.util.string.StringUtil;
 import xdean.jfx.spring.FxInitializable;

@@ -1,6 +1,6 @@
 package xdean.css.editor.controller;
 
-import static xdean.css.editor.config.Context.LAST_FILE_PATH;
+import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
@@ -40,8 +40,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import xdean.css.editor.config.Key;
-import xdean.css.editor.config.Options;
+import xdean.css.editor.context.option.Key;
+import xdean.css.editor.context.option.Options;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.MessageService;
 import xdean.css.editor.service.SkinService;

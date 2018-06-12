@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyEvent;
-import xdean.css.editor.config.Key;
+import xdean.css.editor.context.option.Key;
 import xdean.css.editor.control.CssCodeArea;
 
 @Service

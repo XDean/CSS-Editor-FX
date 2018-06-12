@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import xdean.css.editor.config.Config;
-import xdean.css.editor.config.ConfigKey;
+import xdean.css.editor.context.config.Config;
+import xdean.css.editor.context.config.ConfigKey;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
 @Service

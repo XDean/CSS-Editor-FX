@@ -24,7 +24,7 @@ public class CssSuggestionsFilter {
         .groupBy(s -> filters.stream()
             .filter(f -> f.filter(s, input))
             .findFirst())
-        .filter(g -> !g.getKey().isPresent())
+        .filter(g -> g.getKey().isPresent())
         .sorted((g1, g2) -> g1.getKey().get().getOrder() - g2.getKey().get().getOrder())
         .subscribe(g -> g.forEach(list::add));
     return list;

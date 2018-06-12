@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
 
+import javafx.beans.property.Property;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -22,34 +23,20 @@ import xdean.jfx.spring.annotation.FxController;
 import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
-import xdean.jfxex.util.DebugUtil;
 
 @FxController(fxml = "/fxml/SearchBar.fxml")
 public class SearchBarController implements FxInitializable {
 
-  @FXML
-  HBox root;
+  private @FXML HBox root;
+  private @FXML HBox textContainer;
+  private @FXML Button findButton;
+  private @FXML CheckBox caseSensitive;
+  private @FXML CheckBox regex;
+  private @FXML CheckBox wrapSearch;
 
-  TextField findField;
-
-  @FXML
-  HBox textContainer;
-
-  @FXML
-  Button findButton;
-
-  @FXML
-  CheckBox caseSensitive;
-
-  @FXML
-  CheckBox regex;
-
-  @FXML
-  CheckBox wrapSearch;
-
-  public final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
-
-  public final ObjectPropertyEX<@CheckNull CodeArea> codeArea = new ObjectPropertyEX<>(this, "codeArea");
+  private TextField findField;
+  private final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
+  private final ObjectPropertyEX<@CheckNull CodeArea> codeArea = new ObjectPropertyEX<>(this, "codeArea");
 
   @Override
   public void initAfterFxSpringReady() {
@@ -60,9 +47,6 @@ public class SearchBarController implements FxInitializable {
     caseSensitive.selectedProperty().bindBidirectional(Options.findCaseSensitive.property());
     wrapSearch.selectedProperty().bindBidirectional(Options.findWrapText.property());
     visible.and(codeArea.isNotNull());
-
-    DebugUtil.traceBean(root.managedProperty());
-    DebugUtil.traceBean(root.visibleProperty());
 
     root.visibleProperty().addListener(on(true, findField::requestFocus)
         .on(false, () -> uncatch(() -> codeArea.getValue().requestFocus())));
@@ -113,5 +97,9 @@ public class SearchBarController implements FxInitializable {
 
   public void toggle() {
     visible.set(!visible.get());
+  }
+
+  public Property<CodeArea> codeAreaProperty() {
+    return codeArea;
   }
 }

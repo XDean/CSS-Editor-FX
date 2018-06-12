@@ -119,7 +119,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   private void initField() {
     recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
-    searchBarController.codeArea.bind(model.currentCodeArea);
+    searchBarController.codeAreaProperty().bind(model.currentCodeArea);
     statusBarController.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
     statusBarController.area.bind(model.currentCodeArea);
   }

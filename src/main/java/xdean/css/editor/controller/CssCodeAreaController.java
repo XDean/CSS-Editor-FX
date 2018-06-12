@@ -18,7 +18,6 @@ import com.sun.javafx.tk.Toolkit;
 
 import io.reactivex.Observable;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
-import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -38,7 +37,6 @@ import xdean.css.editor.config.Key;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.CSSFormat;
-import xdean.css.editor.feature.CSSHighLight;
 import xdean.css.editor.feature.CssCodeAreaFeature;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
@@ -68,6 +66,8 @@ public class CssCodeAreaController implements FxInitializable {
             () -> CssCodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
             () -> CssCodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm()));
 
+    features.forEach(f -> f.bind(codeArea));
+
     Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED).share();
     // font and line number
     bindFont(codeArea);
@@ -76,11 +76,6 @@ public class CssCodeAreaController implements FxInitializable {
       bindFont(node);
       return node;
     });
-    // refresh highlight
-    JavaFxObservable.valuesOf(codeArea.textProperty())
-        .debounce(300, TimeUnit.MILLISECONDS)
-        .observeOn(JavaFxScheduler.platform())
-        .subscribe(this::refreshCodeAreaStyle);
     // zoom
     keyPress.map(KeyEvent::getCode)
         .filter(KeyCode.CONTROL::equals)
@@ -92,9 +87,6 @@ public class CssCodeAreaController implements FxInitializable {
         JavaFxObservable.valuesOf(codeArea.focusedProperty())
             .filter(b -> b == false))
         .subscribe(e -> codeArea.removeEventFilter(ScrollEvent.SCROLL, zoom));
-    // auto completion
-    // selection preview
-    features.forEach(f -> f.bind(codeArea));
     // context add to suggestion
     JavaFxObservable.valuesOf(codeArea.textProperty())
         .debounce(700, TimeUnit.MILLISECONDS)
@@ -195,10 +187,6 @@ public class CssCodeAreaController implements FxInitializable {
     }
     lastContext = new CSSContext(text);
     codeArea.context.add(lastContext);
-  }
-
-  private void refreshCodeAreaStyle(String newText) {
-    codeArea.setStyleSpans(0, CSSHighLight.computeHighlighting(newText));
   }
 
   private EventHandler<ScrollEvent> zoom = e -> {

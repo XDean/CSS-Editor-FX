@@ -1,4 +1,4 @@
-package xdean.css.editor.controller.comp;
+package xdean.css.editor.feature;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +23,6 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.PopupWindow;
 import xdean.css.editor.control.CssCodeArea;
-import xdean.css.editor.feature.CssCodeAreaFeature;
 import xdean.css.parser.CSSPaintPaser;
 import xdean.css.parser.CSSSVGPaser;
 import xdean.jex.util.string.StringUtil;
@@ -31,7 +30,7 @@ import xdean.jfxex.support.DragSupport;
 import xdean.jfxex.util.LayoutUtil;
 
 @Service
-public class PreviewCodeAreaBind implements CssCodeAreaFeature {
+public class PreviewFeature implements CssCodeAreaFeature {
 
   @Override
   public void bind(CssCodeArea cssCodeArea) {

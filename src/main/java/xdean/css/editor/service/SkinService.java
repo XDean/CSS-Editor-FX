@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import xdean.css.editor.context.Context;
 import xdean.css.editor.context.DefaultSkin;
-import xdean.css.editor.context.config.ConfigKey;
+import xdean.css.editor.context.option.OptionKeys;
+import xdean.css.editor.context.option.model.Option;
 import xdean.jex.log.Logable;
 import xdean.jex.util.string.StringUtil;
 import xdean.jfxex.support.skin.SkinManager;
@@ -18,6 +22,11 @@ import xdean.jfxex.support.skin.SkinStyle;
 
 @Service
 public class SkinService extends SkinManager implements Logable, InitializingBean {
+
+  @Inject
+  @Named(OptionKeys.SKIN)
+  Option<String> skinOption;
+
   @Override
   public void afterPropertiesSet() throws Exception {
     // load default skins
@@ -56,7 +65,7 @@ public class SkinService extends SkinManager implements Logable, InitializingBea
     getSkinList().stream().map(SkinStyle::getURL).map(s -> "loaded skin: " + s).forEach(this::debug);
 
     changeSkin(DefaultSkin.CLASSIC);
-    String configSkin = ConfigKey.SKIN.getValue();
+    String configSkin = skinOption.getValue();
     if (configSkin != null) {
       getSkinList().stream()
           .filter(s -> s.getName().equals(configSkin))
@@ -64,6 +73,6 @@ public class SkinService extends SkinManager implements Logable, InitializingBea
           .ifPresent(s -> changeSkin(s));
     }
     JavaFxObservable.valuesOf(skinProperty())
-        .subscribe(skin -> ConfigKey.SKIN.setValue(skin.getName()));
+        .subscribe(skin -> skinOption.setValue(skin.getName()));
   }
 }

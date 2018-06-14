@@ -6,7 +6,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
-import xdean.css.editor.context.config.Config;
 import xdean.css.editor.context.option.model.Option;
 
 @Component

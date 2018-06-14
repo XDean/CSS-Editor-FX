@@ -35,16 +35,15 @@ public interface OptionKeys {
     String CLOSE = "option.key.close";
   }
 
-  String OTHER = "option.other";
+  String FIND = "option.other.find";
 
-  interface Other {
-    String FIND = "option.other.find";
-
-    interface Find {
-      String REGEX = "option.other.find.regex";
-      String WRAP_SEARCH = "option.other.find.wrap-search";
-      String CASE_SENSITIVE = "option.other.find.case-sensitive";
-    }
+  interface Find {
+    String REGEX = "option.other.find.regex";
+    String WRAP_SEARCH = "option.other.find.wrap-search";
+    String CASE_SENSITIVE = "option.other.find.case-sensitive";
   }
 
+  String LANGUAGE = "option.language";
+  String SKIN = "option.skin";
+  String RECENT_LOC = "option.recent.location";
 }

@@ -1,8 +1,8 @@
 package xdean.css.editor.context.option;
 
+import static xdean.css.editor.context.option.OptionKeys.FIND;
 import static xdean.css.editor.context.option.OptionKeys.GENERAL;
 import static xdean.css.editor.context.option.OptionKeys.KEY;
-import static xdean.css.editor.context.option.OptionKeys.OTHER;
 import static xdean.css.editor.context.option.OptionKeys.ROOT;
 
 import java.nio.charset.Charset;
@@ -16,9 +16,8 @@ import com.google.common.collect.BoundType;
 
 import javafx.scene.text.Font;
 import javafx.util.StringConverter;
+import xdean.css.editor.context.option.OptionKeys.Find;
 import xdean.css.editor.context.option.OptionKeys.General;
-import xdean.css.editor.context.option.OptionKeys.Other;
-import xdean.css.editor.context.option.OptionKeys.Other.Find;
 import xdean.css.editor.context.option.model.BooleanOption;
 import xdean.css.editor.context.option.model.IntegerOption;
 import xdean.css.editor.context.option.model.OptionGroup;
@@ -53,14 +52,9 @@ public class Options {
     return general().add(new OptionGroup(General.TEXT));
   }
 
-  @Bean(OTHER)
-  public OptionGroup other() {
-    return root().add(new OptionGroup(OTHER));
-  }
-
-  @Bean(Other.FIND)
+  @Bean(FIND)
   public OptionGroup find() {
-    return other().add(new OptionGroup(Other.FIND));
+    return new OptionGroup(FIND);
   }
 
   @Bean(General.Common.AUTO_SUGGEST)
@@ -91,7 +85,7 @@ public class Options {
     ValueOption<String> fontFamily = createValue(General.Text.FONT_FAMILY, DefaultValue.DEFAULT_FONT_FAMILY,
         StringConverters.create(this::safeFontFamily));
     fontFamily.values.setAll(Arrays.asList(DefaultValue.DEF_FONT_FAMILIES));
-    fontFamily.values.setAll(Font.getFamilies());
+    fontFamily.values.addAll(Font.getFamilies());
     return text().add(fontFamily);
   }
 

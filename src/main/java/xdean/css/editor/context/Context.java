@@ -12,7 +12,7 @@ import com.sun.javafx.util.Logging;
 
 import javafx.application.Platform;
 import sun.util.logging.PlatformLogger.Level;
-import xdean.css.editor.service.MessageService;
+import xdean.css.editor.service.DialogService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.lang.ExceptionUtil;
@@ -27,7 +27,7 @@ public class Context implements Logable, FxContextPostProcessor {
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");
   public static final Path LAST_FILE_PATH = Context.TEMP_PATH.resolve("last");
 
-  private @Inject MessageService messageService;
+  private @Inject DialogService messageService;
 
   @Override
   public void beforeStart() {

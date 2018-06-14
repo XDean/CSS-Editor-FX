@@ -40,7 +40,7 @@ import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.control.CssCodeArea.Action;
 import xdean.css.editor.domain.FileWrapper;
-import xdean.css.editor.service.MessageService;
+import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.SkinService;
 import xdean.jex.extra.tryto.Try;
 import xdean.jex.log.Logable;
@@ -98,7 +98,7 @@ public class MainFrameController implements FxInitializable, Logable {
   SkinService skinManager;
 
   @Inject
-  MessageService messageService;
+  DialogService messageService;
 
   @Inject
   PreferenceSettings options;

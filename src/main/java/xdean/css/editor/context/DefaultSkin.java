@@ -15,9 +15,9 @@ public enum DefaultSkin implements SkinStyle {
 
   private DefaultSkin(String name) {
     try {
-      this.path = DefaultSkin.class.getResource(CSS_PATH + name + ".css").toExternalForm();
-    } catch (NullPointerException e) {// If the resource not exist
       this.path = DefaultSkin.class.getResource(CSS_PATH + name + ".bss").toExternalForm();
+    } catch (NullPointerException e) {// If the resource not exist
+      this.path = DefaultSkin.class.getResource(CSS_PATH + name + ".css").toExternalForm();
     }
   }
 

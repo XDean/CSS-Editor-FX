@@ -40,6 +40,6 @@ public class SimpleOption<T> implements Option<T> {
 
   @Override
   public String toString() {
-    return "Option [property=" + value + ", defaultValue=" + defaultValue + ", describe=" + key + "]";
+    return "Option [property=" + value + ", defaultValue=" + defaultValue + ", key=" + key + "]";
   }
 }

@@ -27,8 +27,7 @@ public class Context implements Logable, FxContextPostProcessor {
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");
   public static final Path LAST_FILE_PATH = Context.TEMP_PATH.resolve("last");
 
-  @Inject
-  MessageService messageService;
+  private @Inject MessageService messageService;
 
   @Override
   public void beforeStart() {

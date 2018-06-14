@@ -7,12 +7,11 @@ import static xdean.jfxex.bean.BeanUtil.nestValue;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import org.fxmisc.richtext.CodeArea;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.bean.annotation.CheckNull;
@@ -28,7 +27,7 @@ public class MainFrameModel {
   final ObjectPropertyEX<@CheckNull CssTab> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
   final ObjectBinding<@CheckNull FileWrapper> currentFile = nestValue(currentTabEntity, t -> t.file);
   final ObjectBinding<@CheckNull CssCodeAreaController> currentManager = map(currentTabEntity, t -> t == null ? null : t.manager);
-  final ObjectBinding<@CheckNull CodeArea> currentCodeArea = map(currentManager, m -> m == null ? null : m.codeArea);
+  final ObjectBinding<@CheckNull CssCodeArea> currentCodeArea = map(currentManager, m -> m == null ? null : m.codeArea);
   final BooleanBinding currentModified = nestBooleanValue(currentManager, m -> m.modifiedProperty());
 
   public CssTab newTab(FileWrapper file) {

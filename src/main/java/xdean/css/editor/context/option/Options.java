@@ -59,6 +59,7 @@ public class Options {
     };
   }
 
+  // TODO invoke after Context init
   static {
     fontSize.setRange(DefaultValue.MIN_FONT_SIZE, BoundType.CLOSED, DefaultValue.MAX_FONT_SIZE, BoundType.CLOSED);
     fontFamily.addAll(Arrays.asList(DefaultValue.DEF_FONT_FAMILIES));

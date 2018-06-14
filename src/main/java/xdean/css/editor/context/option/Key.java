@@ -9,15 +9,19 @@ import xdean.css.editor.context.option.model.Option;
 
 public enum Key implements Option<KeyCombination> {
   SUGGEST("Completion Assist", new KeyCodeCombination(KeyCode.SLASH, KeyCombination.ALT_DOWN)),
-  FORMAT("Format Code(Not support yet)", new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN,
-      KeyCombination.SHIFT_DOWN)),
+
+  FORMAT("Format Code(Not support yet)",
+      new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN)),
+
   COMMENT("Toggle Comment", new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN)),
+
   FIND("Find", new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN)),
+
   CLOSE("Close Tab", new KeyCodeCombination(KeyCode.W, KeyCombination.CONTROL_DOWN));
 
-  ObjectProperty<KeyCombination> key = new SimpleObjectProperty<>();
-  KeyCombination defaultValue;
-  String describe;
+  private final ObjectProperty<KeyCombination> key = new SimpleObjectProperty<>();
+  private final KeyCombination defaultValue;
+  private final String describe;
 
   private Key(String describe, KeyCombination defaultValue) {
     this.describe = describe;

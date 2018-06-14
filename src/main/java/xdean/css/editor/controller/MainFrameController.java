@@ -42,6 +42,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import xdean.css.editor.context.option.Key;
 import xdean.css.editor.context.option.Options;
+import xdean.css.editor.control.CssCodeArea.Action;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.MessageService;
 import xdean.css.editor.service.SkinService;
@@ -291,7 +292,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void comment() {
-//    model.currentManager.get().comment();
+    Action.COMMENT.subject.onNext(model.currentCodeArea.get());
   }
 
   @FXML

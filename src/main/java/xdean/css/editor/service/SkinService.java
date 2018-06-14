@@ -10,14 +10,14 @@ import org.springframework.stereotype.Service;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import xdean.css.editor.context.Context;
 import xdean.css.editor.context.DefaultSkin;
-import xdean.css.editor.context.config.Config;
 import xdean.css.editor.context.config.ConfigKey;
 import xdean.jex.log.Logable;
 import xdean.jex.util.string.StringUtil;
+import xdean.jfxex.support.skin.SkinManager;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @Service
-public class SkinService extends xdean.jfxex.support.skin.SkinManager implements Logable, InitializingBean {
+public class SkinService extends SkinManager implements Logable, InitializingBean {
   @Override
   public void afterPropertiesSet() throws Exception {
     // load default skins
@@ -56,7 +56,7 @@ public class SkinService extends xdean.jfxex.support.skin.SkinManager implements
     getSkinList().stream().map(SkinStyle::getURL).map(s -> "loaded skin: " + s).forEach(this::debug);
 
     changeSkin(DefaultSkin.CLASSIC);
-    String configSkin = Config.getProperty(ConfigKey.SKIN, null);
+    String configSkin = ConfigKey.SKIN.getValue();
     if (configSkin != null) {
       getSkinList().stream()
           .filter(s -> s.getName().equals(configSkin))
@@ -64,6 +64,6 @@ public class SkinService extends xdean.jfxex.support.skin.SkinManager implements
           .ifPresent(s -> changeSkin(s));
     }
     JavaFxObservable.valuesOf(skinProperty())
-        .subscribe(skin -> Config.setProperty(ConfigKey.SKIN, skin.getName()));
+        .subscribe(skin -> ConfigKey.SKIN.setValue(skin.getName()));
   }
 }

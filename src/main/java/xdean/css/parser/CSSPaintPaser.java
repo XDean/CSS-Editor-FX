@@ -49,8 +49,7 @@ public class CSSPaintPaser {
         text -> DeriveColorConverter.getInstance().convert(factory.apply(text), Font.getDefault()),
         text -> LadderConverter.getInstance().convert(factory.apply(text), Font.getDefault()),
         text -> LinearGradientConverter.getInstance().convert(factory.apply(text), Font.getDefault()),
-        text -> RadialGradientConverter.getInstance().convert(factory.apply(text), Font.getDefault())
-        ));
+        text -> RadialGradientConverter.getInstance().convert(factory.apply(text), Font.getDefault())));
   }
 
   public Optional<Color> parseColor(String text) {
@@ -58,8 +57,7 @@ public class CSSPaintPaser {
         () -> Color.web(text, 1),
         () -> DeriveColorConverter.getInstance().convert(factory.apply(text), Font.getDefault()),
         () -> LadderConverter.getInstance().convert(factory.apply(text), Font.getDefault()),
-        () -> context.lookup(text)
-        ));
+        () -> context.lookup(text)));
   }
 
   public Optional<Paint> parsePaint(String text) {

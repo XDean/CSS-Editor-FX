@@ -6,15 +6,15 @@ import java.util.Optional;
 import xdean.jex.extra.collection.Either;
 
 public class FileWrapper {
-  
+
   public static FileWrapper existFile(Path path) {
     return new FileWrapper(Either.left(path));
   }
-  
+
   public static FileWrapper newFile(int i) {
     return new FileWrapper(Either.right(i));
   }
-  
+
   public final Either<Path, Integer> fileOrNew;
 
   public FileWrapper(Either<Path, Integer> fileOrNewOrder) {

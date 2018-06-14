@@ -6,6 +6,8 @@ import static xdean.jfxex.bean.ListenerUtil.on;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
 
@@ -33,6 +35,7 @@ public class SearchBarController implements FxInitializable {
   private @FXML CheckBox caseSensitive;
   private @FXML CheckBox regex;
   private @FXML CheckBox wrapSearch;
+  private @Inject Options options;
 
   private TextField findField;
   private final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
@@ -43,9 +46,9 @@ public class SearchBarController implements FxInitializable {
     findField = TextFields.createClearableTextField();
     textContainer.getChildren().add(findField);
 
-    regex.selectedProperty().bindBidirectional(Options.findRegex.property());
-    caseSensitive.selectedProperty().bindBidirectional(Options.findCaseSensitive.property());
-    wrapSearch.selectedProperty().bindBidirectional(Options.findWrapText.property());
+    regex.selectedProperty().bindBidirectional(options.regexSearch().valueProperty());
+    caseSensitive.selectedProperty().bindBidirectional(options.caseSensitive().valueProperty());
+    wrapSearch.selectedProperty().bindBidirectional(options.wrapSearch().valueProperty());
     visible.and(codeArea.isNotNull());
 
     root.visibleProperty().addListener(on(true, findField::requestFocus)

@@ -1,40 +1,30 @@
 package xdean.css.editor.context.option.model;
 
 import javafx.beans.property.Property;
+import javafx.util.StringConverter;
+import xdean.css.editor.context.config.Config;
 
 public interface Option<T> {
 
-  public Property<T> property();
+  Property<T> valueProperty();
 
-  public default T get() {
-    return property().getValue();
+  default T getValue() {
+    return valueProperty().getValue();
   }
 
-  public void set(T t);
-
-  public T getDefault();
-
-  /**
-   * Describe should be unique
-   * 
-   * @return
-   */
-  public String getDescribe();
-
-  /********************************* Factory ***************************************/
-  static <T> Option<T> create(T defaultValue, String describe) {
-    return new SimpleOption<>(defaultValue, describe);
+  default void setValue(T t) {
+    valueProperty().setValue(t);
   }
 
-  static <T> ValueOption<T> createValue(T defaultValue, String describe) {
-    return new ValueOption<>(defaultValue, describe);
-  }
+  T getDefaultValue();
 
-  static IntegerOption create(int defaultValue, String describe) {
-    return new IntegerOption(defaultValue, describe);
-  }
+  String getKey();
 
-  static BooleanOption create(boolean defaultValue, String describe) {
-    return new BooleanOption(defaultValue, describe);
+  StringConverter<T> getConverter();
+
+  default void bind(Config config) {
+    StringConverter<T> converter = getConverter();
+    valueProperty().setValue(config.getProperty(getKey()).map(converter::fromString).orElse(getDefaultValue()));
+    valueProperty().addListener((ob, o, n) -> config.setProperty(getKey(), converter.toString(n)));
   }
 }

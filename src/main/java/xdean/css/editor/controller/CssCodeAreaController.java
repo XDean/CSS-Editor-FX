@@ -53,6 +53,9 @@ public class CssCodeAreaController implements FxInitializable {
   @Inject
   List<CssCodeAreaFeature> features;
 
+  @Inject
+  Options options;
+
   BooleanProperty override;
   ModifiableObject modify = new ModifiableObject();
 
@@ -89,7 +92,7 @@ public class CssCodeAreaController implements FxInitializable {
         .debounce(700, TimeUnit.MILLISECONDS)
         .subscribe(this::refreshContextSuggestion);
     // wrap word
-    codeArea.wrapTextProperty().bind(Options.wrapText.property());
+    codeArea.wrapTextProperty().bind(options.wrapSearch().valueProperty());
     // auto select word's first '-'
     JavaFxObservable.eventsOf(codeArea, MouseEvent.MOUSE_PRESSED)
         .filter(e -> e.getClickCount() == 2)
@@ -110,7 +113,7 @@ public class CssCodeAreaController implements FxInitializable {
         .filter(c -> override.get())
         .map(c -> uncatch(() -> codeArea.getText().charAt(c)))
         .map(c -> c == null ? '\n' : c)
-        .map(CssCodeAreaController::getOverrideCaretCSS)
+        .map(this::getOverrideCaretCSS)
         .subscribe(s -> overrideCSS.set(s));
     ChangeListener<? super String> overrideCSSListener = (ob, o, n) -> {
       codeArea.getStylesheets().remove(o);
@@ -185,11 +188,11 @@ public class CssCodeAreaController implements FxInitializable {
   };
 
   private void zoomIn() {
-    Options.fontSize.set(Options.fontSize.get() + 1);
+    options.fontSize().setValue(options.fontSize().getValue() + 1);
   }
 
   private void zoomOut() {
-    Options.fontSize.set(Options.fontSize.get() - 1);
+    options.fontSize().setValue(options.fontSize().getValue() - 1);
   }
 
   public BooleanProperty overrideProperty() {
@@ -200,32 +203,32 @@ public class CssCodeAreaController implements FxInitializable {
     return codeArea;
   }
 
-  private static void bindFont(Node node) {
-    Options.fontSize.property().addListener(weak(node, (ob, obj) -> updateFont(obj)));
-    Options.fontFamily.property().addListener(weak(node, (ob, obj) -> updateFont(obj)));
+  private void bindFont(Node node) {
+    options.fontSize().valueProperty().addListener(weak(node, (ob, obj) -> updateFont(obj)));
+    options.fontFamily().valueProperty().addListener(weak(node, (ob, obj) -> updateFont(obj)));
     updateFont(node);
   }
 
-  private static void updateFont(Node node) {
+  private void updateFont(Node node) {
     node.setStyle(
         String.format("-fx-font-family: '%s'; -fx-font-size: %d;",
-            Options.fontFamily.get(), Options.fontSize.get()));
+            options.fontFamily().getValue(), options.fontSize().getValue()));
   }
 
-  private static void bindLineNumber(StyledTextArea<?, ?> textArea, IntFunction<Node> factory) {
-    Options.showLineNo.property().addListener((ob, o, n) -> {
+  private void bindLineNumber(StyledTextArea<?, ?> textArea, IntFunction<Node> factory) {
+    options.showLineNo().valueProperty().addListener((ob, o, n) -> {
       if (n) {
         textArea.setParagraphGraphicFactory(factory);
       } else {
         textArea.setParagraphGraphicFactory(null);
       }
     });
-    if (Options.showLineNo.get()) {
+    if (options.showLineNo().getValue()) {
       textArea.setParagraphGraphicFactory(factory);
     }
   }
 
-  private static String getOverrideCaretCSS(char c) {
+  private String getOverrideCaretCSS(char c) {
     double width = Math.max(getTextSize(c + ""), 1);
     return StringURL.createURLString(String.format(
         ".caret {"
@@ -235,9 +238,9 @@ public class CssCodeAreaController implements FxInitializable {
         width, width / 2));
   }
 
-  public static double getTextSize(String text) {
+  public double getTextSize(String text) {
     return Toolkit.getToolkit().getFontLoader().computeStringWidth(text,
-        Font.font(Options.fontFamily.get(), Options.fontSize.get()));
+        Font.font(options.fontFamily().getValue(), options.fontSize().getValue()));
   }
 
   public ReadOnlyBooleanProperty modifiedProperty() {

@@ -10,7 +10,11 @@ public class CssCodeArea extends CodeArea {
   public final CSSContext context = CSSContext.createByDefault();
 
   public enum Action {
-    SUGGEST, FORMAT, COMMENT, FIND, CLOSE;
+    SUGGEST,
+    FORMAT,
+    COMMENT,
+    FIND,
+    CLOSE;
 
     public Subject<CssCodeArea> subject = PublishSubject.create();
   }

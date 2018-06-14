@@ -1,49 +1,45 @@
 package xdean.css.editor.context.option.model;
 
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.util.StringConverter;
+import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 public class SimpleOption<T> implements Option<T> {
 
-  private final Property<T> property;
+  private final String key;
+  private final ObjectPropertyEX<T> value = new ObjectPropertyEX<>(this, "value");
   private final T defaultValue;
-  private final String describe;
+  private final StringConverter<T> converter;
 
-  SimpleOption(T defaultValue, String describe) {
-    this.property = new SimpleObjectProperty<>();
+  public SimpleOption(String key, T defaultValue, StringConverter<T> converter) {
     this.defaultValue = defaultValue;
-    this.describe = describe;
+    this.key = key;
+    this.converter = converter;
 
-    property.setValue(defaultValue);
-  }
-
-  protected Property<T> writableProperty() {
-    return property;
+    value.defaultForNull(defaultValue);
   }
 
   @Override
-  public Property<T> property() {
-    return property;
+  public String getKey() {
+    return key;
   }
 
   @Override
-  public void set(T t) {
-    property.setValue(t);
+  public ObjectPropertyEX<T> valueProperty() {
+    return value;
   }
 
   @Override
-  public T getDefault() {
+  public T getDefaultValue() {
     return defaultValue;
   }
 
   @Override
-  public String getDescribe() {
-    return describe;
+  public StringConverter<T> getConverter() {
+    return converter;
   }
 
   @Override
   public String toString() {
-    return "SimpleOption [property=" + property + ", defaultValue=" + defaultValue + ", describe=" + describe + "]";
+    return "Option [property=" + value + ", defaultValue=" + defaultValue + ", describe=" + key + "]";
   }
-
 }

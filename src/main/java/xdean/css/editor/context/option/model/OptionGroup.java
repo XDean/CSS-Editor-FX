@@ -11,10 +11,10 @@ import xdean.jex.util.cache.CacheUtil;
 public class OptionGroup {
 
   List<Either<Option<?>, OptionGroup>> list;
-  String describe;
+  String key;
 
-  public OptionGroup(String describe) {
-    this.describe = describe;
+  public OptionGroup(String key) {
+    this.key = key;
     list = new ArrayList<>();
   }
 
@@ -37,12 +37,12 @@ public class OptionGroup {
     return list.stream()
         .filter(e -> e.isLeft())
         .map(e -> e.getLeft())
-        .filter(o -> clz.isInstance(o.get()))
+        .filter(o -> clz.isInstance(o.getValue()))
         .map(o -> (Option<T>) o)
         .collect(Collectors.toList());
   }
 
-  public String getDescribe() {
-    return describe;
+  public String getKey() {
+    return key;
   }
 }

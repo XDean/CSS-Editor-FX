@@ -1,15 +1,17 @@
 package xdean.css.editor.context.option.model;
 
+import javafx.util.StringConverter;
+
 public abstract class SimpleConstraintOption<T> extends SimpleOption<T> implements ConstraintOption<T> {
 
-  SimpleConstraintOption(T defaultValue, String describe) {
-    super(defaultValue, describe);
+  SimpleConstraintOption(String key, T defaultValue, StringConverter<T> conveter) {
+    super(key, defaultValue, conveter);
   }
 
   @Override
-  public void set(T t) {
+  public void setValue(T t) {
     if (isValid(t)) {
-      writableProperty().setValue(t);
+      valueProperty().setValue(t);
     }
   }
 }

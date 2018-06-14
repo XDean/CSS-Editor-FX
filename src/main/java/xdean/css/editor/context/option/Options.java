@@ -1,137 +1,132 @@
 package xdean.css.editor.context.option;
 
+import static xdean.css.editor.context.option.OptionKeys.GENERAL;
+import static xdean.css.editor.context.option.OptionKeys.KEY;
+import static xdean.css.editor.context.option.OptionKeys.OTHER;
+import static xdean.css.editor.context.option.OptionKeys.ROOT;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import com.google.common.collect.BoundType;
 
 import javafx.scene.text.Font;
-import lombok.extern.slf4j.Slf4j;
-import xdean.css.editor.context.config.Config;
+import javafx.util.StringConverter;
+import xdean.css.editor.context.option.OptionKeys.General;
+import xdean.css.editor.context.option.OptionKeys.Other;
+import xdean.css.editor.context.option.OptionKeys.Other.Find;
 import xdean.css.editor.context.option.model.BooleanOption;
 import xdean.css.editor.context.option.model.IntegerOption;
-import xdean.css.editor.context.option.model.Option;
 import xdean.css.editor.context.option.model.OptionGroup;
 import xdean.css.editor.context.option.model.ValueOption;
+import xdean.jfxex.util.StringConverters;
 
-@Slf4j
+@Configuration
 public class Options {
 
-  public static final OptionGroup ALL = new OptionGroup("All"),
-      GENERAL = ALL.add(new OptionGroup("General")),
-      KEY = ALL.add(new OptionGroup("Key")),
-      COMMON = GENERAL.add(new OptionGroup("Common")),
-      TEXT = GENERAL.add(new OptionGroup("Text")),
-      OTHER = ALL.add(new OptionGroup("Other")),
-      FIND = OTHER.add(new OptionGroup("Find"));
-
-  public static final BooleanOption autoSuggest = COMMON.add(Option.create(true, "Auto Completion"));
-  public static final BooleanOption showLineNo = COMMON.add(Option.create(true, "Show Line Number"));
-  public static final BooleanOption openLastFile = COMMON.add(Option.create(true, "Auto Open Last Closed File"));
-  public static final ValueOption<Charset> charset = COMMON.add(Option.createValue(DefaultValue.DEFAULT_CHARSET, "Charset"));
-  public static final ValueOption<String> fontFamily = TEXT
-      .add(Option.createValue(DefaultValue.DEFAULT_FONT_FAMILY, "Font Family"));
-  public static final IntegerOption fontSize = TEXT.add(Option.create(DefaultValue.DEFAULT_FONT_SIZE, "Font Size"));
-  public static final BooleanOption wrapText = TEXT.add(Option.create(true, "Wrap text"));
-  public static final BooleanOption findRegex = FIND.add(Option.create(false, "Find Regex"));
-  public static final BooleanOption findWrapText = FIND.add(Option.create(true, "Find Wrap Text"));
-  public static final BooleanOption findCaseSensitive = FIND.add(Option.create(false, "Find Case Sensitive"));
-
-  static {
-    Key.values();
+  @Bean(ROOT)
+  public OptionGroup root() {
+    return new OptionGroup(ROOT);
   }
 
-  public static final class DefaultValue {
-    public static final int DEFAULT_FONT_SIZE = 16;
-    public static final int MIN_FONT_SIZE = 8;
-    public static final int MAX_FONT_SIZE = 36;
-    public static final String DEFAULT_FONT_FAMILY = "Monospaced";
-    public static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
-    public static final String[] DEF_FONT_FAMILIES = {
-        "Consolas",
-        "DejaVu Sans Mono",
-        "Lucida Sans Typewriter",
-        "Lucida Console",
-    };
+  @Bean(GENERAL)
+  public OptionGroup general() {
+    return root().add(new OptionGroup(GENERAL));
   }
 
-  // TODO invoke after Context init
-  static {
-    fontSize.setRange(DefaultValue.MIN_FONT_SIZE, BoundType.CLOSED, DefaultValue.MAX_FONT_SIZE, BoundType.CLOSED);
+  @Bean(name = KEY)
+  public OptionGroup key() {
+    return root().add(new OptionGroup(KEY));
+  }
+
+  @Bean(General.COMMON)
+  public OptionGroup common() {
+    return general().add(new OptionGroup(General.COMMON));
+  }
+
+  @Bean(General.TEXT)
+  public OptionGroup text() {
+    return general().add(new OptionGroup(General.TEXT));
+  }
+
+  @Bean(OTHER)
+  public OptionGroup other() {
+    return root().add(new OptionGroup(OTHER));
+  }
+
+  @Bean(Other.FIND)
+  public OptionGroup find() {
+    return other().add(new OptionGroup(Other.FIND));
+  }
+
+  @Bean(General.Common.AUTO_SUGGEST)
+  public BooleanOption autoSuggest() {
+    return common().add(create(General.Common.AUTO_SUGGEST, true));
+  }
+
+  @Bean(General.Common.SHOW_LINE)
+  public BooleanOption showLineNo() {
+    return common().add(create(General.Common.SHOW_LINE, true));
+  }
+
+  @Bean(General.Common.OPEN_LAST)
+  public BooleanOption openLast() {
+    return common().add(create(General.Common.OPEN_LAST, true));
+  }
+
+  @Bean(General.Common.CHARSET)
+  public ValueOption<Charset> charset() {
+    ValueOption<Charset> charset = createValue(General.Common.CHARSET, DefaultValue.DEFAULT_CHARSET,
+        StringConverters.create(this::safeCharSet));
+    charset.addAll(Charset.availableCharsets().values());
+    return common().add(charset);
+  }
+
+  @Bean(General.Text.FONT_FAMILY)
+  public ValueOption<String> fontFamily() {
+    ValueOption<String> fontFamily = createValue(General.Text.FONT_FAMILY, DefaultValue.DEFAULT_FONT_FAMILY,
+        StringConverters.create(this::safeFontFamily));
     fontFamily.addAll(Arrays.asList(DefaultValue.DEF_FONT_FAMILIES));
     fontFamily.addAll(Font.getFamilies());
-    charset.addAll(Charset.availableCharsets().values());
+    return text().add(fontFamily);
+  }
 
-    bindBool(autoSuggest);
-    bindBool(showLineNo);
-    bindBool(openLastFile);
-    bind(charset, Options::safeCharSet);
-    bind(fontFamily, Options::safeFontFamily);
-    bindInt(fontSize);
-    bindBool(wrapText);
-    bindBool(findRegex);
-    bindBool(findCaseSensitive);
-    bindBool(findWrapText);
+  @Bean(General.Text.FONT_SIZE)
+  public IntegerOption fontSize() {
+    IntegerOption fontSize = create(General.Text.FONT_SIZE, DefaultValue.DEFAULT_FONT_SIZE);
+    fontSize.setRange(DefaultValue.MIN_FONT_SIZE, BoundType.CLOSED, DefaultValue.MAX_FONT_SIZE, BoundType.CLOSED);
+    return text().add(fontSize);
+  }
+
+  @Bean(General.Text.WRAP_TEXT)
+  public BooleanOption wrapText() {
+    return text().add(create(General.Text.WRAP_TEXT, true));
+  }
+
+  @Bean(Find.WRAP_SEARCH)
+  public BooleanOption wrapSearch() {
+    return find().add(create(Find.WRAP_SEARCH, true));
+  }
+
+  @Bean(Find.REGEX)
+  public BooleanOption regexSearch() {
+    return find().add(create(Find.REGEX, false));
+  }
+
+  @Bean(Find.CASE_SENSITIVE)
+  public BooleanOption caseSensitive() {
+    return find().add(create(Find.CASE_SENSITIVE, false));
   }
 
   /**
-   * Bind the option with configuration by the converter
+   * Check whether font family is null or invalid (family not available on
+   * system) and search for an available family.
    */
-  static <T, O extends Option<T>> O bind(O o, Function<String, T> converter, Function<T, String> toString) {
-    String key = o.getDescribe();
-    try {
-      o.set(converter.apply(Config.getProperty(key).get()));
-    } catch (Exception e) {
-      log.trace(String.format("Option \"%s\" init fail.", o.getDescribe()), e);
-      o.set(o.getDefault());
-      Config.setProperty(key, toString.apply(o.get()));
-    }
-    o.property().addListener((ob, old, n) -> Config.setProperty(key, toString.apply(o.get())));
-    return o;
-  }
-
-  static <T, O extends Option<T>> O bind(O o, Function<String, T> converter) {
-    return bind(o, converter, t -> t.toString());
-  }
-
-  static <O extends Option<String>> O bind(O o) {
-    return bind(o, UnaryOperator.identity());
-  }
-
-  static <O extends Option<Boolean>> O bindBool(O o) {
-    return bind(o, Boolean::valueOf);
-  }
-
-  static <O extends Option<Integer>> O bindInt(O o) {
-    return bind(o, Integer::valueOf);
-  }
-
-  static <T> void filter(Option<T> o, Predicate<T> filter) {
-    o.property().addListener((ob, old, n) -> {
-      if (filter.test(n) == false) {
-        o.set(old);
-      }
-    });
-  }
-
-  static <T> void normalize(Option<T> o, UnaryOperator<T> normalize) {
-    o.property().addListener((ob, old, n) -> {
-      T normal = normalize.apply(n);
-      if (normal.equals(n) == false) {
-        o.set(normal);
-      }
-    });
-  }
-
-  /**
-   * Check whether font family is null or invalid (family not available on system) and search for an
-   * available family.
-   */
-  private static String safeFontFamily(String fontFamily) {
+  private String safeFontFamily(String fontFamily) {
     List<String> fontFamilies = Font.getFamilies();
     if (fontFamily != null && fontFamilies.contains(fontFamily)) {
       return fontFamily;
@@ -145,7 +140,7 @@ public class Options {
     return DefaultValue.DEFAULT_FONT_FAMILY;
   }
 
-  private static Charset safeCharSet(String charsetName) {
+  private Charset safeCharSet(String charsetName) {
     if (Charset.isSupported(charsetName)) {
       return Charset.forName(charsetName);
     } else {
@@ -153,4 +148,15 @@ public class Options {
     }
   }
 
+  private BooleanOption create(String key, boolean defaultValue) {
+    return new BooleanOption(key, defaultValue);
+  }
+
+  private IntegerOption create(String key, int defaultValue) {
+    return new IntegerOption(key, defaultValue);
+  }
+
+  private <T> ValueOption<T> createValue(String key, T defaultValue, StringConverter<T> converter) {
+    return new ValueOption<>(key, defaultValue, converter);
+  }
 }

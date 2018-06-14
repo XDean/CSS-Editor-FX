@@ -1,22 +1,17 @@
 package xdean.css.editor.context.option.model;
 
-import com.sun.javafx.binding.BidirectionalBinding;
+import static xdean.jex.util.cache.CacheUtil.cache;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import xdean.jfxex.bean.BeanConvertUtil;
+import xdean.jfxex.util.StringConverters;
 
 public class BooleanOption extends SimpleOption<Boolean> {
-
-  BooleanProperty property;
-
-  BooleanOption(boolean defaultValue, String describe) {
-    super(defaultValue, describe);
-    property = new SimpleBooleanProperty();
-    BidirectionalBinding.bind(property, writableProperty());
+  public BooleanOption(String key, boolean defaultValue) {
+    super(key, defaultValue, StringConverters.create(Boolean::valueOf));
   }
 
-  @Override
-  public BooleanProperty property() {
-    return property;
+  public BooleanProperty booleanProperty() {
+    return cache(this, () -> BeanConvertUtil.toBoolean(valueProperty()));
   }
 }

@@ -5,12 +5,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javafx.util.StringConverter;
+
 public class ValueOption<T> extends SimpleConstraintOption<T> {
 
   List<T> values;
 
-  ValueOption(T defaultValue, String describe) {
-    super(defaultValue, describe);
+  public ValueOption(String key, T defaultValue, StringConverter<T> conveter) {
+    super(key, defaultValue, conveter);
     values = new ArrayList<>();
   }
 

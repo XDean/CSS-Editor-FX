@@ -3,12 +3,14 @@ package xdean.css.editor.context.option.model;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
-public class RangeOption<T extends Comparable<T>> extends SimpleConstraintOption<T> {
+import javafx.util.StringConverter;
+
+public abstract class RangeOption<T extends Comparable<T>> extends SimpleConstraintOption<T> {
 
   Range<T> range;
 
-  RangeOption(T defaultValue, String describe) {
-    super(defaultValue, describe);
+  RangeOption(String key, T defaultValue, StringConverter<T> converter) {
+    super(key, defaultValue, converter);
     range = Range.all();
   }
 
@@ -21,15 +23,15 @@ public class RangeOption<T extends Comparable<T>> extends SimpleConstraintOption
     return range;
   }
 
-  public T getMin(){
+  public T getMin() {
     return range.lowerEndpoint();
   }
-  
+
   public void setMin(T min, BoundType type) {
     range = Range.range(min, type, range.upperEndpoint(), range.upperBoundType());
   }
-  
-  public T getMax(){
+
+  public T getMax() {
     return range.upperEndpoint();
   }
 

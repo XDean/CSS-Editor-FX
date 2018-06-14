@@ -35,6 +35,9 @@ public class CssTab extends Tab implements FxInitializable {
   @Inject
   CssCodeAreaController manager;
 
+  @Inject
+  Options options;
+
   ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
   ObjectBinding<String> name = map(file, f -> f.getFileName());
   BooleanBinding isNew = mapToBoolean(file, f -> f.isNewFile());
@@ -75,7 +78,7 @@ public class CssTab extends Tab implements FxInitializable {
 
   public void reload() {
     file.get().getExistFile().ifPresent(p -> uncatch(() -> {
-      manager.codeArea.replaceText(new String(Files.readAllBytes(p), Options.charset.get()));
+      manager.codeArea.replaceText(new String(Files.readAllBytes(p), options.charset().getValue()));
       manager.codeArea.moveTo(0);
       manager.codeArea.getUndoManager().forgetHistory();
       manager.modify.saved();

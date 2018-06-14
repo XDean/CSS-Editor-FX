@@ -17,7 +17,7 @@ public class CSSBorderPaser {
   public List<Function<String, Border>> getTasks() {
     return CacheUtil.cache(CSSPaintPaser.class, () -> Arrays.asList(
 
-        ));
+    ));
   }
 
   @SuppressWarnings("rawtypes")

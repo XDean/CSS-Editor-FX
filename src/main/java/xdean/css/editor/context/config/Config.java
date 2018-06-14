@@ -3,76 +3,78 @@ package xdean.css.editor.context.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
-@Slf4j
-public class Config {
-  private static final Properties CONFIG = new Properties();
-  private static Path configFile;
+import xdean.css.editor.context.Context;
+import xdean.jex.log.Logable;
 
-  public static void locate(Path configPath, Path defaultConfig) {
+@Service
+public class Config implements Logable {
+  private static final Path CONFIG_FILE = Context.HOME_PATH.resolve("config.properties");
+  private static final Path DEFAULT_CONFIG_PATH = Paths.get("/default_config.properties");
+
+  private final Properties properties = new Properties();
+
+  public Config() {
     try {
-      if (Files.notExists(configPath)) {
-        if (Files.exists(defaultConfig)) {
-          Files.copy(defaultConfig, configPath);
+      if (Files.notExists(CONFIG_FILE)) {
+        if (Files.exists(DEFAULT_CONFIG_PATH)) {
+          Files.copy(DEFAULT_CONFIG_PATH, CONFIG_FILE);
         } else {
-          Files.createFile(configPath);
+          Files.createFile(CONFIG_FILE);
         }
       }
-      CONFIG.load(Files.newBufferedReader(configPath));
+      properties.load(Files.newBufferedReader(CONFIG_FILE));
     } catch (IOException e) {
-      log.error("IOException", e);
+      error("IOException", e);
     }
-    log.debug("Load last config: " + CONFIG.toString());
-    configFile = configPath;
+    debug("Load last config: " + properties.toString());
   }
 
-  public static Optional<String> getProperty(String key) {
-    return Optional.ofNullable(CONFIG.getProperty(key));
+  public Optional<String> getProperty(String key) {
+    return Optional.ofNullable(properties.getProperty(key));
   }
 
-  public static Optional<String> getProperty(Object key) {
+  public Optional<String> getProperty(Object key) {
     return getProperty(key.toString());
   }
 
-  public static String getProperty(Object key, String defaultValue) {
+  public String getProperty(Object key, String defaultValue) {
     return getProperty(key.toString(), defaultValue);
   }
 
-  public static String getProperty(String key, String defaultValue) {
+  public String getProperty(String key, String defaultValue) {
     return getProperty(key).orElse(defaultValue);
   }
 
-  public static void setProperty(Object key, String value) {
+  public void setProperty(Object key, String value) {
     setProperty(key.toString(), value);
   }
 
-  public static void setProperty(String key, String value) {
-    CONFIG.setProperty(key, value);
+  public void setProperty(String key, String value) {
+    properties.setProperty(key, value);
     save();
   }
 
-  public static void setIfAbsent(Object key, String value) {
+  public void setIfAbsent(Object key, String value) {
     setIfAbsent(key.toString(), value);
   }
 
-  public static void setIfAbsent(String key, String value) {
+  public void setIfAbsent(String key, String value) {
     if (getProperty(key).isPresent() == false) {
       setProperty(key, value);
     }
   }
 
-  private static synchronized void save() {
-    if (configFile == null) {
-      return;
-    }
+  private synchronized void save() {
     try {
-      CONFIG.store(Files.newOutputStream(configFile), "");
+      properties.store(Files.newOutputStream(CONFIG_FILE), "");
     } catch (IOException e) {
-      log.error("", e);
+      error(e);
     }
   }
 }

@@ -82,7 +82,7 @@ public class Options {
   public ValueOption<Charset> charset() {
     ValueOption<Charset> charset = createValue(General.Common.CHARSET, DefaultValue.DEFAULT_CHARSET,
         StringConverters.create(this::safeCharSet));
-    charset.addAll(Charset.availableCharsets().values());
+    charset.values.setAll(Charset.availableCharsets().values());
     return common().add(charset);
   }
 
@@ -90,8 +90,8 @@ public class Options {
   public ValueOption<String> fontFamily() {
     ValueOption<String> fontFamily = createValue(General.Text.FONT_FAMILY, DefaultValue.DEFAULT_FONT_FAMILY,
         StringConverters.create(this::safeFontFamily));
-    fontFamily.addAll(Arrays.asList(DefaultValue.DEF_FONT_FAMILIES));
-    fontFamily.addAll(Font.getFamilies());
+    fontFamily.values.setAll(Arrays.asList(DefaultValue.DEF_FONT_FAMILIES));
+    fontFamily.values.setAll(Font.getFamilies());
     return text().add(fontFamily);
   }
 

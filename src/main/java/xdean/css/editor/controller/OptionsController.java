@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.sun.javafx.binding.ContentBinding;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -146,7 +148,7 @@ public class OptionsController implements FxInitializable, Logable {
 
   private <T> ComboBox<T> add(ValueOption<T> vo) {
     ComboBox<T> cb = new ComboBox<>();
-    cb.getItems().addAll(vo.getValues());
+    ContentBinding.bind(cb.getItems(), vo.values);
     cb.getSelectionModel().select(vo.getValue());
     onSubmit.add(() -> vo.setValue(cb.getSelectionModel().getSelectedItem()));
     add(wrapWithText(cb, vo.getKey()));

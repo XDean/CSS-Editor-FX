@@ -1,0 +1,85 @@
+package fxml
+
+import javafx.scene.layout.HBox
+import org.controlsfx.control.StatusBar
+import javafx.scene.control.Label
+import javaxdean.css.editor.controller.manager.StatusBarControllerrator
+import xdean.css.editor.controller.StatusBarController
+import javafx.scene.control.Separator
+import javafx.geometry.Insets
+
+component StatusBar controlledby StatusBarController {
+  define Insets id right5 {
+    left : 0,
+    right : 5,
+    top : 0,
+    bottom : 0
+  }
+  //
+  StatusBar {
+    text : "",
+    rightItems : [
+      Label {
+        text : "length",
+        call HBox#margin : idref right5
+      },
+      Label id length {
+        minWidth : 70
+      },
+      Label {
+        text : "lines",
+        call HBox#margin : idref right5
+      },
+      Label id lines {
+        minWidth : 60
+      },
+      Separator {
+        orientation : "VERTICAL"
+      },
+      Label {
+        text : "Ln",
+        call HBox#margin : idref right5,
+        onMouseClicked : controllermethod jumpLine
+      },
+      Label id caretLine {
+        minWidth : 60,
+        onMouseClicked : controllermethod jumpLine
+      },
+      Label {
+        text : "Col",
+        call HBox#margin : idref right5,
+        onMouseClicked : controllermethod jumpLine
+      },
+      Label id caretCol {
+        minWidth : 60,
+        onMouseClicked : controllermethod jumpLine
+      },
+      Separator {
+        orientation : "VERTICAL"
+      },
+      Label {
+        text : "Sel",
+        call HBox#margin : idref right5
+      },
+      Label id select {
+        minWidth : 90
+      },
+      Separator {
+        orientation : "VERTICAL"
+      },
+      Label id charset {
+        minWidth : 90
+      },
+      Separator {
+        orientation : "VERTICAL"
+      },
+      Label id inputType {
+        minWidth : 90,
+        onMouseClicked : controllermethod toggleType
+      },
+      Separator {
+        orientation : "VERTICAL"
+      }
+    ]
+  }
+}

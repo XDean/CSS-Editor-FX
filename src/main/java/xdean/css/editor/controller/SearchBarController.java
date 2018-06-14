@@ -1,6 +1,7 @@
-package xdean.css.editor.controller.comp;
+package xdean.css.editor.controller;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
+import static xdean.jfxex.bean.ListenerUtil.on;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,78 +9,60 @@ import java.util.regex.Pattern;
 import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import javafx.beans.property.Property;
+import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import rx.functions.Func3;
-import rx.observables.JavaFxObservable;
 import xdean.css.editor.config.Options;
+import xdean.jex.extra.function.Func3;
 import xdean.jex.util.string.StringUtil;
-import xdean.jex.util.task.If;
-import xdean.jfx.ex.util.bean.BeanUtil;
+import xdean.jfx.spring.FxInitializable;
+import xdean.jfx.spring.annotation.FxController;
+import xdean.jfxex.bean.annotation.CheckNull;
+import xdean.jfxex.bean.property.BooleanPropertyEX;
+import xdean.jfxex.bean.property.ObjectPropertyEX;
 
-public final class SearchBar extends HBox {
+@FxController(fxml = "/fxml/SearchBar.fxml")
+public class SearchBarController implements FxInitializable {
+
+  private @FXML HBox root;
+  private @FXML HBox textContainer;
+  private @FXML Button findButton;
+  private @FXML CheckBox caseSensitive;
+  private @FXML CheckBox regex;
+  private @FXML CheckBox wrapSearch;
 
   private TextField findField;
-  private Button findButton;
-  private CheckBox caseSensitive;
-  private CheckBox regex;
-  private CheckBox wrapSearch;
+  private final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
+  private final ObjectPropertyEX<@CheckNull CodeArea> codeArea = new ObjectPropertyEX<>(this, "codeArea");
 
-  private ObservableValue<CodeArea> codeArea;
-
-  private BooleanProperty showing;
-
-  public SearchBar(ObservableValue<CodeArea> codeArea) {
-    super();
-    this.codeArea = codeArea;
-    this.showing = new SimpleBooleanProperty(false);
-    initUI();
-    initBind();
-  }
-
-  private void initUI() {
+  @Override
+  public void initAfterFxSpringReady() {
     findField = TextFields.createClearableTextField();
-    findButton = new Button("Find");
-    caseSensitive = new CheckBox("Case Sensitive");
-    regex = new CheckBox("Regex");
-    wrapSearch = new CheckBox("Wrap Search");
+    textContainer.getChildren().add(findField);
 
-    getChildren().addAll(findField, findButton, regex, caseSensitive, wrapSearch);
-    setPadding(new Insets(5));
-    setSpacing(5);
-    setAlignment(Pos.CENTER_LEFT);
-  }
-
-  private void initBind() {
     regex.selectedProperty().bindBidirectional(Options.findRegex.property());
     caseSensitive.selectedProperty().bindBidirectional(Options.findCaseSensitive.property());
     wrapSearch.selectedProperty().bindBidirectional(Options.findWrapText.property());
+    visible.and(codeArea.isNotNull());
 
-    JavaFxObservable.fromObservableValue(visibleProperty())
-        .subscribe(
-            v -> If.that(v)
-                .todo(() -> findField.requestFocus())
-                .ordo(() -> uncatch(() -> codeArea.getValue().requestFocus())));
-    visibleProperty().bind(showing.and(BeanUtil.isNotNull(codeArea)));
-    managedProperty().bind(visibleProperty());
-    findButton.setOnAction(e -> find());
+    root.visibleProperty().addListener(on(true, findField::requestFocus)
+        .on(false, () -> uncatch(() -> codeArea.getValue().requestFocus())));
+    root.visibleProperty().bind(visible);
+    root.managedProperty().bind(root.visibleProperty());
     findField.setOnAction(e -> find());
   }
 
-  private void find() {
-    if (find(codeArea.getValue().getCaretPosition()) == false && wrapSearch.isSelected()) {
-      find(0);
+  @FXML
+  public void find() {
+    if (findFrom(codeArea.getValue().getCaretPosition()) == false && wrapSearch.isSelected()) {
+      findFrom(0);
     }
   }
 
-  private boolean find(int offset) {
+  private boolean findFrom(int offset) {
     CodeArea area = codeArea.getValue();
     String findText = findField.getText();
     if (regex.isSelected()) {
@@ -113,6 +96,10 @@ public final class SearchBar extends HBox {
   }
 
   public void toggle() {
-    showing.set(!showing.get());
+    visible.set(!visible.get());
+  }
+
+  public Property<CodeArea> codeAreaProperty() {
+    return codeArea;
   }
 }

@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import xdean.jex.extra.Either;
+import xdean.jex.extra.collection.Either;
 import xdean.jex.util.cache.CacheUtil;
 
 public class OptionGroup {

@@ -1,16 +1,12 @@
 package xdean.css.editor.controller;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
@@ -34,10 +30,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.stage.Window;
-import javafx.util.Pair;
-import lombok.extern.slf4j.Slf4j;
-import xdean.css.editor.Util;
+import javafx.stage.Stage;
 import xdean.css.editor.config.Options;
 import xdean.css.editor.config.option.BooleanOption;
 import xdean.css.editor.config.option.ConstraintOption;
@@ -45,26 +38,16 @@ import xdean.css.editor.config.option.IntegerOption;
 import xdean.css.editor.config.option.Option;
 import xdean.css.editor.config.option.OptionGroup;
 import xdean.css.editor.config.option.ValueOption;
+import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
+import xdean.jfx.spring.FxInitializable;
+import xdean.jfx.spring.annotation.FxController;
 
-@Slf4j
-public class OptionsController implements Initializable {
-
-  static void show(Window window) {
-    try {
-      Pair<OptionsController, DialogPane> pair = Util.renderFxml(OptionsController.class);
-      Dialog<Void> dialog = new Dialog<>();
-      dialog.initOwner(window);
-      dialog.setDialogPane(pair.getValue());
-      dialog.show();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
+@FxController(fxml = "/fxml/Options.fxml")
+public class OptionsController implements FxInitializable, Logable {
   @FXML
-  DialogPane dialogPane;
+  DialogPane root;
 
   @FXML
   VBox generalPane;
@@ -82,14 +65,21 @@ public class OptionsController implements Initializable {
   private List<Runnable> onSubmit = new ArrayList<>();
 
   @Override
-  public void initialize(URL location, ResourceBundle resources) {
+  public void initAfterFxSpringReady() {
     initGeneral();
     initKey();
 
-    dialogPane.lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> {
+    root.lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> {
       onSubmit.forEach(Runnable::run);
       e.consume();
     });
+  }
+  
+  public void open(Stage stage) {
+    Dialog<Void> dialog = new Dialog<>();
+    dialog.initOwner(stage);
+    dialog.setDialogPane(root);
+    dialog.show();
   }
 
   private void initGeneral() {
@@ -101,7 +91,7 @@ public class OptionsController implements Initializable {
     commandColumn.setCellValueFactory(cdf -> new SimpleStringProperty(cdf.getValue().getDescribe()));
     bindingColumn.setCellValueFactory(cdf -> CacheUtil.cache(OptionsController.this,
         cdf.getValue(), () -> new SimpleObjectProperty<>(cdf.getValue().get())));
-//    bindingColumn.setCellValueFactory(cdf -> new SimpleObjectProperty<>(cdf.getValue().get()));
+    // bindingColumn.setCellValueFactory(cdf -> new SimpleObjectProperty<>(cdf.getValue().get()));
 
     bindingColumn.setEditable(true);
     bindingColumn.setCellFactory(column -> new KeyEditField());
@@ -133,7 +123,7 @@ public class OptionsController implements Initializable {
         add((ValueOption<T>) o);
       }
     } else {
-      log.error("Can't handle this option: " + o);
+      error("Can't handle this option: " + o);
     }
     nowTab--;
   }

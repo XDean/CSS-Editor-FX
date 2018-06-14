@@ -14,6 +14,7 @@ import com.sun.javafx.css.parser.CSSParser;
 import com.sun.javafx.css.parser.DeriveColorConverter;
 import com.sun.javafx.css.parser.LadderConverter;
 
+import io.reactivex.Observable;
 import javafx.css.ParsedValue;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -22,7 +23,6 @@ import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.text.Font;
-import rx.Observable;
 import xdean.css.context.CSSContext;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
@@ -63,13 +63,12 @@ public class CSSPaintPaser {
   }
 
   public Optional<Paint> parsePaint(String text) {
-    return Observable.from(getTasks())
+    return Observable.fromIterable(getTasks())
         .map(f -> uncatch(() -> f.apply(text)))
         .filter(p -> p != null)
-        .firstOrDefault(null)
+        .first(null)
         .map(Optional::ofNullable)
-        .toBlocking()
-        .first();
+        .blockingGet();
   }
 
   private ParsedValue<?, ?> getParsedValue(String text) {

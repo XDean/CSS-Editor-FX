@@ -1,9 +1,9 @@
 package xdean.css.editor.config.option;
 
+import com.sun.javafx.binding.BidirectionalBinding;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-
-import com.sun.javafx.binding.BidirectionalBinding;
 
 public class BooleanOption extends SimpleOption<Boolean> {
 

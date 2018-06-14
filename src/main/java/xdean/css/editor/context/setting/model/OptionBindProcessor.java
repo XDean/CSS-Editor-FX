@@ -1,4 +1,4 @@
-package xdean.css.editor.context.option;
+package xdean.css.editor.context.setting.model;
 
 import javax.inject.Inject;
 
@@ -6,7 +6,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
-import xdean.css.editor.context.option.model.Option;
+import xdean.css.editor.context.Config;
 
 @Component
 public class OptionBindProcessor implements BeanPostProcessor {

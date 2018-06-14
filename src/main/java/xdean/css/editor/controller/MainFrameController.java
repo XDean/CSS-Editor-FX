@@ -36,8 +36,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import xdean.css.editor.context.option.Keys;
-import xdean.css.editor.context.option.Options;
+import xdean.css.editor.context.setting.KeySettings;
+import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.control.CssCodeArea.Action;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.MessageService;
@@ -101,9 +101,9 @@ public class MainFrameController implements FxInitializable, Logable {
   MessageService messageService;
 
   @Inject
-  Options options;
+  PreferenceSettings options;
   @Inject
-  Keys keys;
+  KeySettings keys;
 
   @Override
   public void initAfterFxSpringReady() {

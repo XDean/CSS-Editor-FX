@@ -22,7 +22,6 @@ import xdean.jfx.spring.starter.FxContextPostProcessor;
  * @author XDean
  */
 @Configuration
-@SuppressWarnings("restriction")
 public class Context implements Logable, FxContextPostProcessor {
   public static final Path HOME_PATH = Paths.get(System.getProperty("user.home"), ".xdean", "css");
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");

@@ -1,4 +1,4 @@
-package xdean.css.editor.context.option;
+package xdean.css.editor.context.setting;
 
 import java.nio.charset.Charset;
 

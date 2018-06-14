@@ -1,9 +1,8 @@
-package xdean.css.editor.context.option;
+package xdean.css.editor.context.setting;
 
-import static xdean.css.editor.context.option.OptionKeys.FIND;
-import static xdean.css.editor.context.option.OptionKeys.GENERAL;
-import static xdean.css.editor.context.option.OptionKeys.KEY;
-import static xdean.css.editor.context.option.OptionKeys.ROOT;
+import static xdean.css.editor.context.setting.SettingKeys.GENERAL;
+import static xdean.css.editor.context.setting.SettingKeys.KEY;
+import static xdean.css.editor.context.setting.SettingKeys.ROOT;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -15,17 +14,15 @@ import org.springframework.context.annotation.Configuration;
 import com.google.common.collect.BoundType;
 
 import javafx.scene.text.Font;
-import javafx.util.StringConverter;
-import xdean.css.editor.context.option.OptionKeys.Find;
-import xdean.css.editor.context.option.OptionKeys.General;
-import xdean.css.editor.context.option.model.BooleanOption;
-import xdean.css.editor.context.option.model.IntegerOption;
-import xdean.css.editor.context.option.model.OptionGroup;
-import xdean.css.editor.context.option.model.ValueOption;
+import xdean.css.editor.context.setting.SettingKeys.General;
+import xdean.css.editor.context.setting.model.BooleanOption;
+import xdean.css.editor.context.setting.model.IntegerOption;
+import xdean.css.editor.context.setting.model.OptionGroup;
+import xdean.css.editor.context.setting.model.ValueOption;
 import xdean.jfxex.util.StringConverters;
 
 @Configuration
-public class Options {
+public class PreferenceSettings {
 
   @Bean(ROOT)
   public OptionGroup root() {
@@ -52,29 +49,24 @@ public class Options {
     return general().add(new OptionGroup(General.TEXT));
   }
 
-  @Bean(FIND)
-  public OptionGroup find() {
-    return new OptionGroup(FIND);
-  }
-
   @Bean(General.Common.AUTO_SUGGEST)
   public BooleanOption autoSuggest() {
-    return common().add(create(General.Common.AUTO_SUGGEST, true));
+    return common().add(new BooleanOption(General.Common.AUTO_SUGGEST, true));
   }
 
   @Bean(General.Common.SHOW_LINE)
   public BooleanOption showLineNo() {
-    return common().add(create(General.Common.SHOW_LINE, true));
+    return common().add(new BooleanOption(General.Common.SHOW_LINE, true));
   }
 
   @Bean(General.Common.OPEN_LAST)
   public BooleanOption openLast() {
-    return common().add(create(General.Common.OPEN_LAST, true));
+    return common().add(new BooleanOption(General.Common.OPEN_LAST, true));
   }
 
   @Bean(General.Common.CHARSET)
   public ValueOption<Charset> charset() {
-    ValueOption<Charset> charset = createValue(General.Common.CHARSET, DefaultValue.DEFAULT_CHARSET,
+    ValueOption<Charset> charset = new ValueOption<>(General.Common.CHARSET, DefaultValue.DEFAULT_CHARSET,
         StringConverters.create(this::safeCharSet));
     charset.values.setAll(Charset.availableCharsets().values());
     return common().add(charset);
@@ -82,7 +74,7 @@ public class Options {
 
   @Bean(General.Text.FONT_FAMILY)
   public ValueOption<String> fontFamily() {
-    ValueOption<String> fontFamily = createValue(General.Text.FONT_FAMILY, DefaultValue.DEFAULT_FONT_FAMILY,
+    ValueOption<String> fontFamily = new ValueOption<>(General.Text.FONT_FAMILY, DefaultValue.DEFAULT_FONT_FAMILY,
         StringConverters.create(this::safeFontFamily));
     fontFamily.values.setAll(Arrays.asList(DefaultValue.DEF_FONT_FAMILIES));
     fontFamily.values.addAll(Font.getFamilies());
@@ -91,29 +83,14 @@ public class Options {
 
   @Bean(General.Text.FONT_SIZE)
   public IntegerOption fontSize() {
-    IntegerOption fontSize = create(General.Text.FONT_SIZE, DefaultValue.DEFAULT_FONT_SIZE);
+    IntegerOption fontSize = new IntegerOption(General.Text.FONT_SIZE, DefaultValue.DEFAULT_FONT_SIZE);
     fontSize.setRange(DefaultValue.MIN_FONT_SIZE, BoundType.CLOSED, DefaultValue.MAX_FONT_SIZE, BoundType.CLOSED);
     return text().add(fontSize);
   }
 
   @Bean(General.Text.WRAP_TEXT)
   public BooleanOption wrapText() {
-    return text().add(create(General.Text.WRAP_TEXT, true));
-  }
-
-  @Bean(Find.WRAP_SEARCH)
-  public BooleanOption wrapSearch() {
-    return find().add(create(Find.WRAP_SEARCH, true));
-  }
-
-  @Bean(Find.REGEX)
-  public BooleanOption regexSearch() {
-    return find().add(create(Find.REGEX, false));
-  }
-
-  @Bean(Find.CASE_SENSITIVE)
-  public BooleanOption caseSensitive() {
-    return find().add(create(Find.CASE_SENSITIVE, false));
+    return text().add(new BooleanOption(General.Text.WRAP_TEXT, true));
   }
 
   /**
@@ -140,17 +117,5 @@ public class Options {
     } else {
       return Charset.defaultCharset();
     }
-  }
-
-  private BooleanOption create(String key, boolean defaultValue) {
-    return new BooleanOption(key, defaultValue);
-  }
-
-  private IntegerOption create(String key, int defaultValue) {
-    return new IntegerOption(key, defaultValue);
-  }
-
-  private <T> ValueOption<T> createValue(String key, T defaultValue, StringConverter<T> converter) {
-    return new ValueOption<>(key, defaultValue, converter);
   }
 }

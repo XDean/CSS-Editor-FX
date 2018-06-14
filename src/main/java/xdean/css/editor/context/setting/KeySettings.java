@@ -1,6 +1,6 @@
-package xdean.css.editor.context.option;
+package xdean.css.editor.context.setting;
 
-import static xdean.css.editor.context.option.OptionKeys.KEY;
+import static xdean.css.editor.context.setting.SettingKeys.KEY;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -11,14 +11,14 @@ import org.springframework.context.annotation.Configuration;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import xdean.css.editor.context.option.OptionKeys.Key;
-import xdean.css.editor.context.option.model.Option;
-import xdean.css.editor.context.option.model.OptionGroup;
-import xdean.css.editor.context.option.model.SimpleOption;
+import xdean.css.editor.context.setting.SettingKeys.Key;
+import xdean.css.editor.context.setting.model.Option;
+import xdean.css.editor.context.setting.model.OptionGroup;
+import xdean.css.editor.context.setting.model.SimpleOption;
 import xdean.jfxex.util.StringConverters;
 
 @Configuration
-public class Keys {
+public class KeySettings {
 
   @Inject
   @Named(KEY)

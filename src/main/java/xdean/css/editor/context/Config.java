@@ -1,4 +1,4 @@
-package xdean.css.editor.context.option;
+package xdean.css.editor.context;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +9,6 @@ import java.util.Properties;
 
 import org.springframework.stereotype.Service;
 
-import xdean.css.editor.context.Context;
 import xdean.jex.log.Logable;
 
 @Service

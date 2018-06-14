@@ -17,7 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import xdean.css.editor.context.option.Options;
+import xdean.css.editor.context.setting.OtherSettings;
 import xdean.jex.extra.function.Func3;
 import xdean.jex.util.string.StringUtil;
 import xdean.jfx.spring.FxInitializable;
@@ -35,7 +35,7 @@ public class SearchBarController implements FxInitializable {
   private @FXML CheckBox caseSensitive;
   private @FXML CheckBox regex;
   private @FXML CheckBox wrapSearch;
-  private @Inject Options options;
+  private @Inject OtherSettings otherSettings;
 
   private TextField findField;
   private final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
@@ -46,9 +46,9 @@ public class SearchBarController implements FxInitializable {
     findField = TextFields.createClearableTextField();
     textContainer.getChildren().add(findField);
 
-    regex.selectedProperty().bindBidirectional(options.regexSearch().valueProperty());
-    caseSensitive.selectedProperty().bindBidirectional(options.caseSensitive().valueProperty());
-    wrapSearch.selectedProperty().bindBidirectional(options.wrapSearch().valueProperty());
+    regex.selectedProperty().bindBidirectional(otherSettings.regexSearch().valueProperty());
+    caseSensitive.selectedProperty().bindBidirectional(otherSettings.caseSensitive().valueProperty());
+    wrapSearch.selectedProperty().bindBidirectional(otherSettings.wrapSearch().valueProperty());
     visible.and(codeArea.isNotNull());
 
     root.visibleProperty().addListener(on(true, findField::requestFocus)

@@ -1,6 +1,6 @@
-package xdean.css.editor.context.option;
+package xdean.css.editor.context.setting;
 
-public interface OptionKeys {
+public interface SettingKeys {
   String ROOT = "option";
 
   String GENERAL = "option.general";

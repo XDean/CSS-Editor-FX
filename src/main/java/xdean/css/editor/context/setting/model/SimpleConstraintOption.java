@@ -1,4 +1,4 @@
-package xdean.css.editor.context.option.model;
+package xdean.css.editor.context.setting.model;
 
 import javafx.util.StringConverter;
 

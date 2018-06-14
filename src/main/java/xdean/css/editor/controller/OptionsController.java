@@ -35,13 +35,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import xdean.css.editor.context.option.Options;
-import xdean.css.editor.context.option.model.BooleanOption;
-import xdean.css.editor.context.option.model.ConstraintOption;
-import xdean.css.editor.context.option.model.IntegerOption;
-import xdean.css.editor.context.option.model.Option;
-import xdean.css.editor.context.option.model.OptionGroup;
-import xdean.css.editor.context.option.model.ValueOption;
+import xdean.css.editor.context.setting.PreferenceSettings;
+import xdean.css.editor.context.setting.model.BooleanOption;
+import xdean.css.editor.context.setting.model.ConstraintOption;
+import xdean.css.editor.context.setting.model.IntegerOption;
+import xdean.css.editor.context.setting.model.Option;
+import xdean.css.editor.context.setting.model.OptionGroup;
+import xdean.css.editor.context.setting.model.ValueOption;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
@@ -66,7 +66,7 @@ public class OptionsController implements FxInitializable, Logable {
   TableColumn<Option<KeyCombination>, KeyCombination> bindingColumn;
 
   @Inject
-  Options options;
+  PreferenceSettings options;
 
   private int nowTab = 0;
   private List<Runnable> onSubmit = new ArrayList<>();

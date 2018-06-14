@@ -9,7 +9,7 @@ import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.layout.VBox
 import javafx.scene.input.KeyCombination
-import xdean.css.editor.context.option.model.Option
+import xdean.css.editor.context.setting.model.Option
 
 component Options controlledby xdean.css.editor.controller.OptionsController {
   DialogPane id root {

@@ -20,7 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
-import xdean.css.editor.context.option.Options;
+import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.jex.util.calc.MathUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
@@ -40,7 +40,7 @@ public class StatusBarController implements FxInitializable {
   private @FXML Label select;
   private @FXML Label charset;
   private @FXML Label inputType;
-  private @Inject Options options;
+  private @Inject PreferenceSettings options;
 
   @Override
   public void initAfterFxSpringReady() {

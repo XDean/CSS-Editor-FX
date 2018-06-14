@@ -1,4 +1,4 @@
-package xdean.css.editor.context.option.model;
+package xdean.css.editor.context.setting.model;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;

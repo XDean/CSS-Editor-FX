@@ -8,15 +8,15 @@ import javax.inject.Named;
 
 import org.springframework.stereotype.Service;
 
-import xdean.css.editor.context.option.OptionKeys;
-import xdean.css.editor.context.option.model.StringOption;
+import xdean.css.editor.context.setting.SettingKeys;
+import xdean.css.editor.context.setting.model.StringOption;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
 @Service
 public class RecentFileService extends RecentFileMenuSupport {
 
   @Inject
-  @Named(OptionKeys.RECENT_LOC)
+  @Named(SettingKeys.RECENT_LOC)
   StringOption recent;
 
   @Override

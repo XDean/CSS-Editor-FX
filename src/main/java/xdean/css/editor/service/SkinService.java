@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import xdean.css.editor.context.Context;
 import xdean.css.editor.context.DefaultSkin;
-import xdean.css.editor.context.option.OptionKeys;
-import xdean.css.editor.context.option.model.Option;
+import xdean.css.editor.context.setting.SettingKeys;
+import xdean.css.editor.context.setting.model.Option;
 import xdean.jex.log.Logable;
 import xdean.jex.util.string.StringUtil;
 import xdean.jfxex.support.skin.SkinManager;
@@ -24,7 +24,7 @@ import xdean.jfxex.support.skin.SkinStyle;
 public class SkinService extends SkinManager implements Logable, InitializingBean {
 
   @Inject
-  @Named(OptionKeys.SKIN)
+  @Named(SettingKeys.SKIN)
   Option<String> skinOption;
 
   @Override

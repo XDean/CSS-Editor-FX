@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyEvent;
-import xdean.css.editor.context.option.Keys;
+import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.control.CssCodeArea.Action;
 
@@ -21,7 +21,7 @@ public class CommentFeature implements CssCodeAreaFeature {
   private static final String LINE_COMMENT_PATTERN = "^\\s*/\\*.*\\*/\\s*$";
 
   @Inject
-  Keys keys;
+  KeySettings keys;
 
   public CommentFeature() {
     Action.COMMENT.subject

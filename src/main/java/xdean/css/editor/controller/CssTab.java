@@ -20,7 +20,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Tab;
-import xdean.css.editor.context.option.Options;
+import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.domain.FileWrapper;
 import xdean.css.editor.service.RecentFileService;
 import xdean.jex.util.cache.CacheUtil;
@@ -36,7 +36,7 @@ public class CssTab extends Tab implements FxInitializable {
   CssCodeAreaController manager;
 
   @Inject
-  Options options;
+  PreferenceSettings options;
 
   ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
   ObjectBinding<String> name = map(file, f -> f.getFileName());

@@ -1,8 +1,8 @@
-package xdean.css.editor.context.option.model;
+package xdean.css.editor.context.setting.model;
 
 import javafx.beans.property.Property;
 import javafx.util.StringConverter;
-import xdean.css.editor.context.option.Config;
+import xdean.css.editor.context.Config;
 
 public interface Option<T> {
 

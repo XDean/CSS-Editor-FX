@@ -32,7 +32,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 import xdean.css.context.CSSContext;
-import xdean.css.editor.context.option.Options;
+import xdean.css.editor.context.setting.OtherSettings;
+import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.CssCodeAreaFeature;
 import xdean.jex.extra.StringURL;
@@ -54,7 +55,10 @@ public class CssCodeAreaController implements FxInitializable {
   List<CssCodeAreaFeature> features;
 
   @Inject
-  Options options;
+  PreferenceSettings preference;
+
+  @Inject
+  OtherSettings otherSettings;
 
   BooleanProperty override;
   ModifiableObject modify = new ModifiableObject();
@@ -92,7 +96,7 @@ public class CssCodeAreaController implements FxInitializable {
         .debounce(700, TimeUnit.MILLISECONDS)
         .subscribe(this::refreshContextSuggestion);
     // wrap word
-    codeArea.wrapTextProperty().bind(options.wrapSearch().valueProperty());
+    codeArea.wrapTextProperty().bind(otherSettings.wrapSearch().valueProperty());
     // auto select word's first '-'
     JavaFxObservable.eventsOf(codeArea, MouseEvent.MOUSE_PRESSED)
         .filter(e -> e.getClickCount() == 2)
@@ -188,11 +192,11 @@ public class CssCodeAreaController implements FxInitializable {
   };
 
   private void zoomIn() {
-    options.fontSize().setValue(options.fontSize().getValue() + 1);
+    preference.fontSize().setValue(preference.fontSize().getValue() + 1);
   }
 
   private void zoomOut() {
-    options.fontSize().setValue(options.fontSize().getValue() - 1);
+    preference.fontSize().setValue(preference.fontSize().getValue() - 1);
   }
 
   public BooleanProperty overrideProperty() {
@@ -204,26 +208,26 @@ public class CssCodeAreaController implements FxInitializable {
   }
 
   private void bindFont(Node node) {
-    options.fontSize().valueProperty().addListener(weak(node, (ob, obj) -> updateFont(obj)));
-    options.fontFamily().valueProperty().addListener(weak(node, (ob, obj) -> updateFont(obj)));
+    preference.fontSize().valueProperty().addListener(weak(node, (ob, obj) -> updateFont(obj)));
+    preference.fontFamily().valueProperty().addListener(weak(node, (ob, obj) -> updateFont(obj)));
     updateFont(node);
   }
 
   private void updateFont(Node node) {
     node.setStyle(
         String.format("-fx-font-family: '%s'; -fx-font-size: %d;",
-            options.fontFamily().getValue(), options.fontSize().getValue()));
+            preference.fontFamily().getValue(), preference.fontSize().getValue()));
   }
 
   private void bindLineNumber(StyledTextArea<?, ?> textArea, IntFunction<Node> factory) {
-    options.showLineNo().valueProperty().addListener((ob, o, n) -> {
+    preference.showLineNo().valueProperty().addListener((ob, o, n) -> {
       if (n) {
         textArea.setParagraphGraphicFactory(factory);
       } else {
         textArea.setParagraphGraphicFactory(null);
       }
     });
-    if (options.showLineNo().getValue()) {
+    if (preference.showLineNo().getValue()) {
       textArea.setParagraphGraphicFactory(factory);
     }
   }
@@ -240,7 +244,7 @@ public class CssCodeAreaController implements FxInitializable {
 
   public double getTextSize(String text) {
     return Toolkit.getToolkit().getFontLoader().computeStringWidth(text,
-        Font.font(options.fontFamily().getValue(), options.fontSize().getValue()));
+        Font.font(preference.fontFamily().getValue(), preference.fontSize().getValue()));
   }
 
   public ReadOnlyBooleanProperty modifiedProperty() {

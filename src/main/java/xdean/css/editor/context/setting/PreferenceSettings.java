@@ -2,7 +2,6 @@ package xdean.css.editor.context.setting;
 
 import static xdean.css.editor.context.setting.SettingKeys.GENERAL;
 import static xdean.css.editor.context.setting.SettingKeys.KEY;
-import static xdean.css.editor.context.setting.SettingKeys.ROOT;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -24,19 +23,14 @@ import xdean.jfxex.util.StringConverters;
 @Configuration
 public class PreferenceSettings {
 
-  @Bean(ROOT)
-  public OptionGroup root() {
-    return new OptionGroup(ROOT);
-  }
-
   @Bean(GENERAL)
   public OptionGroup general() {
-    return root().add(new OptionGroup(GENERAL));
+    return new OptionGroup(GENERAL);
   }
 
   @Bean(name = KEY)
   public OptionGroup key() {
-    return root().add(new OptionGroup(KEY));
+    return new OptionGroup(KEY);
   }
 
   @Bean(General.COMMON)

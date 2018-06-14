@@ -1,49 +1,48 @@
 package xdean.css.editor.context.setting;
 
-public interface SettingKeys {
-  String ROOT = "option";
+import xdean.auto.message.AutoMessage;
 
-  String GENERAL = "option.general";
+@AutoMessage(path = "/message/settings.properties")
+public interface SettingKeys {
+  String GENERAL = Messages.OPTION_GENERAL;
 
   interface General {
 
-    String COMMON = "option.general.common";
+    String COMMON = Messages.OPTION_GENERAL_COMMON;
 
     interface Common {
-      String AUTO_SUGGEST = "option.general.common.auto-suggest";
-      String SHOW_LINE = "option.general.common.show-line";
-      String OPEN_LAST = "option.general.common.open-last";
-      String CHARSET = "option.general.common.charset";
+      String AUTO_SUGGEST = Messages.OPTION_GENERAL_COMMON_AUTO_SUGGEST;
+      String SHOW_LINE = Messages.OPTION_GENERAL_COMMON_SHOW_LINE;
+      String OPEN_LAST = Messages.OPTION_GENERAL_COMMON_OPEN_LAST;
+      String CHARSET = Messages.OPTION_GENERAL_COMMON_CHARSET;
     }
 
-    String TEXT = "option.general.text";
+    String TEXT = Messages.OPTION_GENERAL_TEXT;
 
     interface Text {
-      String FONT_FAMILY = "option.general.text.font-family";
-      String FONT_SIZE = "option.general.text.font-size";
-      String WRAP_TEXT = "option.general.text.wrap-text";
+      String FONT_FAMILY = Messages.OPTION_GENERAL_TEXT_FONT_FAMILY;
+      String FONT_SIZE = Messages.OPTION_GENERAL_TEXT_FONT_SIZE;
+      String WRAP_TEXT = Messages.OPTION_GENERAL_TEXT_WRAP_TEXT;
     }
   }
 
-  String KEY = "option.key";
+  String KEY = Messages.OPTION_KEY;
 
   interface Key {
-    String SUGGEST = "option.key.suggest";
-    String FORMAT = "option.key.format";
-    String COMMENT = "option.key.comment";
-    String FIND = "option.key.find";
-    String CLOSE = "option.key.close";
+    String SUGGEST = Messages.OPTION_KEY_SUGGEST;
+    String FORMAT = Messages.OPTION_KEY_FORMAT;
+    String COMMENT = Messages.OPTION_KEY_COMMENT;
+    String FIND = Messages.OPTION_KEY_FIND;
+    String CLOSE = Messages.OPTION_KEY_CLOSE;
   }
-
-  String FIND = "option.other.find";
 
   interface Find {
-    String REGEX = "option.other.find.regex";
-    String WRAP_SEARCH = "option.other.find.wrap-search";
-    String CASE_SENSITIVE = "option.other.find.case-sensitive";
+    String REGEX = Messages.OPTION_FIND_REGEX;
+    String WRAP_SEARCH = Messages.OPTION_FIND_WRAP_SEARCH;
+    String CASE_SENSITIVE = Messages.OPTION_FIND_CASE_SENSITIVE;
   }
 
-  String LANGUAGE = "option.language";
-  String SKIN = "option.skin";
-  String RECENT_LOC = "option.recent.location";
+  String LANGUAGE = Messages.OPTION_LANGUAGE;
+  String SKIN = Messages.OPTION_SKIN;
+  String RECENT_LOC = Messages.OPTION_RECENT_LOCATION;
 }

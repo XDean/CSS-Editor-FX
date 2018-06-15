@@ -1,4 +1,4 @@
-package xdean.css.parser;
+package xdean.css.editor.feature.preview;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ public class CSSBorderPaser {
   private final Region inlineNode = new Region();
 
   public List<Function<String, Border>> getTasks() {
-    return CacheUtil.cache(CSSPaintPaser.class, () -> Arrays.asList(
+    return CacheUtil.cache(PaintPreviewer.class, () -> Arrays.asList(
 
     ));
   }

@@ -6,9 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
 
+import io.reactivex.subjects.Subject;
+import io.reactivex.subjects.UnicastSubject;
 import xdean.jex.log.Logable;
 
 @Service
@@ -17,6 +20,7 @@ public class Config implements Logable {
   private static final Path DEFAULT_CONFIG_PATH = Paths.get("/default_config.properties");
 
   private final Properties properties = new Properties();
+  private final Subject<String> saveSubject = UnicastSubject.create();
 
   public Config() {
     try {
@@ -28,10 +32,13 @@ public class Config implements Logable {
         }
       }
       properties.load(Files.newBufferedReader(CONFIG_FILE));
+      debug("Load last config: " + properties.toString());
+      saveSubject
+          .debounce(1000, TimeUnit.MILLISECONDS)
+          .subscribe(e -> saveToFile());
     } catch (IOException e) {
       error("IOException", e);
     }
-    debug("Load last config: " + properties.toString());
   }
 
   public Optional<String> getProperty(String key) {
@@ -56,7 +63,7 @@ public class Config implements Logable {
 
   public void setProperty(String key, String value) {
     properties.setProperty(key, value);
-    save();
+    saveSubject.onNext(key);
   }
 
   public void setIfAbsent(Object key, String value) {
@@ -69,7 +76,7 @@ public class Config implements Logable {
     }
   }
 
-  private synchronized void save() {
+  public synchronized void saveToFile() {
     try {
       properties.store(Files.newOutputStream(CONFIG_FILE), "");
     } catch (IOException e) {

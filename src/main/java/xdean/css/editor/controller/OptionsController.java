@@ -35,6 +35,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.context.setting.model.BooleanOption;
 import xdean.css.editor.context.setting.model.IntegerOption;
@@ -56,6 +57,7 @@ public class OptionsController implements FxInitializable, Logable {
   private @FXML TableColumn<Option<KeyCombination>, String> commandColumn;
   private @FXML TableColumn<Option<KeyCombination>, KeyCombination> bindingColumn;
   private @Inject PreferenceSettings preference;
+  private @Inject KeySettings keys;
   private @Inject MessageService messageService;
 
   private int nowTab = 0;
@@ -92,7 +94,7 @@ public class OptionsController implements FxInitializable, Logable {
     bindingColumn.setEditable(true);
     bindingColumn.setCellFactory(column -> new KeyEditField());
 
-    keyTable.getItems().setAll(preference.key().getChildren(KeyCombination.class));
+    keyTable.getItems().setAll(keys.keys().getChildren(KeyCombination.class));
     onSubmit.add(() -> keyTable.getItems().forEach(key -> key.setValue(bindingColumn.getCellData(key))));
   }
 

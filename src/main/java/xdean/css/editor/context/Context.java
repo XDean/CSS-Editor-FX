@@ -15,38 +15,34 @@ import sun.util.logging.PlatformLogger.Level;
 import xdean.css.editor.service.DialogService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.file.FileUtil;
-import xdean.jex.util.lang.ExceptionUtil;
-import xdean.jfx.spring.starter.FxContextPostProcessor;
 
-/**
- * @author XDean
- */
+// TODO should be a application listener
 @Configuration
-public class Context implements Logable, FxContextPostProcessor {
+public class Context implements Logable {
   public static final Path HOME_PATH = Paths.get(System.getProperty("user.home"), ".xdean", "css");
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");
   public static final Path LAST_FILE_PATH = Context.TEMP_PATH.resolve("last");
 
   private @Inject DialogService messageService;
 
-  @Override
-  public void beforeStart() {
+  public Context() {
+    debug("Setup Css Editor Environment");
     // create directories
     try {
       FileUtil.createDirectory(HOME_PATH);
       FileUtil.createDirectory(TEMP_PATH);
     } catch (IOException e) {
-      error("Create folder fail.", e);
+      error("Create home path fail.", e);
     }
     // close CSS logger
     Logging.getCSSLogger().setLevel(Level.OFF);
     // handle uncaught exception
     Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-      error("Uncaught: ", e);
+      error("Uncaught exception", e);
       if (e instanceof Error) {
         System.exit(1);
       }
-      Platform.runLater(() -> messageService.showMessageDialog(null, "ERROR", ExceptionUtil.getStackTraceString(e)));
+      Platform.runLater(() -> messageService.showError("ERROR", e));
     });
   }
 }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import xdean.css.editor.context.Context;
-import xdean.css.editor.context.DefaultSkin;
+import xdean.css.editor.context.setting.DefaultValue.DefaultSkin;
 import xdean.css.editor.context.setting.SettingKeys;
 import xdean.css.editor.context.setting.model.Option;
 import xdean.jex.log.Logable;

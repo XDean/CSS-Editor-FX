@@ -9,7 +9,7 @@ import java.util.Locale;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import xdean.css.editor.context.DefaultSkin;
+import xdean.css.editor.context.setting.DefaultValue.DefaultSkin;
 import xdean.css.editor.context.setting.SettingKeys.Find;
 import xdean.css.editor.context.setting.model.BooleanOption;
 import xdean.css.editor.context.setting.model.Option;

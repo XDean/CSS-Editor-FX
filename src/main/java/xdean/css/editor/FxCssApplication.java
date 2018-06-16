@@ -30,6 +30,6 @@ public class FxCssApplication implements FxApplication {
     stage.setMaximized(true);
     stage.show();
 
-    stage.getIcons().add(new Image(FxCssApplication.class.getClassLoader().getResourceAsStream("image/icon.png")));
+    stage.getIcons().add(new Image(FxCssApplication.class.getClassLoader().getResourceAsStream("image/icon.jpg")));
   }
 }

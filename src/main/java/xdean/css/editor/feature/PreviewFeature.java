@@ -18,10 +18,8 @@ import javafx.scene.control.PopupControl;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.SVGPath;
 import javafx.stage.PopupWindow;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.preview.CssElementPreviewer;
@@ -59,28 +57,21 @@ public class PreviewFeature implements CssCodeAreaFeature {
     private double width = 80, height = 50, line = 2;
 
     CssCodeArea codeArea;
-    PopupControl popup;
-
-    AnchorPane contentPane;
-    Canvas canvas;
-    Region region;
-    SVGPath svgPath;
+    PopupControl popup = new PopupControl();
+    AnchorPane contentPane = new AnchorPane();
+    Canvas canvas = new Canvas(width, height);
+    Region region = new Region();
 
     @SuppressWarnings("unchecked")
     InnerController(CssCodeArea area) {
       this.codeArea = area;
-      this.popup = new PopupControl();
-      this.contentPane = new AnchorPane();
-      this.canvas = new Canvas(width, height);
-      this.region = new Region();
-      this.svgPath = new SVGPath();
 
       contentPane.setBorder(LayoutUtil.getSimpleBorder(Color.BLACK, line));
       contentPane.setPrefWidth(width + 2 * line);
       contentPane.setPrefHeight(height + 2 * line);
+      contentPane.getChildren().setAll(canvas);
 
       LayoutUtil.setAnchorZero(canvas);
-      LayoutUtil.setAnchorZero(svgPath);
       LayoutUtil.setAnchorZero(region);
 
       region.setPrefSize(width, height);
@@ -129,14 +120,6 @@ public class PreviewFeature implements CssCodeAreaFeature {
 
       previewer.preview(graphics, value, width, height);
 
-      contentPane.getChildren().setAll(canvas);
-      showPopup();
-    }
-
-    @SuppressWarnings("unused")
-    void showBorder(Border border) {
-      region.setBorder(border);
-      contentPane.getChildren().setAll(region);
       showPopup();
     }
   }

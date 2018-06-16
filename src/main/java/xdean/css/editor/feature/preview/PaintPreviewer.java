@@ -26,7 +26,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Affine;
-import xdean.css.context.CSSContext;
+import xdean.css.editor.model.CSSContext;
 
 @Service
 @SuppressWarnings({ "rawtypes", "unchecked" })

@@ -2,7 +2,7 @@ package xdean.css.editor.feature.preview;
 
 import io.reactivex.Maybe;
 import javafx.scene.canvas.GraphicsContext;
-import xdean.css.context.CSSContext;
+import xdean.css.editor.model.CSSContext;
 
 public interface CssElementPreviewer<T> {
   Maybe<T> parse(CSSContext context, String text);

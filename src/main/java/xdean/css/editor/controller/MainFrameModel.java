@@ -12,7 +12,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import xdean.css.editor.control.CssCodeArea;
-import xdean.css.editor.domain.FileWrapper;
+import xdean.css.editor.model.FileWrapper;
 import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.ObjectPropertyEX;

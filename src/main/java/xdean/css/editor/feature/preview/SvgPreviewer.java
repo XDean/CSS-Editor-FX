@@ -11,7 +11,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.transform.Affine;
-import xdean.css.context.CSSContext;
+import xdean.css.editor.model.CSSContext;
 import xdean.jex.util.string.StringUtil;
 
 @Service

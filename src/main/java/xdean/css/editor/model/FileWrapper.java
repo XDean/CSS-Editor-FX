@@ -1,4 +1,4 @@
-package xdean.css.editor.domain;
+package xdean.css.editor.model;
 
 import java.nio.file.Path;
 import java.util.Optional;

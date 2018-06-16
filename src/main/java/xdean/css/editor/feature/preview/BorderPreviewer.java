@@ -3,7 +3,7 @@ package xdean.css.editor.feature.preview;
 import io.reactivex.Maybe;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Border;
-import xdean.css.context.CSSContext;
+import xdean.css.editor.model.CSSContext;
 
 // TODO
 // @Service

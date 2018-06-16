@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import xdean.css.context.CSSContext;
+import xdean.css.editor.model.CSSContext;
 import xdean.jex.util.string.StringUtil;
 
 public class RegexSuggestion extends SimpleSuggestion {

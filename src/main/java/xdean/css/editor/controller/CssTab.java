@@ -21,7 +21,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Tab;
 import xdean.css.editor.context.setting.PreferenceSettings;
-import xdean.css.editor.domain.FileWrapper;
+import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.RecentFileService;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jfx.spring.FxInitializable;

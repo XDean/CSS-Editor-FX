@@ -1,4 +1,4 @@
-package xdean.css.context;
+package xdean.css.editor.model;
 
 import com.google.common.base.Supplier;
 

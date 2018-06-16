@@ -1,4 +1,4 @@
-package xdean.css.context;
+package xdean.css.editor.model;
 
 import javafx.css.ParsedValue;
 import javafx.scene.text.Font;

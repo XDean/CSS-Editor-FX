@@ -39,7 +39,7 @@ import javafx.stage.Stage;
 import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.control.CssCodeArea.Action;
-import xdean.css.editor.domain.FileWrapper;
+import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.SkinService;
 import xdean.jex.extra.tryto.Try;

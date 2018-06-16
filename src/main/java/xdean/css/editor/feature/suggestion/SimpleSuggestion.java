@@ -8,7 +8,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import javafx.scene.control.IndexRange;
-import xdean.css.editor.model.CSSContext;
+import xdean.css.editor.model.CssContext;
 
 public class SimpleSuggestion implements CssSuggestionService {
 
@@ -32,7 +32,7 @@ public class SimpleSuggestion implements CssSuggestionService {
   CssSuggestionsFilter filter;
 
   @Override
-  public Collection<String> getSuggestion(String text, int caretPos, CSSContext context) {
+  public Collection<String> getSuggestion(String text, int caretPos, CssContext context) {
     String prePart = text.substring(0, caretPos);
     IndexRange replaceRange = getReplaceRange(text, caretPos, context);
     char c = ' ';
@@ -71,7 +71,7 @@ public class SimpleSuggestion implements CssSuggestionService {
   }
 
   @Override
-  public IndexRange getReplaceRange(String text, int caretPos, CSSContext context) {
+  public IndexRange getReplaceRange(String text, int caretPos, CssContext context) {
     int start = caretPos - 1;
     int end = caretPos;
     while (start > -1 && LEGAL_CHARS.contains(text.charAt(start))) {

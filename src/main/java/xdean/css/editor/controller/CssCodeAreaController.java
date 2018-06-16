@@ -35,7 +35,7 @@ import xdean.css.editor.context.setting.OtherSettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.CssCodeAreaFeature;
-import xdean.css.editor.model.CSSContext;
+import xdean.css.editor.model.CssContext;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
@@ -49,7 +49,7 @@ public class CssCodeAreaController implements FxInitializable {
 
   public final CssCodeArea codeArea = new CssCodeArea();
 
-  CSSContext lastContext;
+  CssContext lastContext;
 
   @Inject
   List<CssCodeAreaFeature> features;
@@ -175,7 +175,7 @@ public class CssCodeAreaController implements FxInitializable {
       codeArea.context.remove(lastContext);
       lastContext = null;
     }
-    lastContext = new CSSContext(text);
+    lastContext = new CssContext(text);
     codeArea.context.add(lastContext);
   }
 

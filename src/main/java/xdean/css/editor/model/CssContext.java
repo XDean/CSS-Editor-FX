@@ -25,13 +25,13 @@ import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.task.TaskUtil;
 
 @Slf4j
-public class CSSContext {
-  private static final CSSContext MODENA = new CSSContext();
+public class CssContext {
+  private static final CssContext MODENA = new CssContext();
   private static final String ROOT = "*.root";;
   private static final Font FONT = Font.font(1);
   static {
     try {
-      MODENA.load(CSSContext.class.getResource(
+      MODENA.load(CssContext.class.getResource(
           "/com/sun/javafx/scene/control/skin/modena/modena.css"));
     } catch (IOException e) {
       log.error("Load modena.css fail!", e);
@@ -39,8 +39,8 @@ public class CSSContext {
     }
   }
 
-  public static CSSContext createByDefault() {
-    return new CSSContext(MODENA);
+  public static CssContext createByDefault() {
+    return new CssContext(MODENA);
   }
 
   final Multiset<String> selectors;
@@ -58,7 +58,7 @@ public class CSSContext {
   Pattern statePattern = Pattern.compile(":[a-zA-Z][A-Za-z0-9-_]*");
   Pattern javaPattern = Pattern.compile("([^.#:A-Za-z0-9-_]|(?<START>^))[a-zA-Z][A-Za-z0-9-_]*");
 
-  public CSSContext() {
+  public CssContext() {
     selectors = LinkedHashMultiset.create();
     classes = LinkedHashMultiset.create();
     javaClasses = LinkedHashMultiset.create();
@@ -68,17 +68,17 @@ public class CSSContext {
     paints = LinkedListMultimap.create();
   }
 
-  public CSSContext(String text) {
+  public CssContext(String text) {
     this();
     load(text);
   }
 
-  public CSSContext(CSSContext context) {
+  public CssContext(CssContext context) {
     this();
     add(context);
   }
 
-  public void add(CSSContext cr) {
+  public void add(CssContext cr) {
     this.selectors.addAll(cr.selectors);
     this.classes.addAll(cr.classes);
     this.javaClasses.addAll(cr.javaClasses);
@@ -88,7 +88,7 @@ public class CSSContext {
     this.paints.putAll(cr.paints);
   }
 
-  public void remove(CSSContext cr) {
+  public void remove(CssContext cr) {
     this.selectors.removeAll(cr.selectors);
     this.classes.removeAll(cr.classes);
     this.javaClasses.removeAll(cr.javaClasses);

@@ -11,7 +11,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.transform.Affine;
-import xdean.css.editor.model.CSSContext;
+import xdean.css.editor.model.CssContext;
 import xdean.jex.util.string.StringUtil;
 
 @Service
@@ -25,7 +25,7 @@ public class SvgPreviewer implements CssElementPreviewer<String> {
   }
 
   @Override
-  public Maybe<String> parse(CSSContext context, String svg) {
+  public Maybe<String> parse(CssContext context, String svg) {
     svg = StringUtil.unWrap(svg, "\"", "\"");
     try {
       new Path2D().appendSVGPath(svg);

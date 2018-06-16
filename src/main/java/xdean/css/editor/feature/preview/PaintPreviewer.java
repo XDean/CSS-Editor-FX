@@ -26,7 +26,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Affine;
-import xdean.css.editor.model.CSSContext;
+import xdean.css.editor.model.CssContext;
 
 @Service
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -35,7 +35,7 @@ public class PaintPreviewer implements CssElementPreviewer<Paint> {
   private final Node inlineNode = new Group();
 
   @Override
-  public Maybe<Paint> parse(CSSContext context, String str) {
+  public Maybe<Paint> parse(CssContext context, String str) {
     return Observable.<Function<String, Paint>> just(
         text -> Color.web(text, 1),
         text -> LinearGradient.valueOf(text),
@@ -57,7 +57,7 @@ public class PaintPreviewer implements CssElementPreviewer<Paint> {
     graphics.fillRect(0, 0, width, height);
   }
 
-  private ParsedValue resolve(CSSContext context, String text) {
+  private ParsedValue resolve(CssContext context, String text) {
     inlineNode.setStyle("-fx-color:" + text);
     Stylesheet css = new CSSParser().parseInlineStyle(inlineNode);
     ParsedValue parsedValue = uncatch(() -> css.getRules().get(0).getDeclarations().get(0).getParsedValue());

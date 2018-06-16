@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import xdean.css.editor.model.CSSContext;
+import xdean.css.editor.model.CssContext;
 import xdean.jex.util.string.StringUtil;
 
 public class RegexSuggestion extends SimpleSuggestion {
@@ -17,7 +17,7 @@ public class RegexSuggestion extends SimpleSuggestion {
   CssSuggestionsFilter filter;
 
   @Override
-  public Collection<String> getSuggestion(String text, int caretPos, CSSContext context) {
+  public Collection<String> getSuggestion(String text, int caretPos, CssContext context) {
     String prePart = text.substring(0, caretPos);
     int leftIndex = prePart.lastIndexOf('{');
     int rightIndex = prePart.lastIndexOf('}');

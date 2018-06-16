@@ -25,7 +25,7 @@ import javafx.stage.PopupWindow;
 import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.suggestion.CssSuggestionService;
-import xdean.css.editor.model.CSSContext;
+import xdean.css.editor.model.CssContext;
 
 @Service
 public class SuggestionFeature implements CssCodeAreaFeature {
@@ -59,7 +59,7 @@ public class SuggestionFeature implements CssCodeAreaFeature {
   private class InnerController {
 
     CodeArea codeArea;
-    CSSContext context;
+    CssContext context;
 
     AutoCompletePopup<String> popup = new AutoCompletePopup<>();
 

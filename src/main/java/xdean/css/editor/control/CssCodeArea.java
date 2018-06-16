@@ -4,10 +4,10 @@ import org.fxmisc.richtext.CodeArea;
 
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
-import xdean.css.editor.model.CSSContext;
+import xdean.css.editor.model.CssContext;
 
 public class CssCodeArea extends CodeArea {
-  public final CSSContext context = CSSContext.createByDefault();
+  public final CssContext context = CssContext.createByDefault();
 
   public enum Action {
     SUGGEST,

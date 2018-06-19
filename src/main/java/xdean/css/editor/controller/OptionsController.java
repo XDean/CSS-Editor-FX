@@ -3,6 +3,10 @@ package xdean.css.editor.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import com.sun.javafx.binding.ContentBinding;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -31,13 +35,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import xdean.css.editor.config.Options;
-import xdean.css.editor.config.option.BooleanOption;
-import xdean.css.editor.config.option.ConstraintOption;
-import xdean.css.editor.config.option.IntegerOption;
-import xdean.css.editor.config.option.Option;
-import xdean.css.editor.config.option.OptionGroup;
-import xdean.css.editor.config.option.ValueOption;
+import xdean.css.editor.context.setting.KeySettings;
+import xdean.css.editor.context.setting.PreferenceSettings;
+import xdean.css.editor.context.setting.model.BooleanOption;
+import xdean.css.editor.context.setting.model.IntegerOption;
+import xdean.css.editor.context.setting.model.Option;
+import xdean.css.editor.context.setting.model.OptionGroup;
+import xdean.css.editor.context.setting.model.ValueOption;
+import xdean.css.editor.service.MessageService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
@@ -46,20 +51,14 @@ import xdean.jfx.spring.annotation.FxController;
 
 @FxController(fxml = "/fxml/Options.fxml")
 public class OptionsController implements FxInitializable, Logable {
-  @FXML
-  DialogPane root;
-
-  @FXML
-  VBox generalPane;
-
-  @FXML
-  TableView<Option<KeyCombination>> keyTable;
-
-  @FXML
-  TableColumn<Option<KeyCombination>, String> commandColumn;
-
-  @FXML
-  TableColumn<Option<KeyCombination>, KeyCombination> bindingColumn;
+  private @FXML DialogPane root;
+  private @FXML VBox generalPane;
+  private @FXML TableView<Option<KeyCombination>> keyTable;
+  private @FXML TableColumn<Option<KeyCombination>, String> commandColumn;
+  private @FXML TableColumn<Option<KeyCombination>, KeyCombination> bindingColumn;
+  private @Inject PreferenceSettings preference;
+  private @Inject KeySettings keys;
+  private @Inject MessageService messageService;
 
   private int nowTab = 0;
   private List<Runnable> onSubmit = new ArrayList<>();
@@ -74,7 +73,7 @@ public class OptionsController implements FxInitializable, Logable {
       e.consume();
     });
   }
-  
+
   public void open(Stage stage) {
     Dialog<Void> dialog = new Dialog<>();
     dialog.initOwner(stage);
@@ -84,25 +83,24 @@ public class OptionsController implements FxInitializable, Logable {
 
   private void initGeneral() {
     nowTab = -1;
-    Options.GENERAL.getChildren().forEach(e -> e.exec(this::handle, this::handle));
+    preference.general().getChildren().forEach(e -> e.exec(this::handle, this::handle));
   }
 
   private void initKey() {
-    commandColumn.setCellValueFactory(cdf -> new SimpleStringProperty(cdf.getValue().getDescribe()));
+    commandColumn.setCellValueFactory(cdf -> new SimpleStringProperty(messageService.getMessage(cdf.getValue().getKey())));
     bindingColumn.setCellValueFactory(cdf -> CacheUtil.cache(OptionsController.this,
-        cdf.getValue(), () -> new SimpleObjectProperty<>(cdf.getValue().get())));
-    // bindingColumn.setCellValueFactory(cdf -> new SimpleObjectProperty<>(cdf.getValue().get()));
+        cdf.getValue(), () -> new SimpleObjectProperty<>(cdf.getValue().getValue())));
 
     bindingColumn.setEditable(true);
     bindingColumn.setCellFactory(column -> new KeyEditField());
 
-    keyTable.getItems().setAll(Options.KEY.getChildren(KeyCombination.class));
-    onSubmit.add(() -> keyTable.getItems().forEach(key -> key.set(bindingColumn.getCellData(key))));
+    keyTable.getItems().setAll(keys.keys().getChildren(KeyCombination.class));
+    onSubmit.add(() -> keyTable.getItems().forEach(key -> key.setValue(bindingColumn.getCellData(key))));
   }
 
   private <T> void handle(OptionGroup og) {
     nowTab++;
-    Label label = new Label(og.getDescribe());
+    Label label = new Label(messageService.getMessage(og.getKey()));
     Font font = label.getFont();
     label.setFont(Font.font(font.getSize() + 10 - nowTab * 3));
     add(label);
@@ -116,12 +114,10 @@ public class OptionsController implements FxInitializable, Logable {
       ;
     } else if (o instanceof BooleanOption) {
       add((BooleanOption) o);
-    } else if (o instanceof ConstraintOption) {
-      if (o instanceof IntegerOption) {
-        add((IntegerOption) o);
-      } else if (o instanceof ValueOption) {
-        add((ValueOption<T>) o);
-      }
+    } else if (o instanceof IntegerOption) {
+      add((IntegerOption) o);
+    } else if (o instanceof ValueOption) {
+      add((ValueOption<T>) o);
     } else {
       error("Can't handle this option: " + o);
     }
@@ -129,35 +125,35 @@ public class OptionsController implements FxInitializable, Logable {
   }
 
   private <T> boolean special(Option<T> o) {
-    if (o == Options.fontFamily) {
-      ComboBox<String> box = add(Options.fontFamily);
+    if (o == preference.fontFamily()) {
+      ComboBox<String> box = add(preference.fontFamily());
       box.setCellFactory(p -> new FontListCell());
       return true;
     }
-
     return false;
   }
 
   private <T> ComboBox<T> add(ValueOption<T> vo) {
     ComboBox<T> cb = new ComboBox<>();
-    cb.getItems().addAll(vo.getValues());
-    cb.getSelectionModel().select(vo.get());
-    onSubmit.add(() -> vo.set(cb.getSelectionModel().getSelectedItem()));
-    add(wrapWithText(cb, vo.getDescribe()));
+    ContentBinding.bind(cb.getItems(), vo.values);
+    cb.getSelectionModel().select(vo.getValue());
+    onSubmit.add(() -> vo.setValue(cb.getSelectionModel().getSelectedItem()));
+    add(wrapWithText(cb, messageService.getMessage(vo.getKey())));
     return cb;
   }
 
   private Spinner<Integer> add(IntegerOption ro) {
-    Spinner<Integer> s = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(ro.getMin(), ro.getMax(), ro.get()));
-    onSubmit.add(() -> ro.set(s.getValue()));
-    add(wrapWithText(s, ro.getDescribe()));
+    Spinner<Integer> s = new Spinner<>(
+        new SpinnerValueFactory.IntegerSpinnerValueFactory(ro.getMin(), ro.getMax(), ro.getValue()));
+    onSubmit.add(() -> ro.setValue(s.getValue()));
+    add(wrapWithText(s, messageService.getMessage(ro.getKey())));
     return s;
   }
 
   private CheckBox add(BooleanOption ob) {
-    CheckBox cb = new CheckBox(ob.getDescribe());
-    cb.setSelected(ob.get());
-    onSubmit.add(() -> ob.set(cb.isSelected()));
+    CheckBox cb = new CheckBox(messageService.getMessage(ob.getKey()));
+    cb.setSelected(ob.getValue());
+    onSubmit.add(() -> ob.setValue(cb.isSelected()));
     add(cb);
     return cb;
   }

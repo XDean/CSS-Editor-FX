@@ -2,6 +2,8 @@ package xdean.css.editor.feature;
 
 import java.util.stream.Stream;
 
+import javax.inject.Inject;
+
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 import org.springframework.stereotype.Service;
@@ -9,21 +11,21 @@ import org.springframework.stereotype.Service;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyEvent;
-import xdean.css.editor.config.Key;
+import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.control.CssCodeArea;
+import xdean.css.editor.control.CssCodeArea.Action;
 
 @Service
 public class CommentFeature implements CssCodeAreaFeature {
 
   private static final String LINE_COMMENT_PATTERN = "^\\s*/\\*.*\\*/\\s*$";
 
-  @Override
-  public void bind(CssCodeArea codeArea) {
-    JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED)
-        .filter(Key.COMMENT.get()::match)
-        .filter(e -> e.isConsumed() == false)
-        .doOnNext(KeyEvent::consume)
-        .subscribe(e -> {
+  @Inject
+  KeySettings keys;
+
+  public CommentFeature() {
+    Action.COMMENT.subject
+        .subscribe(codeArea -> {
           selectLines(codeArea);
           String selectedText = codeArea.getSelectedText();
           IndexRange selection = codeArea.getSelection();
@@ -32,6 +34,15 @@ public class CommentFeature implements CssCodeAreaFeature {
           codeArea.getUndoManager().preventMerge();
           codeArea.moveTo(selection.getStart(), SelectionPolicy.EXTEND);
         });
+  }
+
+  @Override
+  public void bind(CssCodeArea codeArea) {
+    JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED)
+        .filter(keys.comment().getValue()::match)
+        .filter(e -> e.isConsumed() == false)
+        .doOnNext(KeyEvent::consume)
+        .subscribe(e -> Action.COMMENT.subject.onNext(codeArea));
   }
 
   private static void selectLines(CodeArea area) {

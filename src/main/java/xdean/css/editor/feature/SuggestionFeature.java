@@ -22,16 +22,19 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.PopupWindow;
-import xdean.css.context.CSSContext;
-import xdean.css.editor.config.Key;
+import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.control.CssCodeArea;
 import xdean.css.editor.feature.suggestion.CssSuggestionService;
+import xdean.css.editor.model.CssContext;
 
 @Service
 public class SuggestionFeature implements CssCodeAreaFeature {
 
   @Inject
   CssSuggestionService cssSuggestion;
+
+  @Inject
+  KeySettings keys;
 
   private final Collection<KeyCombination> legalPrefix = Arrays.asList(
       new KeyCodeCombination(KeyCode.PERIOD),
@@ -46,7 +49,7 @@ public class SuggestionFeature implements CssCodeAreaFeature {
   private boolean shouldSuggest(KeyEvent e) {
     if (legalPrefix.stream().filter(c -> c.match(e)).count() > 0) {
       return true;
-    } else if (Key.SUGGEST.get().match(e)) {
+    } else if (keys.suggest().getValue().match(e)) {
       return true;
     } else {
       return false;
@@ -56,7 +59,7 @@ public class SuggestionFeature implements CssCodeAreaFeature {
   private class InnerController {
 
     CodeArea codeArea;
-    CSSContext context;
+    CssContext context;
 
     AutoCompletePopup<String> popup = new AutoCompletePopup<>();
 

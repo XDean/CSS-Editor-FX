@@ -1,14 +1,10 @@
 package xdean.css.editor.controller;
 
-import static xdean.css.editor.config.Context.LAST_FILE_PATH;
+import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfxex.bean.BeanUtil.map;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanProp;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
-import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
-import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
+import static xdean.jfxex.bean.BeanUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,10 +36,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import xdean.css.editor.config.Key;
-import xdean.css.editor.config.Options;
-import xdean.css.editor.domain.FileWrapper;
-import xdean.css.editor.service.MessageService;
+import xdean.css.editor.context.setting.KeySettings;
+import xdean.css.editor.context.setting.PreferenceSettings;
+import xdean.css.editor.control.CssCodeArea.Action;
+import xdean.css.editor.model.FileWrapper;
+import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.SkinService;
 import xdean.jex.extra.tryto.Try;
 import xdean.jex.log.Logable;
@@ -53,7 +50,7 @@ import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
-import xdean.jfx.spring.starter.FxContext;
+import xdean.jfx.spring.context.FxContext;
 import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
@@ -101,7 +98,12 @@ public class MainFrameController implements FxInitializable, Logable {
   SkinService skinManager;
 
   @Inject
-  MessageService messageService;
+  DialogService messageService;
+
+  @Inject
+  PreferenceSettings options;
+  @Inject
+  KeySettings keys;
 
   @Override
   public void initAfterFxSpringReady() {
@@ -139,10 +141,10 @@ public class MainFrameController implements FxInitializable, Logable {
 
   private void initBind() {
     // shortcut
-    formatItem.acceleratorProperty().bind(Key.FORMAT.property());
-    commentItem.acceleratorProperty().bind(Key.COMMENT.property());
-    findItem.acceleratorProperty().bind(Key.FIND.property());
-    closeItem.acceleratorProperty().bind(Key.CLOSE.property());
+    formatItem.acceleratorProperty().bind(keys.format().valueProperty());
+    commentItem.acceleratorProperty().bind(keys.comment().valueProperty());
+    findItem.acceleratorProperty().bind(keys.find().valueProperty());
+    closeItem.acceleratorProperty().bind(keys.close().valueProperty());
 
     // disable
     BooleanBinding nullArea = model.currentCodeArea.isNull();
@@ -184,7 +186,7 @@ public class MainFrameController implements FxInitializable, Logable {
             .multiply(codeAreaWidth).divide(codeAreaTextWidth)));
     horizontalScrollBar.valueProperty()
         .bindBidirectional(nestDoubleProp(model.currentCodeArea, c -> c.estimatedScrollXProperty()).normalize());
-    horizontalScrollBar.visibleProperty().bind(Options.wrapText.property().not().and(model.currentCodeArea.isNotNull())
+    horizontalScrollBar.visibleProperty().bind(options.wrapText().booleanProperty().not().and(model.currentCodeArea.isNotNull())
         .and(horizontalScrollBar.maxProperty().greaterThan(horizontalScrollBar.visibleAmountProperty())));
     horizontalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
         () -> andFinal(() -> horizontalScrollBar.isVisible(), v -> horizontalScrollBar.getParent().layout()),
@@ -254,14 +256,14 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void exit() {
-    if (Options.openLastFile.get()) {
+    if (options.openLast().getValue()) {
       uncheck(() -> FileUtil.createDirectory(LAST_FILE_PATH));
       uncheck(() -> Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
       ListUtil.forEach(model.tabEntities, (te, i) -> {
         String nameString = te.file.get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
         String text = te.manager.modify.isModified() ? te.manager.codeArea.getText() : "";
         Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
-        uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(Options.charset.get())));
+        uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(options.charset().getValue())));
       });
       stage.close();
     } else if (askToSaveAndShouldContinue()) {
@@ -291,7 +293,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void comment() {
-//    model.currentManager.get().comment();
+    Action.COMMENT.subject.onNext(model.currentCodeArea.get());
   }
 
   @FXML
@@ -310,10 +312,10 @@ public class MainFrameController implements FxInitializable, Logable {
   }
 
   private void openLastFile() throws IOException {
-    if (Options.openLastFile.get()) {
+    if (options.openLast().getValue()) {
       FileUtil.createDirectory(LAST_FILE_PATH);
       Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> {
-        List<String> lines = Files.readAllLines(p, Options.charset.get());
+        List<String> lines = Files.readAllLines(p, options.charset().getValue());
         if (lines.isEmpty()) {
           return;
         }
@@ -344,7 +346,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   protected boolean saveToFile(Path file) {
     try {
-      Files.write(file, model.currentCodeArea.get().getText().getBytes(Options.charset.get()));
+      Files.write(file, model.currentCodeArea.get().getText().getBytes(options.charset().getValue()));
       saved();
       return true;
     } catch (UnsupportedOperationException e) {

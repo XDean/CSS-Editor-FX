@@ -1,55 +1,34 @@
 package xdean.css.editor.service;
 
+import java.text.MessageFormat;
+import java.util.Locale;
+
 import javax.inject.Inject;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.stage.Window;
+import xdean.css.editor.context.setting.model.Option;
 
 @Service
 public class MessageService {
 
   @Inject
-  NodeFactoryService nodeFactory;
+  private MessageSource messageSource;
 
-  public void showMessageDialog(Window window, String title, String message) {
-    Dialog<ButtonType> dialog = nodeFactory.createDialog();
-    if (window != null) {
-      dialog.initOwner(window);
-    }
-    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-    dialog.setTitle(title);
-    dialog.setContentText(message);
-    dialog.showAndWait();
+  @Inject
+  private Option<Locale> localeOption;
+
+  public String getMessage(String code, Object... args) throws NoSuchMessageException {
+    return messageSource.getMessage(code, args, localeOption.getValue());
   }
 
-  public boolean showConfirmDialog(Window window, String title, String message) {
-    Dialog<ButtonType> dialog = nodeFactory.createDialog();
-    if (window != null) {
-      dialog.initOwner(window);
-    }
-    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-    dialog.setTitle(title);
-    dialog.setContentText(message);
-    return dialog.showAndWait().orElse(ButtonType.CANCEL).equals(ButtonType.OK);
+  public String getMessageDefault(String defaultMessage, String code, Object... args) {
+    return messageSource.getMessage(code, args, defaultMessage, localeOption.getValue());
   }
 
-  /**
-   * @param window
-   * @param title
-   * @param message
-   * @return {@code ButtonType.YES, ButtonType.NO, ButtonType.CANCEL}
-   */
-  public ButtonType showConfirmCancelDialog(Window window, String title, String message) {
-    Dialog<ButtonType> dialog = nodeFactory.createDialog();
-    if (window != null) {
-      dialog.initOwner(window);
-    }
-    dialog.getDialogPane().getButtonTypes().addAll(ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-    dialog.setTitle(title);
-    dialog.setContentText(message);
-    return dialog.showAndWait().orElse(ButtonType.CANCEL);
+  public MessageFormat getMessageFormat(String code) {
+    return new MessageFormat(getMessage(code), localeOption.getValue());
   }
 }

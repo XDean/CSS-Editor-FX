@@ -20,8 +20,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.css.PseudoClass;
 import javafx.scene.control.Tab;
-import xdean.css.editor.config.Options;
-import xdean.css.editor.domain.FileWrapper;
+import xdean.css.editor.context.setting.PreferenceSettings;
+import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.RecentFileService;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jfx.spring.FxInitializable;
@@ -34,6 +34,9 @@ public class CssTab extends Tab implements FxInitializable {
 
   @Inject
   CssCodeAreaController manager;
+
+  @Inject
+  PreferenceSettings options;
 
   ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
   ObjectBinding<String> name = map(file, f -> f.getFileName());
@@ -75,7 +78,7 @@ public class CssTab extends Tab implements FxInitializable {
 
   public void reload() {
     file.get().getExistFile().ifPresent(p -> uncatch(() -> {
-      manager.codeArea.replaceText(new String(Files.readAllBytes(p), Options.charset.get()));
+      manager.codeArea.replaceText(new String(Files.readAllBytes(p), options.charset().getValue()));
       manager.codeArea.moveTo(0);
       manager.codeArea.getUndoManager().forgetHistory();
       manager.modify.saved();

@@ -18,6 +18,18 @@
   <dependencies>
     <dependency>
       <groupId>com.github.XDean</groupId>
+      <artifactId>auto-message</artifactId>
+      <version>0.1.6-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.XDean</groupId>
+      <artifactId>auto-spring-factories</artifactId>
+      <version>0.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.XDean</groupId>
       <artifactId>javafx-spring-boot</artifactId>
       <version>0.1-SNAPSHOT</version>
     </dependency>

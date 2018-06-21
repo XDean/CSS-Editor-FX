@@ -5,8 +5,8 @@ import java.util.function.BiPredicate;
 import org.springframework.core.Ordered;
 
 /**
- * Suggestion Filter. High order filter will be first execute and the accepted suggestion also has
- * high order.
+ * Suggestion Filter. High order filter will be first execute and the accepted
+ * suggestion also has high order.
  * 
  * 
  * @author Dean Xu (XDean@github.com)
@@ -17,8 +17,8 @@ public interface CssSuggestionFilter extends Ordered {
    * 
    * @param suggestion the candidate suggestion
    * @param input the input text
-   * @return return true to accept the suggestion, return false to skip the suggestion (to next
-   *         suggestion).
+   * @return return true to accept the suggestion, return false to skip the
+   *         suggestion (to next suggestion).
    */
   boolean filter(String suggestion, String input);
 

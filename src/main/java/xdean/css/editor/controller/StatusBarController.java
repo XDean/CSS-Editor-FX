@@ -6,6 +6,8 @@ import static xdean.jfxex.bean.BeanUtil.nestValue;
 
 import java.util.function.Function;
 
+import javax.inject.Inject;
+
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.fxmisc.richtext.CodeArea;
@@ -18,7 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
-import xdean.css.editor.config.Options;
+import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.jex.util.calc.MathUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
@@ -38,6 +40,7 @@ public class StatusBarController implements FxInitializable {
   private @FXML Label select;
   private @FXML Label charset;
   private @FXML Label inputType;
+  private @Inject PreferenceSettings options;
 
   @Override
   public void initAfterFxSpringReady() {
@@ -48,7 +51,7 @@ public class StatusBarController implements FxInitializable {
         t -> countLine(area.getValue().getText().substring(0, t))));
     select.textProperty()
         .bind(map(nestValue(area, c -> c.selectedTextProperty()), t -> t.length() + " | " + countLine(t)));
-    charset.textProperty().bind(map(Options.charset.property(), t -> t.toString()));
+    charset.textProperty().bind(map(options.charset().valueProperty(), t -> t.toString()));
     inputType.textProperty().bind(Bindings.when(override.normalize()).then("Override").otherwise("Insert"));
   }
 

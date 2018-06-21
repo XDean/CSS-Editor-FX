@@ -194,7 +194,7 @@
 						<ScrollBar fx:id="horizontalScrollBar" prefHeight="15.0" BorderPane.alignment="CENTER"/> 
 					</bottom>
 					<center>
-						<TabPane fx:id="tabPane" BorderPane.alignment="CENTER"/> 
+						<TabPane fx:id="tabPane" onDragDropped="#onDragDrop" onDragOver="#onDragOver" BorderPane.alignment="CENTER"/> 
 					</center>
 				</BorderPane>
 			</items>

@@ -18,7 +18,7 @@ import sun.util.logging.PlatformLogger.Level;
 import xdean.css.editor.service.DialogService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.file.FileUtil;
-import xdean.jfx.spring.starter.FxContextPostProcessor;
+import xdean.jfx.spring.context.FxContextPostProcessor;
 import xdean.spring.auto.AutoSpringFactories;
 
 @Configuration

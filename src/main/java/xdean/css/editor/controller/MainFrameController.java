@@ -50,7 +50,7 @@ import xdean.jex.util.file.FileUtil;
 import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
-import xdean.jfx.spring.starter.FxContext;
+import xdean.jfx.spring.context.FxContext;
 import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 

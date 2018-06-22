@@ -3,28 +3,27 @@ package xdean.css.editor.feature;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import javafx.scene.control.IndexRange;
-import xdean.css.editor.context.action.ActionKeys;
-import xdean.css.editor.context.action.model.CssCodeAreaKeyAction;
+import xdean.css.editor.context.action.ActionSettings;
 import xdean.css.editor.control.CssCodeArea;
 
 @Service
-public class CommentFeature implements CssCodeAreaFeature {
+public class CommentFeature implements CssCodeAreaFeature, InitializingBean {
 
   private static final String LINE_COMMENT_PATTERN = "^\\s*/\\*.*\\*/\\s*$";
 
   @Inject
-  @Named(ActionKeys.COMMENT)
-  CssCodeAreaKeyAction commentAction;
+  ActionSettings actions;
 
-  public CommentFeature() {
-    commentAction
+  @Override
+  public void afterPropertiesSet() throws Exception {
+    actions.comment()
         .consumer()
         .subscribe(codeArea -> {
           selectLines(codeArea);
@@ -39,7 +38,7 @@ public class CommentFeature implements CssCodeAreaFeature {
 
   @Override
   public void bind(CssCodeArea codeArea) {
-    commentAction.bind(codeArea);
+    actions.comment().bind(codeArea);
   }
 
   private static void selectLines(CodeArea area) {

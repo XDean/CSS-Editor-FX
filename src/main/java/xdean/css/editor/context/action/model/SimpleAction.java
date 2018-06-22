@@ -8,9 +8,9 @@ import io.reactivex.subjects.Subject;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-public class SimpleAction<T> implements Action<T> {
+public class SimpleAction<T> implements Action<T>, Observer<T> {
 
-  private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable");
+  private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable", true);
   private final Subject<T> subject = PublishSubject.create();
   private final String key;
 
@@ -25,29 +25,7 @@ public class SimpleAction<T> implements Action<T> {
 
   @Override
   public Observer<T> producer() {
-    return new Observer<T>() {
-      @Override
-      public void onSubscribe(Disposable d) {
-        subject.onSubscribe(d);
-      }
-
-      @Override
-      public void onNext(T t) {
-        if (enable.get()) {
-          subject.onNext(t);
-        }
-      }
-
-      @Override
-      public void onError(Throwable e) {
-        subject.onError(e);
-      }
-
-      @Override
-      public void onComplete() {
-        subject.onComplete();
-      }
-    };
+    return this;
   }
 
   @Override
@@ -58,5 +36,27 @@ public class SimpleAction<T> implements Action<T> {
   @Override
   public String key() {
     return key;
+  }
+
+  @Override
+  public void onSubscribe(Disposable d) {
+    subject.onSubscribe(d);
+  }
+
+  @Override
+  public void onNext(T t) {
+    if (enable.get()) {
+      subject.onNext(t);
+    }
+  }
+
+  @Override
+  public void onError(Throwable e) {
+    subject.onError(e);
+  }
+
+  @Override
+  public void onComplete() {
+    subject.onComplete();
   }
 }

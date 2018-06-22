@@ -43,9 +43,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import xdean.css.editor.context.action.ActionSettings;
 import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
-import xdean.css.editor.control.CssCodeArea.Action;
 import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.SkinService;
@@ -109,8 +109,12 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @Inject
   PreferenceSettings options;
+
   @Inject
   KeySettings keys;
+
+  @Inject
+  ActionSettings actions;
 
   @Override
   public void initAfterFxSpringReady() {
@@ -300,7 +304,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void comment() {
-    Action.COMMENT.subject.onNext(model.currentCodeArea.get());
+    actions.comment().onAction(model.currentCodeArea.get());
   }
 
   @FXML

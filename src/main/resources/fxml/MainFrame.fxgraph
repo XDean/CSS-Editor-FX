@@ -1,5 +1,4 @@
 package fxml
-
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.geometry.Insets
 import javafx.scene.control.Button
@@ -20,7 +19,6 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
 import org.controlsfx.control.StatusBar
 import org.fxmisc.richtext.CodeArea
-
 component MainFrame controlledby xdean.css.editor.controller.MainFrameController {
   VBox {
     prefHeight : 600.0,
@@ -30,154 +28,7 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
       bottom : 1.0
     },
     children : [
-      MenuBar {
-        menus : [
-          Menu {
-            text : "File",
-            items : [
-              MenuItem {
-                text : "New",
-                onAction : controllermethod newFile,
-                accelerator : KeyCodeCombination {
-                  code : "N",
-                  modifiers : const KeyCodeCombination#CONTROL_DOWN
-                },
-                graphic : FontAwesomeIconView {
-                  glyphName : "FILE_ALT"
-                }
-              },
-              MenuItem {
-                text : "Open...",
-                onAction : controllermethod open,
-                accelerator : KeyCodeCombination {
-                  code : "O",
-                  modifiers : const KeyCodeCombination#CONTROL_DOWN
-                },
-                graphic : FontAwesomeIconView {
-                  glyphName : "FOLDER_OPEN_ALT"
-                }
-              },
-              Menu id openRecentMenu {
-                text : "Open Recent",
-                items : [
-                  SeparatorMenuItem,
-                  MenuItem {
-                    text : "Clear Recent",
-                    onAction : controllermethod clearRecent
-                  }
-                ]
-              },
-              SeparatorMenuItem,
-              MenuItem id closeItem {
-                text : "Close",
-                onAction : controllermethod close,
-                graphic : FontAwesomeIconView {
-                  glyphName : "CLOSE"
-                }
-              },
-              MenuItem id saveItem {
-                text : "Save",
-                onAction : controllermethod save,
-                accelerator : KeyCodeCombination {
-                  code : "S",
-                  modifiers : const KeyCodeCombination#CONTROL_DOWN
-                },
-                graphic : FontAwesomeIconView {
-                  glyphName : "SAVE"
-                }
-              },
-              MenuItem id saveAsItem {
-                text : "Save as...",
-                onAction : controllermethod saveAs,
-                accelerator : KeyCodeCombination {
-                  code : "S",
-                  modifiers : const KeyCodeCombination#CONTROL_DOWN,
-                  modifiers : const KeyCodeCombination#ALT_DOWN
-                }
-              },
-              MenuItem id revertItem {
-                text : "Revert",
-                onAction : controllermethod revert
-              },
-              SeparatorMenuItem,
-              MenuItem {
-                text : "Exit",
-                onAction : controllermethod exit
-              }
-            ]
-          },
-          Menu {
-            text : "Edit",
-            items : [
-              MenuItem id undoItem {
-                text : "Undo",
-                onAction : controllermethod undo,
-                accelerator : KeyCodeCombination {
-                  code : "Z",
-                  modifiers : const KeyCodeCombination#CONTROL_DOWN
-                },
-                graphic : FontAwesomeIconView {
-                  glyphName : "UNDO"
-                }
-              },
-              MenuItem id redoItem {
-                text : "Redo",
-                onAction : controllermethod redo,
-                accelerator : KeyCodeCombination {
-                  code : "Y",
-                  modifiers : const KeyCodeCombination#CONTROL_DOWN
-                },
-                graphic : FontAwesomeIconView {
-                  glyphName : "REPEAT"
-                }
-              },
-              SeparatorMenuItem,
-              MenuItem id findItem {
-                text : "Find",
-                onAction : controllermethod find
-              },
-              MenuItem id commentItem {
-                text : "Toggle Comment",
-                onAction : controllermethod comment
-              },
-              MenuItem id formatItem {
-                text : "Format",
-                onAction : controllermethod format
-              }
-            ]
-          },
-          Menu {
-            text : "Help",
-            items : [
-              MenuItem {
-                text : "Options",
-                onAction : controllermethod option,
-                graphic : FontAwesomeIconView {
-                  glyphName : "GEAR"
-                }
-              },
-              SeparatorMenuItem,
-              Menu id skinMenu {
-                text : "Skin"
-              },
-              MenuItem {
-                text : "About",
-                onAction : controllermethod about,
-                graphic : FontAwesomeIconView {
-                  glyphName : "EXCLAMATION_CIRCLE"
-                }
-              },
-              MenuItem {
-                text : "Help",
-                onAction : controllermethod help,
-                graphic : FontAwesomeIconView {
-                  glyphName : "QUESTION_CIRCLE"
-                }
-              }
-            ]
-          }
-        ]
-      },
+      include fxml.MenuBar as menuBar,
       ToolBar {
         items : [
           Separator {

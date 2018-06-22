@@ -257,6 +257,8 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
             },
             center : TabPane id tabPane {
               call BorderPane#alignment : "CENTER",
+              onDragDropped : controllermethod onDragDrop,
+              onDragOver : controllermethod onDragOver,
               preview tabs : [
                 Tab {
                   content : CodeArea {

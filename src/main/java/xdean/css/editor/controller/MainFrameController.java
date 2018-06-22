@@ -36,6 +36,9 @@ import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -313,6 +316,30 @@ public class MainFrameController implements FxInitializable, Logable {
   @FXML
   public void about() {
     // TODO About
+  }
+
+  @FXML
+  private void onDragOver(DragEvent event) {
+    Dragboard db = event.getDragboard();
+    if (db.hasFiles()) {
+      event.acceptTransferModes(TransferMode.COPY);
+    } else {
+      event.consume();
+    }
+  }
+
+  @FXML
+  private void onDragDrop(DragEvent event) {
+    Dragboard db = event.getDragboard();
+    if (db.hasFiles()) {
+      event.setDropCompleted(true);
+      for (File file : db.getFiles()) {
+        if (file.getName().endsWith(".css")) {
+          openFile(FileWrapper.existFile(file.toPath()));
+        }
+      }
+    }
+    event.consume();
   }
 
   private void openLastFile() throws IOException {

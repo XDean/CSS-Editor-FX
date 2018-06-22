@@ -39,6 +39,7 @@ import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.context.setting.model.BooleanOption;
 import xdean.css.editor.context.setting.model.IntegerOption;
+import xdean.css.editor.context.setting.model.KeyOption;
 import xdean.css.editor.context.setting.model.Option;
 import xdean.css.editor.context.setting.model.OptionGroup;
 import xdean.css.editor.context.setting.model.ValueOption;
@@ -53,9 +54,9 @@ import xdean.jfx.spring.annotation.FxController;
 public class OptionsController implements FxInitializable, Logable {
   private @FXML DialogPane root;
   private @FXML VBox generalPane;
-  private @FXML TableView<Option<KeyCombination>> keyTable;
-  private @FXML TableColumn<Option<KeyCombination>, String> commandColumn;
-  private @FXML TableColumn<Option<KeyCombination>, KeyCombination> bindingColumn;
+  private @FXML TableView<KeyOption> keyTable;
+  private @FXML TableColumn<KeyOption, String> commandColumn;
+  private @FXML TableColumn<KeyOption, KeyCombination> bindingColumn;
   private @Inject PreferenceSettings preference;
   private @Inject KeySettings keys;
   private @Inject MessageService messageService;
@@ -94,7 +95,7 @@ public class OptionsController implements FxInitializable, Logable {
     bindingColumn.setEditable(true);
     bindingColumn.setCellFactory(column -> new KeyEditField());
 
-    keyTable.getItems().setAll(keys.keys().getChildren(KeyCombination.class));
+    keyTable.getItems().setAll(keys.keys().getChildrenWithType(KeyOption.class));
     onSubmit.add(() -> keyTable.getItems().forEach(key -> key.setValue(bindingColumn.getCellData(key))));
   }
 
@@ -182,7 +183,7 @@ public class OptionsController implements FxInitializable, Logable {
     }
   }
 
-  private static class KeyEditField extends TableCell<Option<KeyCombination>, KeyCombination> {
+  private static class KeyEditField extends TableCell<KeyOption, KeyCombination> {
 
     TextField field;
 

@@ -10,7 +10,6 @@ import xdean.jfx.spring.annotation.SpringFxApplication;
 @Import(Context.class)
 public class FxCssEntrance {
   public static void main(String[] args) {
-    Context.class.getName();
     SpringApplication.run(FxCssEntrance.class, args);
   }
 }

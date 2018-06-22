@@ -33,12 +33,22 @@ public class OptionGroup {
   }
 
   @SuppressWarnings("unchecked")
-  public <T> List<Option<T>> getChildren(Class<T> clz) {
+  public <T> List<Option<T>> getChildrenWithValueType(Class<T> clz) {
     return list.stream()
         .filter(e -> e.isLeft())
         .map(e -> e.getLeft())
         .filter(o -> clz.isInstance(o.getValue()))
         .map(o -> (Option<T>) o)
+        .collect(Collectors.toList());
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends Option<?>> List<T> getChildrenWithType(Class<T> clz) {
+    return list.stream()
+        .filter(e -> e.isLeft())
+        .map(e -> e.getLeft())
+        .filter(o -> clz.isInstance(o))
+        .map(o -> (T) o)
         .collect(Collectors.toList());
   }
 

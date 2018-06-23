@@ -20,20 +20,18 @@ import xdean.jfxex.bean.property.ObjectPropertyEX;
 @FxComponent
 public class MainFrameModel {
 
-  @Inject
-  Provider<CssTab> tabFactory;
+  private @Inject Provider<CssEditorTab> tabFactory;
 
-  final ObservableList<CssTab> tabEntities = FXCollections.observableArrayList();
-  final ObjectPropertyEX<@CheckNull CssTab> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
-  final ObjectBinding<@CheckNull FileWrapper> currentFile = nestValue(currentTabEntity, t -> t.file);
-  final ObjectBinding<@CheckNull CssEditorController> currentManager = map(currentTabEntity, t -> t == null ? null : t.manager);
-  final ObjectBinding<@CheckNull CssEditor> currentCodeArea = map(currentManager, m -> m == null ? null : m.editor);
-  final BooleanBinding currentModified = nestBooleanValue(currentManager, m -> m.modifiedProperty());
+  final ObservableList<CssEditorTab> tabEntities = FXCollections.observableArrayList();
+  final ObjectPropertyEX<@CheckNull CssEditorTab> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
+  final ObjectBinding<@CheckNull CssEditor> currentEditor = map(currentTabEntity, t -> t == null ? null : t.getEditor());
+  final ObjectBinding<@CheckNull FileWrapper> currentFile = nestValue(currentEditor, t -> t.fileProperty());
+  final BooleanBinding currentModified = nestBooleanValue(currentEditor, m -> m.modifiedProperty());
 
-  public CssTab newTab(FileWrapper file) {
-    CssTab te = tabFactory.get();
-    te.active.bind(currentTabEntity.isEqualTo(te));
-    te.file.set(file);
+  public CssEditorTab newTab(FileWrapper file) {
+    CssEditorTab te = tabFactory.get();
+    te.getEditor().activeProperty().bind(currentTabEntity.isEqualTo(te));
+    te.getEditor().fileProperty().set(file);
     tabEntities.add(te);
     return te;
   }
@@ -42,7 +40,7 @@ public class MainFrameModel {
     for (int i = 1;; i++) {
       int ii = i;
       if (tabEntities.stream()
-          .map(t -> t.file.get())
+          .map(t -> t.getEditor().fileProperty().get())
           .filter(f -> f.isNewFile())
           .map(f -> f.getNewOrder().get())
           .allMatch(n -> n != ii)) {

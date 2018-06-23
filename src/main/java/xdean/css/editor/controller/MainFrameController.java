@@ -132,9 +132,9 @@ public class MainFrameController implements FxInitializable, Logable {
 
   private void initField() {
     recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
-    searchBarController.editorProperty().bind(model.currentCodeArea);
-    statusBarController.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
-    statusBarController.area.bind(model.currentCodeArea);
+    searchBarController.editorProperty().bind(model.currentEditor);
+    statusBarController.override.bindBidirectional(nestBooleanProp(model.currentEditor, m -> m.overrideProperty()));
+    statusBarController.area.bind(model.currentEditor);
   }
 
   private void initMenu() {
@@ -158,12 +158,12 @@ public class MainFrameController implements FxInitializable, Logable {
     closeItem.acceleratorProperty().bind(keys.close().valueProperty());
 
     // disable
-    BooleanBinding nullArea = model.currentCodeArea.isNull();
+    BooleanBinding nullArea = model.currentEditor.isNull();
     formatItem.disableProperty().bind(nullArea);
     commentItem.disableProperty().bind(nullArea);
     findItem.disableProperty().bind(nullArea);
-    undoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentCodeArea, c -> c.undoAvailableProperty()).not()));
-    redoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentCodeArea, c -> c.redoAvailableProperty()).not()));
+    undoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.undoAvailableProperty()).not()));
+    redoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.redoAvailableProperty()).not()));
     undoButton.disableProperty().bind(undoItem.disableProperty());
     redoButton.disableProperty().bind(redoItem.disableProperty());
     closeItem.disableProperty().bind(nullArea);
@@ -172,32 +172,32 @@ public class MainFrameController implements FxInitializable, Logable {
     saveButton.disableProperty().bind(saveItem.disableProperty());
     revertItem.disableProperty().bind(model.currentFile.isNull()
         .or(model.currentModified.not())
-        .or(nestBooleanValue(model.currentTabEntity, t -> t.isNew)));
+        .or(nestBooleanValue(model.currentTabEntity, t -> t.getEditor().isNewBinding())));
 
     // scroll bar
-    DoubleBinding editorTextHeight = nestDoubleValue(model.currentCodeArea, c -> c.totalHeightEstimateProperty());
-    DoubleBinding editorHeight = nestDoubleValue(model.currentCodeArea, c -> c.heightProperty());
+    DoubleBinding editorTextHeight = nestDoubleValue(model.currentEditor, c -> c.totalHeightEstimateProperty());
+    DoubleBinding editorHeight = nestDoubleValue(model.currentEditor, c -> c.heightProperty());
     verticalScrollBar.maxProperty().bind(editorTextHeight.subtract(editorHeight));
     verticalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, toDoubleBinding(verticalScrollBar.maxProperty())
             .multiply(editorHeight).divide(editorTextHeight)));
     verticalScrollBar.valueProperty()
-        .bindBidirectional(nestDoubleProp(model.currentCodeArea, c -> c.estimatedScrollYProperty()).normalize());
-    verticalScrollBar.visibleProperty().bind(model.currentCodeArea.isNotNull()
+        .bindBidirectional(nestDoubleProp(model.currentEditor, c -> c.estimatedScrollYProperty()).normalize());
+    verticalScrollBar.visibleProperty().bind(model.currentEditor.isNotNull()
         .and(verticalScrollBar.maxProperty().greaterThan(verticalScrollBar.visibleAmountProperty())));
     verticalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
         () -> andFinal(() -> verticalScrollBar.isVisible(), v -> verticalScrollBar.getParent().layout()),
         verticalScrollBar.visibleProperty()));
 
-    DoubleBinding editorTextWidth = nestDoubleValue(model.currentCodeArea, c -> c.totalWidthEstimateProperty());
-    DoubleBinding editorWidth = nestDoubleValue(model.currentCodeArea, c -> c.widthProperty());
+    DoubleBinding editorTextWidth = nestDoubleValue(model.currentEditor, c -> c.totalWidthEstimateProperty());
+    DoubleBinding editorWidth = nestDoubleValue(model.currentEditor, c -> c.widthProperty());
     horizontalScrollBar.maxProperty().bind(editorTextWidth.subtract(editorWidth));
     horizontalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, horizontalScrollBar.maxProperty()
             .multiply(editorWidth).divide(editorTextWidth)));
     horizontalScrollBar.valueProperty()
-        .bindBidirectional(nestDoubleProp(model.currentCodeArea, c -> c.estimatedScrollXProperty()).normalize());
-    horizontalScrollBar.visibleProperty().bind(options.wrapText().booleanProperty().not().and(model.currentCodeArea.isNotNull())
+        .bindBidirectional(nestDoubleProp(model.currentEditor, c -> c.estimatedScrollXProperty()).normalize());
+    horizontalScrollBar.visibleProperty().bind(options.wrapText().booleanProperty().not().and(model.currentEditor.isNotNull())
         .and(horizontalScrollBar.maxProperty().greaterThan(horizontalScrollBar.visibleAmountProperty())));
     horizontalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
         () -> andFinal(() -> horizontalScrollBar.isVisible(), v -> horizontalScrollBar.getParent().layout()),
@@ -205,7 +205,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
     // tabList
     Bindings.bindContent(tabPane.getTabs(), model.tabEntities);
-    tabPane.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> model.currentTabEntity.set((CssTab) n));
+    tabPane.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> model.currentTabEntity.set((CssEditorTab) n));
     model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
   }
 
@@ -249,14 +249,14 @@ public class MainFrameController implements FxInitializable, Logable {
     fileChooser.setTitle("Save");
     fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
     fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
-    fileChooser.setInitialFileName(model.currentTabEntity.get().name.get());
+    fileChooser.setInitialFileName(model.currentEditor.get().nameBinding().get());
     File selectedFile = fileChooser.showSaveDialog(stage);
     if (selectedFile == null) {
       return false;
     } else {
       Path path = selectedFile.toPath();
       return andFinal(() -> saveToFile(path),
-          b -> If.that(b).todo(() -> model.currentTabEntity.get().file.set(FileWrapper.existFile(path))));
+          b -> If.that(b).todo(() -> model.currentEditor.get().fileProperty().set(FileWrapper.existFile(path))));
     }
   }
 
@@ -271,8 +271,8 @@ public class MainFrameController implements FxInitializable, Logable {
       uncheck(() -> FileUtil.createDirectory(LAST_FILE_PATH));
       uncheck(() -> Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
       ListUtil.forEach(model.tabEntities, (te, i) -> {
-        String nameString = te.file.get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
-        String text = te.manager.modify.isModified() ? te.manager.editor.getText() : "";
+        String nameString = te.getEditor().fileProperty().get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
+        String text = te.getEditor().modifiedProperty().get() ? te.getEditor().getText() : "";
         Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(options.charset().getValue())));
       });
@@ -284,12 +284,12 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void undo() {
-    model.currentCodeArea.get().undo();
+    model.currentEditor.get().undo();
   }
 
   @FXML
   public void redo() {
-    model.currentCodeArea.get().redo();
+    model.currentEditor.get().redo();
   }
 
   @FXML
@@ -299,12 +299,12 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void format() {
-    model.currentManager.get().format();
+    model.currentEditor.get().format();
   }
 
   @FXML
   public void comment() {
-    actions.comment().onAction(model.currentCodeArea.get());
+    actions.comment().onAction(model.currentEditor.get());
   }
 
   @FXML
@@ -355,14 +355,14 @@ public class MainFrameController implements FxInitializable, Logable {
           return;
         }
         String head = lines.get(0);
-        CssTab te = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
+        CssEditorTab te = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
             .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
         lines.stream()
             .skip(1)
             .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
             .ifPresent(t -> {
-              te.manager.editor.replaceText(t);
-              te.manager.editor.getUndoManager().forgetHistory();
+              te.getEditor().replaceText(t);
+              te.getEditor().getUndoManager().forgetHistory();
             });
       }));
     }
@@ -381,7 +381,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   protected boolean saveToFile(Path file) {
     try {
-      Files.write(file, model.currentCodeArea.get().getText().getBytes(options.charset().getValue()));
+      Files.write(file, model.currentEditor.get().getText().getBytes(options.charset().getValue()));
       saved();
       return true;
     } catch (UnsupportedOperationException e) {
@@ -392,29 +392,29 @@ public class MainFrameController implements FxInitializable, Logable {
     }
   }
 
-  private CssTab openFile(FileWrapper file) {
-    Optional<CssTab> existTab = file.getExistFile().flatMap(f -> findExistTab(f));
+  private CssEditorTab openFile(FileWrapper file) {
+    Optional<CssEditorTab> existTab = file.getExistFile().flatMap(f -> findExistTab(f));
     if (existTab.isPresent()) {
       tabPane.getSelectionModel().select(existTab.get());
       return existTab.get();
     }
-    CssTab tabEntity = model.newTab(file);
+    CssEditorTab tabEntity = model.newTab(file);
     tabEntity.setOnCloseRequest(e -> andFinal(() -> close(), () -> e.consume()));
     tabPane.getSelectionModel().select(tabEntity);
     return tabEntity;
   }
 
   private void saved() {
-    model.currentManager.get().modify.saved();
+    model.currentEditor.get().modify().saved();
   }
 
-  private Optional<CssTab> findExistTab(Path file) {
+  private Optional<CssEditorTab> findExistTab(Path file) {
     return model.tabEntities.stream()
-        .filter(t -> t.file.get().getExistFile().map(p -> Objects.equals(file, p)).orElse(false))
+        .filter(t -> t.getEditor().fileProperty().get().getExistFile().map(p -> Objects.equals(file, p)).orElse(false))
         .findFirst();
   }
 
-  Optional<CssTab> findEntity(Tab t) {
+  Optional<CssEditorTab> findEntity(Tab t) {
     return CacheUtil.get(MainFrameController.this, t);
   }
 }

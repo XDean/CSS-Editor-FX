@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration;
 
 import xdean.css.editor.context.setting.DefaultValue.DefaultSkin;
 import xdean.css.editor.context.setting.SettingKeys.Find;
-import xdean.css.editor.context.setting.model.BooleanOption;
-import xdean.css.editor.context.setting.model.Option;
-import xdean.css.editor.context.setting.model.SimpleOption;
-import xdean.css.editor.context.setting.model.StringOption;
+import xdean.css.editor.context.setting.model.option.BooleanOption;
+import xdean.css.editor.context.setting.model.option.Option;
+import xdean.css.editor.context.setting.model.option.SimpleOption;
+import xdean.css.editor.context.setting.model.option.StringOption;
 import xdean.jfxex.util.StringConverters;
 
 @Configuration

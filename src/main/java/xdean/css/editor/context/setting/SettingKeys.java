@@ -19,7 +19,6 @@ import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_RECENT_LOCA
 import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_SKIN;
 
 import xdean.auto.message.AutoMessage;
-import xdean.css.editor.context.action.ActionKeys;
 
 @AutoMessage(path = "/message/settings.properties", generatedName = "RawSettingKeys")
 public interface SettingKeys {

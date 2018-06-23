@@ -1,4 +1,4 @@
-package xdean.css.editor.context.setting.model;
+package xdean.css.editor.context.setting.model.option;
 
 import javafx.scene.input.KeyCombination;
 import xdean.jfxex.util.StringConverters;

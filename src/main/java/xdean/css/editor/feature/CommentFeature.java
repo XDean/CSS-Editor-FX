@@ -10,7 +10,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import javafx.scene.control.IndexRange;
-import xdean.css.editor.context.action.EditActions;
+import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.control.CssEditor;
 
 @Service

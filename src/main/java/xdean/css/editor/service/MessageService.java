@@ -9,7 +9,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Service;
 
-import xdean.css.editor.context.setting.model.Option;
+import xdean.css.editor.context.setting.model.option.Option;
 
 @Service
 public class MessageService {

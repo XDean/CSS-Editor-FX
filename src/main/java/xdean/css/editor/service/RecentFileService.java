@@ -9,7 +9,7 @@ import javax.inject.Named;
 import org.springframework.stereotype.Service;
 
 import xdean.css.editor.context.setting.SettingKeys;
-import xdean.css.editor.context.setting.model.StringOption;
+import xdean.css.editor.context.setting.model.option.StringOption;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
 @Service

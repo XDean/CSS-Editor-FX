@@ -1,4 +1,4 @@
-package xdean.css.editor.context.action.model;
+package xdean.css.editor.context.setting.model.action;
 
 public class VoidAction extends SimpleAction<VoidAction> {
 

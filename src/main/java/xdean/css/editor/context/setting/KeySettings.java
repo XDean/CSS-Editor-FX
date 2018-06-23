@@ -8,10 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import xdean.css.editor.context.action.ActionKeys;
 import xdean.css.editor.context.setting.SettingKeys.Key;
-import xdean.css.editor.context.setting.model.KeyOption;
-import xdean.css.editor.context.setting.model.OptionGroup;
+import xdean.css.editor.context.setting.model.option.KeyOption;
+import xdean.css.editor.context.setting.model.option.OptionGroup;
 
 @Configuration
 public class KeySettings {

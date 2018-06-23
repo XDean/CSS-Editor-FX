@@ -7,7 +7,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 
 import xdean.css.editor.context.Config;
-import xdean.css.editor.context.setting.model.Option;
+import xdean.css.editor.context.setting.model.option.Option;
 
 @Component
 public class OptionBindProcessor implements BeanPostProcessor {

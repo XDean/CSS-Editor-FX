@@ -1,4 +1,4 @@
-package xdean.css.editor.context.setting.model;
+package xdean.css.editor.context.setting.model.option;
 
 public interface ConstraintOption<T> extends Option<T> {
   boolean isValid(T t);

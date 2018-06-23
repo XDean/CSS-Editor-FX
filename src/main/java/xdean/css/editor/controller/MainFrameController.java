@@ -43,7 +43,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
-import xdean.css.editor.context.action.EditActions;
+import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.model.FileWrapper;

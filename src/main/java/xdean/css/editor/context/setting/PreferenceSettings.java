@@ -13,10 +13,10 @@ import com.google.common.collect.BoundType;
 
 import javafx.scene.text.Font;
 import xdean.css.editor.context.setting.SettingKeys.General;
-import xdean.css.editor.context.setting.model.BooleanOption;
-import xdean.css.editor.context.setting.model.IntegerOption;
-import xdean.css.editor.context.setting.model.OptionGroup;
-import xdean.css.editor.context.setting.model.ValueOption;
+import xdean.css.editor.context.setting.model.option.BooleanOption;
+import xdean.css.editor.context.setting.model.option.IntegerOption;
+import xdean.css.editor.context.setting.model.option.OptionGroup;
+import xdean.css.editor.context.setting.model.option.ValueOption;
 import xdean.jfxex.util.StringConverters;
 
 @Configuration

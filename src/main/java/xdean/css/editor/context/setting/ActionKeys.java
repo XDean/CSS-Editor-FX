@@ -1,4 +1,4 @@
-package xdean.css.editor.context.action;
+package xdean.css.editor.context.setting;
 
 import static xdean.css.editor.context.action.RawActionKeys.*;
 import xdean.auto.message.AutoMessage;

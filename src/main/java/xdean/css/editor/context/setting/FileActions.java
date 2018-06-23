@@ -1,4 +1,4 @@
-package xdean.css.editor.context.action;
+package xdean.css.editor.context.setting;
 
 import java.nio.file.Path;
 
@@ -7,12 +7,11 @@ import javax.inject.Inject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import xdean.css.editor.context.action.ActionKeys.File;
-import xdean.css.editor.context.action.model.Action;
-import xdean.css.editor.context.action.model.CssEditorKeyAction;
-import xdean.css.editor.context.action.model.SimpleAction;
-import xdean.css.editor.context.action.model.VoidAction;
-import xdean.css.editor.context.setting.KeySettings;
+import xdean.css.editor.context.setting.ActionKeys.File;
+import xdean.css.editor.context.setting.model.action.Action;
+import xdean.css.editor.context.setting.model.action.CssEditorKeyAction;
+import xdean.css.editor.context.setting.model.action.SimpleAction;
+import xdean.css.editor.context.setting.model.action.VoidAction;
 
 @Configuration
 public class FileActions {

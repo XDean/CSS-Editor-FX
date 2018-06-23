@@ -1,8 +1,8 @@
-package xdean.css.editor.context.action.model;
+package xdean.css.editor.context.setting.model.action;
 
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.scene.input.KeyEvent;
-import xdean.css.editor.context.setting.model.KeyOption;
+import xdean.css.editor.context.setting.model.option.KeyOption;
 import xdean.css.editor.control.CssEditor;
 
 public class CssEditorKeyAction extends SimpleAction<CssEditor> {

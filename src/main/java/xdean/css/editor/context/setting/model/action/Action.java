@@ -1,4 +1,4 @@
-package xdean.css.editor.context.action.model;
+package xdean.css.editor.context.setting.model.action;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;

@@ -1,14 +1,13 @@
-package xdean.css.editor.context.action;
+package xdean.css.editor.context.setting;
 
-import static xdean.css.editor.context.action.ActionKeys.*;
+import static xdean.css.editor.context.setting.ActionKeys.*;
 
 import javax.inject.Inject;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import xdean.css.editor.context.action.model.CssEditorKeyAction;
-import xdean.css.editor.context.setting.KeySettings;
+import xdean.css.editor.context.setting.model.action.CssEditorKeyAction;
 
 @Configuration
 public class EditActions {

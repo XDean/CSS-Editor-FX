@@ -49,11 +49,13 @@ public interface SettingKeys {
   String KEY_PREFIX = "option.key.";
 
   interface Key {
-    String SUGGEST = KEY_PREFIX + ActionKeys.SUGGEST;
-    String FORMAT = KEY_PREFIX + ActionKeys.FORMAT;
-    String COMMENT = KEY_PREFIX + ActionKeys.COMMENT;
-    String FIND = KEY_PREFIX + ActionKeys.FIND;
-    String CLOSE = KEY_PREFIX + ActionKeys.CLOSE;
+    String UNDO = KEY_PREFIX + ActionKeys.Edit.UNDO;
+    String REDO = KEY_PREFIX + ActionKeys.Edit.REDO;
+    String SUGGEST = KEY_PREFIX + ActionKeys.Edit.SUGGEST;
+    String FORMAT = KEY_PREFIX + ActionKeys.Edit.FORMAT;
+    String COMMENT = KEY_PREFIX + ActionKeys.Edit.COMMENT;
+    String FIND = KEY_PREFIX + ActionKeys.Edit.FIND;
+    String CLOSE = KEY_PREFIX + ActionKeys.File.CLOSE;
   }
 
   interface Find {

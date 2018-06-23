@@ -10,7 +10,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import javafx.scene.control.IndexRange;
-import xdean.css.editor.context.action.ActionSettings;
+import xdean.css.editor.context.action.EditActions;
 import xdean.css.editor.control.CssCodeArea;
 
 @Service
@@ -19,7 +19,7 @@ public class CommentFeature implements CssCodeAreaFeature, InitializingBean {
   private static final String LINE_COMMENT_PATTERN = "^\\s*/\\*.*\\*/\\s*$";
 
   @Inject
-  ActionSettings actions;
+  EditActions actions;
 
   @Override
   public void afterPropertiesSet() throws Exception {

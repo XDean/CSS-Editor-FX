@@ -46,7 +46,7 @@ public class PaintPreviewer implements CssElementPreviewer<Paint> {
         text -> LinearGradientConverter.getInstance().convert(resolve(context, text), Font.getDefault()),
         text -> RadialGradientConverter.getInstance().convert(resolve(context, text), Font.getDefault()))
         .observeOn(Schedulers.computation())
-        .flatMapMaybe(t -> Maybe.fromCallable(() -> uncatch(() -> t.apply(str))).onErrorComplete())
+        .flatMapMaybe((Function<String, Paint> t) -> Maybe.fromCallable(() -> uncatch(() -> t.apply(str))).onErrorComplete())
         .firstElement();
   }
 

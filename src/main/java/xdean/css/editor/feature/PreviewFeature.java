@@ -101,7 +101,7 @@ public class PreviewFeature implements CssEditorFeature {
                   .map(o -> Pair.of(p, o)))
               .firstElement())
           .observeOn(JavaFxScheduler.platform())
-          .doOnNext(p -> show(p.getLeft(), p.getRight()))
+          .doOnNext((Pair<CssElementPreviewer, Object>  p) -> show(p.getLeft(), p.getRight()))
           .subscribe();
     }
 

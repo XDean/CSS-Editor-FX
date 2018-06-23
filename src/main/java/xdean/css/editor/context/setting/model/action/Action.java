@@ -12,7 +12,7 @@ public interface Action<T> {
 
   BooleanProperty enable();
 
-  String key();
+  String getKey();
 
   default void onAction(T t) {
     producer().onNext(t);

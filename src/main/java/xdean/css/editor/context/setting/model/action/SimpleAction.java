@@ -34,7 +34,7 @@ public class SimpleAction<T> implements Action<T>, Observer<T> {
   }
 
   @Override
-  public String key() {
+  public String getKey() {
     return key;
   }
 

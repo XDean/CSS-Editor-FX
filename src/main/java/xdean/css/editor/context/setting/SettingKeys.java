@@ -13,7 +13,6 @@ import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEX
 import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEXT_FONT_FAMILY;
 import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEXT_FONT_SIZE;
 import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEXT_WRAP_TEXT;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_KEY;
 import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_LANGUAGE;
 import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_RECENT_LOCATION;
 import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_SKIN;
@@ -42,19 +41,6 @@ public interface SettingKeys {
       String FONT_SIZE = OPTION_GENERAL_TEXT_FONT_SIZE;
       String WRAP_TEXT = OPTION_GENERAL_TEXT_WRAP_TEXT;
     }
-  }
-
-  String KEY = OPTION_KEY;
-  String KEY_PREFIX = "option.key.";
-
-  interface Key {
-    String UNDO = KEY_PREFIX + ActionKeys.Edit.UNDO;
-    String REDO = KEY_PREFIX + ActionKeys.Edit.REDO;
-    String SUGGEST = KEY_PREFIX + ActionKeys.Edit.SUGGEST;
-    String FORMAT = KEY_PREFIX + ActionKeys.Edit.FORMAT;
-    String COMMENT = KEY_PREFIX + ActionKeys.Edit.COMMENT;
-    String FIND = KEY_PREFIX + ActionKeys.Edit.FIND;
-    String CLOSE = KEY_PREFIX + ActionKeys.File.CLOSE;
   }
 
   interface Find {

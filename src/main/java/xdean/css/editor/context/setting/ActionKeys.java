@@ -1,6 +1,6 @@
 package xdean.css.editor.context.setting;
 
-import static xdean.css.editor.context.action.RawActionKeys.*;
+import static xdean.css.editor.context.setting.RawActionKeys.*;
 import xdean.auto.message.AutoMessage;
 
 @AutoMessage(path = "/message/actions.properties", generatedName = "RawActionKeys")

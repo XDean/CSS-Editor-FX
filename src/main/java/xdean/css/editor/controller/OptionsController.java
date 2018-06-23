@@ -35,11 +35,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import xdean.css.editor.context.setting.KeySettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.context.setting.model.option.BooleanOption;
 import xdean.css.editor.context.setting.model.option.IntegerOption;
-import xdean.css.editor.context.setting.model.option.KeyOption;
 import xdean.css.editor.context.setting.model.option.Option;
 import xdean.css.editor.context.setting.model.option.OptionGroup;
 import xdean.css.editor.context.setting.model.option.ValueOption;
@@ -54,11 +52,11 @@ import xdean.jfx.spring.annotation.FxController;
 public class OptionsController implements FxInitializable, Logable {
   private @FXML DialogPane root;
   private @FXML VBox generalPane;
-  private @FXML TableView<KeyOption> keyTable;
-  private @FXML TableColumn<KeyOption, String> commandColumn;
-  private @FXML TableColumn<KeyOption, KeyCombination> bindingColumn;
+  private @FXML TableView<Option<KeyCombination>> keyTable;
+  private @FXML TableColumn<Option<KeyCombination>, String> commandColumn;
+  private @FXML TableColumn<Option<KeyCombination>, KeyCombination> bindingColumn;
   private @Inject PreferenceSettings preference;
-  private @Inject KeySettings keys;
+  private @Inject List<Option<KeyCombination>> keyOptions;
   private @Inject MessageService messageService;
 
   private int nowTab = 0;
@@ -95,7 +93,7 @@ public class OptionsController implements FxInitializable, Logable {
     bindingColumn.setEditable(true);
     bindingColumn.setCellFactory(column -> new KeyEditField());
 
-    keyTable.getItems().setAll(keys.keys().getChildrenWithType(KeyOption.class));
+    keyTable.getItems().setAll(keyOptions);
     onSubmit.add(() -> keyTable.getItems().forEach(key -> key.setValue(bindingColumn.getCellData(key))));
   }
 
@@ -183,7 +181,7 @@ public class OptionsController implements FxInitializable, Logable {
     }
   }
 
-  private static class KeyEditField extends TableCell<KeyOption, KeyCombination> {
+  private static class KeyEditField extends TableCell<Option<KeyCombination>, KeyCombination> {
 
     TextField field;
 

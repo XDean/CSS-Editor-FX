@@ -44,7 +44,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import xdean.css.editor.context.setting.EditActions;
-import xdean.css.editor.context.setting.KeySettings;
+import xdean.css.editor.context.setting.FileActions;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.DialogService;
@@ -111,10 +111,10 @@ public class MainFrameController implements FxInitializable, Logable {
   PreferenceSettings options;
 
   @Inject
-  KeySettings keys;
+  EditActions editActions;
 
   @Inject
-  EditActions actions;
+  FileActions fileActions;
 
   @Override
   public void initAfterFxSpringReady() {
@@ -152,10 +152,10 @@ public class MainFrameController implements FxInitializable, Logable {
 
   private void initBind() {
     // shortcut
-    formatItem.acceleratorProperty().bind(keys.format().valueProperty());
-    commentItem.acceleratorProperty().bind(keys.comment().valueProperty());
-    findItem.acceleratorProperty().bind(keys.find().valueProperty());
-    closeItem.acceleratorProperty().bind(keys.close().valueProperty());
+    formatItem.acceleratorProperty().bind(editActions.format().valueProperty());
+    commentItem.acceleratorProperty().bind(editActions.comment().valueProperty());
+    findItem.acceleratorProperty().bind(editActions.find().valueProperty());
+    closeItem.acceleratorProperty().bind(fileActions.close().valueProperty());
 
     // disable
     BooleanBinding nullArea = model.currentEditor.isNull();
@@ -304,7 +304,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void comment() {
-    actions.comment().onAction(model.currentEditor.get());
+    editActions.comment().onAction(model.currentEditor.get());
   }
 
   @FXML

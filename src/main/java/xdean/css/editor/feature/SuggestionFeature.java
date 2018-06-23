@@ -22,7 +22,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.PopupWindow;
-import xdean.css.editor.context.setting.KeySettings;
+import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.feature.suggestion.CssSuggestionService;
 import xdean.css.editor.model.CssContext;
@@ -34,7 +34,7 @@ public class SuggestionFeature implements CssEditorFeature {
   CssSuggestionService cssSuggestion;
 
   @Inject
-  KeySettings keys;
+  EditActions keys;
 
   private final Collection<KeyCombination> legalPrefix = Arrays.asList(
       new KeyCodeCombination(KeyCode.PERIOD),

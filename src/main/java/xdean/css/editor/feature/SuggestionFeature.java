@@ -23,12 +23,12 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.PopupWindow;
 import xdean.css.editor.context.setting.KeySettings;
-import xdean.css.editor.control.CssCodeArea;
+import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.feature.suggestion.CssSuggestionService;
 import xdean.css.editor.model.CssContext;
 
 @Service
-public class SuggestionFeature implements CssCodeAreaFeature {
+public class SuggestionFeature implements CssEditorFeature {
 
   @Inject
   CssSuggestionService cssSuggestion;
@@ -42,8 +42,8 @@ public class SuggestionFeature implements CssCodeAreaFeature {
       new KeyCodeCombination(KeyCode.MINUS));
 
   @Override
-  public void bind(CssCodeArea cssCodeArea) {
-    new InnerController(cssCodeArea);
+  public void bind(CssEditor cssEditor) {
+    new InnerController(cssEditor);
   }
 
   private boolean shouldSuggest(KeyEvent e) {
@@ -58,35 +58,35 @@ public class SuggestionFeature implements CssCodeAreaFeature {
 
   private class InnerController {
 
-    CodeArea codeArea;
+    CodeArea editor;
     CssContext context;
 
     AutoCompletePopup<String> popup = new AutoCompletePopup<>();
 
-    public InnerController(CssCodeArea cssCodeArea) {
-      this.codeArea = cssCodeArea;
-      this.context = cssCodeArea.context;
+    public InnerController(CssEditor cssEditor) {
+      this.editor = cssEditor;
+      this.context = cssEditor.context;
 
-      codeArea.textProperty().addListener((ob, o, n) -> {
-        if (codeArea.isFocused() && popup.isShowing()) {
+      editor.textProperty().addListener((ob, o, n) -> {
+        if (editor.isFocused() && popup.isShowing()) {
           showPopup();
         }
       });
-      codeArea.focusedProperty().addListener((ob, o, n) -> {
+      editor.focusedProperty().addListener((ob, o, n) -> {
         if (n == false) {
           hidePopup();
         }
       });
 
-      codeArea.setPopupWindow(popup);
-      codeArea.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
+      editor.setPopupWindow(popup);
+      editor.setPopupAlignment(PopupAlignment.CARET_BOTTOM);
 
       popup.setOnSuggestion(sce -> {
         completeUserInput(sce.getSuggestion());
         hidePopup();
       });
 
-      JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED)
+      JavaFxObservable.eventsOf(editor, KeyEvent.KEY_PRESSED)
           .debounce(100, TimeUnit.MILLISECONDS)
           .filter(e -> shouldSuggest(e))
           .observeOn(JavaFxScheduler.platform())
@@ -94,19 +94,19 @@ public class SuggestionFeature implements CssCodeAreaFeature {
     }
 
     public void showPopup() {
-      Collection<String> suggestions = cssSuggestion.getSuggestion(codeArea.getText(), codeArea.getCaretPosition(), context);
+      Collection<String> suggestions = cssSuggestion.getSuggestion(editor.getText(), editor.getCaretPosition(), context);
       if (suggestions.isEmpty()) {
         hidePopup();
       } else {
-        PopupWindow popupWindow = codeArea.getPopupWindow();
+        PopupWindow popupWindow = editor.getPopupWindow();
         if (popupWindow != popup) {
           popupWindow.hide();
-          codeArea.setPopupWindow(popup);
+          editor.setPopupWindow(popup);
         }
         popup.getSuggestions().setAll(suggestions);
         selectFirstSuggestion(popup);
         if (popup.isShowing() == false) {
-          popup.show(codeArea.getScene().getWindow());
+          popup.show(editor.getScene().getWindow());
         }
       }
     }
@@ -116,10 +116,10 @@ public class SuggestionFeature implements CssCodeAreaFeature {
     }
 
     private void completeUserInput(String suggestion) {
-      IndexRange range = cssSuggestion.getReplaceRange(codeArea.getText(), codeArea.getCaretPosition(), context);
-      codeArea.deleteText(range);
-      codeArea.insertText(range.getStart(), suggestion);
-      codeArea.moveTo(range.getStart() + suggestion.length());
+      IndexRange range = cssSuggestion.getReplaceRange(editor.getText(), editor.getCaretPosition(), context);
+      editor.deleteText(range);
+      editor.insertText(range.getStart(), suggestion);
+      editor.moveTo(range.getStart() + suggestion.length());
     }
 
     private void selectFirstSuggestion(AutoCompletePopup<?> autoCompletionPopup) {

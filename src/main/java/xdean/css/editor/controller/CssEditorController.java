@@ -33,8 +33,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 import xdean.css.editor.context.setting.OtherSettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
-import xdean.css.editor.control.CssCodeArea;
-import xdean.css.editor.feature.CssCodeAreaFeature;
+import xdean.css.editor.control.CssEditor;
+import xdean.css.editor.feature.CssEditorFeature;
 import xdean.css.editor.model.CssContext;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
@@ -45,14 +45,14 @@ import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.extra.ModifiableObject;
 
 @FxComponent
-public class CssCodeAreaController implements FxInitializable {
+public class CssEditorController implements FxInitializable {
 
-  public final CssCodeArea codeArea = new CssCodeArea();
+  public final CssEditor editor = new CssEditor();
 
   CssContext lastContext;
 
   @Inject
-  List<CssCodeAreaFeature> features;
+  List<CssEditorFeature> features;
 
   @Inject
   PreferenceSettings preference;
@@ -65,46 +65,46 @@ public class CssCodeAreaController implements FxInitializable {
 
   @Override
   public void initAfterFxSpringReady() {
-    codeArea.getStylesheets().add(
+    editor.getStylesheets().add(
         TaskUtil.firstSuccess(
-            () -> CssCodeAreaController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
-            () -> CssCodeAreaController.class.getResource("/css/css-highlighting.css").toExternalForm()));
+            () -> CssEditorController.class.getResource("/css/css-highlighting.bss").toExternalForm(),
+            () -> CssEditorController.class.getResource("/css/css-highlighting.css").toExternalForm()));
 
-    features.forEach(f -> f.bind(codeArea));
+    features.forEach(f -> f.bind(editor));
 
-    Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_PRESSED).share();
+    Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(editor, KeyEvent.KEY_PRESSED).share();
     // font and line number
-    bindFont(codeArea);
-    bindLineNumber(codeArea, idx -> {
-      Node node = LineNumberFactory.get(codeArea, i -> "%" + i + "d").apply(idx);
+    bindFont(editor);
+    bindLineNumber(editor, idx -> {
+      Node node = LineNumberFactory.get(editor, i -> "%" + i + "d").apply(idx);
       bindFont(node);
       return node;
     });
     // zoom
     keyPress.map(KeyEvent::getCode)
         .filter(KeyCode.CONTROL::equals)
-        .subscribe(e -> codeArea.addEventFilter(ScrollEvent.SCROLL, zoom));
+        .subscribe(e -> editor.addEventFilter(ScrollEvent.SCROLL, zoom));
     Observable.merge(
-        JavaFxObservable.eventsOf(codeArea, KeyEvent.KEY_RELEASED)
+        JavaFxObservable.eventsOf(editor, KeyEvent.KEY_RELEASED)
             .map(KeyEvent::getCode)
             .filter(KeyCode.CONTROL::equals),
-        JavaFxObservable.valuesOf(codeArea.focusedProperty())
+        JavaFxObservable.valuesOf(editor.focusedProperty())
             .filter(b -> b == false))
-        .subscribe(e -> codeArea.removeEventFilter(ScrollEvent.SCROLL, zoom));
+        .subscribe(e -> editor.removeEventFilter(ScrollEvent.SCROLL, zoom));
     // context add to suggestion
-    JavaFxObservable.valuesOf(codeArea.textProperty())
+    JavaFxObservable.valuesOf(editor.textProperty())
         .debounce(700, TimeUnit.MILLISECONDS)
         .subscribe(this::refreshContextSuggestion);
     // wrap word
-    codeArea.wrapTextProperty().bind(otherSettings.wrapSearch().valueProperty());
+    editor.wrapTextProperty().bind(otherSettings.wrapSearch().valueProperty());
     // auto select word's first '-'
-    JavaFxObservable.eventsOf(codeArea, MouseEvent.MOUSE_PRESSED)
+    JavaFxObservable.eventsOf(editor, MouseEvent.MOUSE_PRESSED)
         .filter(e -> e.getClickCount() == 2)
         .subscribe(e -> {
           if (e.isConsumed()) {
-            IndexRange selection = codeArea.getSelection();
-            if (codeArea.getText().charAt(selection.getStart() - 1) == '-') {
-              codeArea.selectRange(selection.getStart() - 1, selection.getEnd());
+            IndexRange selection = editor.getSelection();
+            if (editor.getText().charAt(selection.getStart() - 1) == '-') {
+              editor.selectRange(selection.getStart() - 1, selection.getEnd());
             }
           }
         });
@@ -113,57 +113,57 @@ public class CssCodeAreaController implements FxInitializable {
     StringProperty overrideCSS = new SimpleStringProperty();
     keyPress.filter(e -> e.getCode() == KeyCode.INSERT)
         .subscribe(e -> override.set(!override.get()));
-    JavaFxObservable.valuesOf(codeArea.caretPositionProperty())
+    JavaFxObservable.valuesOf(editor.caretPositionProperty())
         .filter(c -> override.get())
-        .map(c -> uncatch(() -> codeArea.getText().charAt(c)))
+        .map(c -> uncatch(() -> editor.getText().charAt(c)))
         .map(c -> c == null ? '\n' : c)
         .map(this::getOverrideCaretCSS)
         .subscribe(s -> overrideCSS.set(s));
     ChangeListener<? super String> overrideCSSListener = (ob, o, n) -> {
-      codeArea.getStylesheets().remove(o);
-      codeArea.getStylesheets().add(n);
+      editor.getStylesheets().remove(o);
+      editor.getStylesheets().add(n);
     };
     EventHandler<? super KeyEvent> overrideListener = e -> {
-      IndexRange selection = codeArea.getSelection();
+      IndexRange selection = editor.getSelection();
       String character = e.getCharacter();
-      int caret = codeArea.getCaretPosition();
-      char oldChar = codeArea.getText().charAt(caret);
+      int caret = editor.getCaretPosition();
+      char oldChar = editor.getText().charAt(caret);
       char newChar;
-      if (selection.getLength() == 0 && character.length() == 1 && caret != codeArea.getText().length() - 1 &&
+      if (selection.getLength() == 0 && character.length() == 1 && caret != editor.getText().length() - 1 &&
           !StringUtil.isControlCharacter(newChar = character.charAt(0)) && oldChar != '\n') {
-        codeArea.replaceText(caret, caret + 1, newChar + "");
-        codeArea.moveTo(caret + 1);
+        editor.replaceText(caret, caret + 1, newChar + "");
+        editor.moveTo(caret + 1);
         e.consume();
       }
     };
     override.addListener((ob, o, n) -> {
       if (n) {
         overrideCSS.addListener(overrideCSSListener);
-        codeArea.addEventFilter(KeyEvent.KEY_TYPED, overrideListener);
-        int caretPosition = codeArea.getCaretPosition();
-        codeArea.moveTo(caretPosition - 1);
-        codeArea.moveTo(caretPosition);
+        editor.addEventFilter(KeyEvent.KEY_TYPED, overrideListener);
+        int caretPosition = editor.getCaretPosition();
+        editor.moveTo(caretPosition - 1);
+        editor.moveTo(caretPosition);
       } else {
         overrideCSS.removeListener(overrideCSSListener);
-        codeArea.removeEventFilter(KeyEvent.KEY_TYPED, overrideListener);
-        codeArea.getStylesheets().remove(overrideCSS.get());
+        editor.removeEventFilter(KeyEvent.KEY_TYPED, overrideListener);
+        editor.getStylesheets().remove(overrideCSS.get());
         overrideCSS.set(null);
       }
     });
     // charSet
     // charsetLocal.addListener((ob, o, n) -> {
-    // String oldText = codeArea.getText();
+    // String oldText = editor.getText();
     // String newText = new String(oldText.getBytes(o), n);
     // if (oldText.equals(newText) == false) {
-    // codeArea.replaceText(newText);
-    // codeArea.getUndoManager().forgetHistory();
+    // editor.replaceText(newText);
+    // editor.getUndoManager().forgetHistory();
     // }
     // });
 
     // modified
-    modify.bindModified(codeArea.textProperty());
-    codeArea.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> If.that(n).todo(() -> modify.saved()));
-    modify.modifiedProperty().addListener((ob, o, n) -> If.that(n).ordo(() -> codeArea.getUndoManager().mark()));
+    modify.bindModified(editor.textProperty());
+    editor.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> If.that(n).todo(() -> modify.saved()));
+    modify.modifiedProperty().addListener((ob, o, n) -> If.that(n).ordo(() -> editor.getUndoManager().mark()));
   }
 
   public void format() {
@@ -172,11 +172,11 @@ public class CssCodeAreaController implements FxInitializable {
 
   private void refreshContextSuggestion(String text) {
     if (lastContext != null) {
-      codeArea.context.remove(lastContext);
+      editor.context.remove(lastContext);
       lastContext = null;
     }
     lastContext = new CssContext(text);
-    codeArea.context.add(lastContext);
+    editor.context.add(lastContext);
   }
 
   private EventHandler<ScrollEvent> zoom = e -> {
@@ -203,8 +203,8 @@ public class CssCodeAreaController implements FxInitializable {
     return override;
   }
 
-  public CodeArea getCodeArea() {
-    return codeArea;
+  public CodeArea getEditor() {
+    return editor;
   }
 
   private void bindFont(Node node) {

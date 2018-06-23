@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 import xdean.css.editor.context.action.ActionKeys.File;
 import xdean.css.editor.context.action.model.Action;
-import xdean.css.editor.context.action.model.CssCodeAreaKeyAction;
+import xdean.css.editor.context.action.model.CssEditorKeyAction;
 import xdean.css.editor.context.action.model.SimpleAction;
 import xdean.css.editor.context.action.model.VoidAction;
 import xdean.css.editor.context.setting.KeySettings;
@@ -36,12 +36,12 @@ public class FileActions {
   }
 
   @Bean(File.SAVE_AS)
-  public CssCodeAreaKeyAction saveAs() {
-    return new CssCodeAreaKeyAction(File.SAVE_AS, keys.close());
+  public CssEditorKeyAction saveAs() {
+    return new CssEditorKeyAction(File.SAVE_AS, keys.close());
   }
 
   @Bean(File.CLOSE)
-  public CssCodeAreaKeyAction close() {
-    return new CssCodeAreaKeyAction(File.CLOSE, keys.close());
+  public CssEditorKeyAction close() {
+    return new CssEditorKeyAction(File.CLOSE, keys.close());
   }
 }

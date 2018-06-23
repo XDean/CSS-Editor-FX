@@ -132,7 +132,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   private void initField() {
     recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
-    searchBarController.codeAreaProperty().bind(model.currentCodeArea);
+    searchBarController.editorProperty().bind(model.currentCodeArea);
     statusBarController.override.bindBidirectional(nestBooleanProp(model.currentManager, m -> m.overrideProperty()));
     statusBarController.area.bind(model.currentCodeArea);
   }
@@ -175,12 +175,12 @@ public class MainFrameController implements FxInitializable, Logable {
         .or(nestBooleanValue(model.currentTabEntity, t -> t.isNew)));
 
     // scroll bar
-    DoubleBinding codeAreaTextHeight = nestDoubleValue(model.currentCodeArea, c -> c.totalHeightEstimateProperty());
-    DoubleBinding codeAreaHeight = nestDoubleValue(model.currentCodeArea, c -> c.heightProperty());
-    verticalScrollBar.maxProperty().bind(codeAreaTextHeight.subtract(codeAreaHeight));
+    DoubleBinding editorTextHeight = nestDoubleValue(model.currentCodeArea, c -> c.totalHeightEstimateProperty());
+    DoubleBinding editorHeight = nestDoubleValue(model.currentCodeArea, c -> c.heightProperty());
+    verticalScrollBar.maxProperty().bind(editorTextHeight.subtract(editorHeight));
     verticalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, toDoubleBinding(verticalScrollBar.maxProperty())
-            .multiply(codeAreaHeight).divide(codeAreaTextHeight)));
+            .multiply(editorHeight).divide(editorTextHeight)));
     verticalScrollBar.valueProperty()
         .bindBidirectional(nestDoubleProp(model.currentCodeArea, c -> c.estimatedScrollYProperty()).normalize());
     verticalScrollBar.visibleProperty().bind(model.currentCodeArea.isNotNull()
@@ -189,12 +189,12 @@ public class MainFrameController implements FxInitializable, Logable {
         () -> andFinal(() -> verticalScrollBar.isVisible(), v -> verticalScrollBar.getParent().layout()),
         verticalScrollBar.visibleProperty()));
 
-    DoubleBinding codeAreaTextWidth = nestDoubleValue(model.currentCodeArea, c -> c.totalWidthEstimateProperty());
-    DoubleBinding codeAreaWidth = nestDoubleValue(model.currentCodeArea, c -> c.widthProperty());
-    horizontalScrollBar.maxProperty().bind(codeAreaTextWidth.subtract(codeAreaWidth));
+    DoubleBinding editorTextWidth = nestDoubleValue(model.currentCodeArea, c -> c.totalWidthEstimateProperty());
+    DoubleBinding editorWidth = nestDoubleValue(model.currentCodeArea, c -> c.widthProperty());
+    horizontalScrollBar.maxProperty().bind(editorTextWidth.subtract(editorWidth));
     horizontalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, horizontalScrollBar.maxProperty()
-            .multiply(codeAreaWidth).divide(codeAreaTextWidth)));
+            .multiply(editorWidth).divide(editorTextWidth)));
     horizontalScrollBar.valueProperty()
         .bindBidirectional(nestDoubleProp(model.currentCodeArea, c -> c.estimatedScrollXProperty()).normalize());
     horizontalScrollBar.visibleProperty().bind(options.wrapText().booleanProperty().not().and(model.currentCodeArea.isNotNull())
@@ -272,7 +272,7 @@ public class MainFrameController implements FxInitializable, Logable {
       uncheck(() -> Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
       ListUtil.forEach(model.tabEntities, (te, i) -> {
         String nameString = te.file.get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
-        String text = te.manager.modify.isModified() ? te.manager.codeArea.getText() : "";
+        String text = te.manager.modify.isModified() ? te.manager.editor.getText() : "";
         Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(options.charset().getValue())));
       });
@@ -361,8 +361,8 @@ public class MainFrameController implements FxInitializable, Logable {
             .skip(1)
             .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
             .ifPresent(t -> {
-              te.manager.codeArea.replaceText(t);
-              te.manager.codeArea.getUndoManager().forgetHistory();
+              te.manager.editor.replaceText(t);
+              te.manager.editor.getUndoManager().forgetHistory();
             });
       }));
     }

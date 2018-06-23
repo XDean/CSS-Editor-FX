@@ -39,7 +39,7 @@ public class SearchBarController implements FxInitializable {
 
   private TextField findField;
   private final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
-  private final ObjectPropertyEX<@CheckNull CodeArea> codeArea = new ObjectPropertyEX<>(this, "codeArea");
+  private final ObjectPropertyEX<@CheckNull CodeArea> editor = new ObjectPropertyEX<>(this, "editor");
 
   @Override
   public void initAfterFxSpringReady() {
@@ -49,10 +49,10 @@ public class SearchBarController implements FxInitializable {
     regex.selectedProperty().bindBidirectional(otherSettings.regexSearch().valueProperty());
     caseSensitive.selectedProperty().bindBidirectional(otherSettings.caseSensitive().valueProperty());
     wrapSearch.selectedProperty().bindBidirectional(otherSettings.wrapSearch().valueProperty());
-    visible.and(codeArea.isNotNull());
+    visible.and(editor.isNotNull());
 
     root.visibleProperty().addListener(on(true, findField::requestFocus)
-        .on(false, () -> uncatch(() -> codeArea.getValue().requestFocus())));
+        .on(false, () -> uncatch(() -> editor.getValue().requestFocus())));
     root.visibleProperty().bind(visible);
     root.managedProperty().bind(root.visibleProperty());
     findField.setOnAction(e -> find());
@@ -60,13 +60,13 @@ public class SearchBarController implements FxInitializable {
 
   @FXML
   public void find() {
-    if (findFrom(codeArea.getValue().getCaretPosition()) == false && wrapSearch.isSelected()) {
+    if (findFrom(editor.getValue().getCaretPosition()) == false && wrapSearch.isSelected()) {
       findFrom(0);
     }
   }
 
   private boolean findFrom(int offset) {
-    CodeArea area = codeArea.getValue();
+    CodeArea area = editor.getValue();
     String findText = findField.getText();
     if (regex.isSelected()) {
       return regexFind(area, findText, offset);
@@ -102,7 +102,7 @@ public class SearchBarController implements FxInitializable {
     visible.set(!visible.get());
   }
 
-  public Property<CodeArea> codeAreaProperty() {
-    return codeArea;
+  public Property<CodeArea> editorProperty() {
+    return editor;
   }
 }

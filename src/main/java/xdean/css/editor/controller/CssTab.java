@@ -33,7 +33,7 @@ public class CssTab extends Tab implements FxInitializable {
   RecentFileService recentFileService;
 
   @Inject
-  CssCodeAreaController manager;
+  CssEditorController manager;
 
   @Inject
   PreferenceSettings options;
@@ -73,14 +73,14 @@ public class CssTab extends Tab implements FxInitializable {
       }
     });
 
-    setContent(manager.codeArea);
+    setContent(manager.editor);
   }
 
   public void reload() {
     file.get().getExistFile().ifPresent(p -> uncatch(() -> {
-      manager.codeArea.replaceText(new String(Files.readAllBytes(p), options.charset().getValue()));
-      manager.codeArea.moveTo(0);
-      manager.codeArea.getUndoManager().forgetHistory();
+      manager.editor.replaceText(new String(Files.readAllBytes(p), options.charset().getValue()));
+      manager.editor.moveTo(0);
+      manager.editor.getUndoManager().forgetHistory();
       manager.modify.saved();
     }));
   }

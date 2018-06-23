@@ -21,7 +21,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.stage.PopupWindow;
-import xdean.css.editor.control.CssCodeArea;
+import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.feature.preview.CssElementPreviewer;
 import xdean.jex.extra.collection.Pair;
 import xdean.jfxex.support.DragSupport;
@@ -29,14 +29,14 @@ import xdean.jfxex.util.LayoutUtil;
 
 @Service
 @SuppressWarnings("rawtypes")
-public class PreviewFeature implements CssCodeAreaFeature {
+public class PreviewFeature implements CssEditorFeature {
 
   @Autowired(required = false)
   List<CssElementPreviewer> previewers = Collections.emptyList();
 
   @Override
-  public void bind(CssCodeArea cssCodeArea) {
-    new InnerController(cssCodeArea);
+  public void bind(CssEditor cssEditor) {
+    new InnerController(cssEditor);
   }
 
   private static String extractValue(String text) {
@@ -56,15 +56,15 @@ public class PreviewFeature implements CssCodeAreaFeature {
 
     private double width = 80, height = 50, line = 2;
 
-    CssCodeArea codeArea;
+    CssEditor editor;
     PopupControl popup = new PopupControl();
     AnchorPane contentPane = new AnchorPane();
     Canvas canvas = new Canvas(width, height);
     Region region = new Region();
 
     @SuppressWarnings("unchecked")
-    InnerController(CssCodeArea area) {
-      this.codeArea = area;
+    InnerController(CssEditor area) {
+      this.editor = area;
 
       contentPane.setBorder(LayoutUtil.getSimpleBorder(Color.BLACK, line));
       contentPane.setPrefWidth(width + 2 * line);
@@ -89,14 +89,14 @@ public class PreviewFeature implements CssCodeAreaFeature {
 
       DragSupport.bind(popup);
 
-      JavaFxObservable.valuesOf(codeArea.selectedTextProperty())
+      JavaFxObservable.valuesOf(editor.selectedTextProperty())
           .debounce(300, TimeUnit.MILLISECONDS)
           .map(t -> extractValue(t))
           .map(String::trim)
           .filter(s -> !s.isEmpty())
           .observeOn(Schedulers.computation())
           .<Pair<CssElementPreviewer, Object>> switchMapMaybe(text -> Observable.fromIterable(previewers)
-              .flatMapMaybe(p -> p.parse(codeArea.context, text)
+              .flatMapMaybe(p -> p.parse(editor.context, text)
                   .subscribeOn(Schedulers.computation())
                   .map(o -> Pair.of(p, o)))
               .firstElement())
@@ -106,12 +106,12 @@ public class PreviewFeature implements CssCodeAreaFeature {
     }
 
     void showPopup() {
-      PopupWindow popupWindow = codeArea.getPopupWindow();
+      PopupWindow popupWindow = editor.getPopupWindow();
       if (popupWindow != popup) {
         popupWindow.hide();
-        codeArea.setPopupWindow(popup);
+        editor.setPopupWindow(popup);
       }
-      popup.show(codeArea.getScene().getWindow());
+      popup.show(editor.getScene().getWindow());
     }
 
     <T> void show(CssElementPreviewer<T> previewer, T value) {

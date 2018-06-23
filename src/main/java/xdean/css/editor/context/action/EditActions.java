@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import xdean.css.editor.context.action.model.CssCodeAreaKeyAction;
+import xdean.css.editor.context.action.model.CssEditorKeyAction;
 import xdean.css.editor.context.setting.KeySettings;
 
 @Configuration
@@ -17,32 +17,32 @@ public class EditActions {
   KeySettings keys;
 
   @Bean(Edit.UNDO)
-  public CssCodeAreaKeyAction undo() {
-    return new CssCodeAreaKeyAction(Edit.UNDO, keys.undo());
+  public CssEditorKeyAction undo() {
+    return new CssEditorKeyAction(Edit.UNDO, keys.undo());
   }
 
   @Bean(Edit.REDO)
-  public CssCodeAreaKeyAction redo() {
-    return new CssCodeAreaKeyAction(Edit.REDO, keys.redo());
+  public CssEditorKeyAction redo() {
+    return new CssEditorKeyAction(Edit.REDO, keys.redo());
   }
 
   @Bean(Edit.SUGGEST)
-  public CssCodeAreaKeyAction suggest() {
-    return new CssCodeAreaKeyAction(Edit.SUGGEST, keys.suggest());
+  public CssEditorKeyAction suggest() {
+    return new CssEditorKeyAction(Edit.SUGGEST, keys.suggest());
   }
 
   @Bean(Edit.FORMAT)
-  public CssCodeAreaKeyAction format() {
-    return new CssCodeAreaKeyAction(Edit.FORMAT, keys.format());
+  public CssEditorKeyAction format() {
+    return new CssEditorKeyAction(Edit.FORMAT, keys.format());
   }
 
   @Bean(Edit.COMMENT)
-  public CssCodeAreaKeyAction comment() {
-    return new CssCodeAreaKeyAction(Edit.COMMENT, keys.comment());
+  public CssEditorKeyAction comment() {
+    return new CssEditorKeyAction(Edit.COMMENT, keys.comment());
   }
 
   @Bean(Edit.FIND)
-  public CssCodeAreaKeyAction find() {
-    return new CssCodeAreaKeyAction(Edit.FIND, keys.find());
+  public CssEditorKeyAction find() {
+    return new CssEditorKeyAction(Edit.FIND, keys.find());
   }
 }

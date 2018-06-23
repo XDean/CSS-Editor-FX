@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 
 import javafx.scene.control.IndexRange;
 import xdean.css.editor.context.action.EditActions;
-import xdean.css.editor.control.CssCodeArea;
+import xdean.css.editor.control.CssEditor;
 
 @Service
-public class CommentFeature implements CssCodeAreaFeature, InitializingBean {
+public class CommentFeature implements CssEditorFeature, InitializingBean {
 
   private static final String LINE_COMMENT_PATTERN = "^\\s*/\\*.*\\*/\\s*$";
 
@@ -25,20 +25,20 @@ public class CommentFeature implements CssCodeAreaFeature, InitializingBean {
   public void afterPropertiesSet() throws Exception {
     actions.comment()
         .consumer()
-        .subscribe(codeArea -> {
-          selectLines(codeArea);
-          String selectedText = codeArea.getSelectedText();
-          IndexRange selection = codeArea.getSelection();
-          codeArea.getUndoManager().preventMerge();
-          codeArea.replaceSelection(CommentFeature.toggleComment(selectedText));
-          codeArea.getUndoManager().preventMerge();
-          codeArea.moveTo(selection.getStart(), SelectionPolicy.EXTEND);
+        .subscribe(editor -> {
+          selectLines(editor);
+          String selectedText = editor.getSelectedText();
+          IndexRange selection = editor.getSelection();
+          editor.getUndoManager().preventMerge();
+          editor.replaceSelection(CommentFeature.toggleComment(selectedText));
+          editor.getUndoManager().preventMerge();
+          editor.moveTo(selection.getStart(), SelectionPolicy.EXTEND);
         });
   }
 
   @Override
-  public void bind(CssCodeArea codeArea) {
-    actions.comment().bind(codeArea);
+  public void bind(CssEditor editor) {
+    actions.comment().bind(editor);
   }
 
   private static void selectLines(CodeArea area) {

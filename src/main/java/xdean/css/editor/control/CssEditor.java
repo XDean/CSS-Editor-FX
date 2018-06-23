@@ -6,6 +6,7 @@ import static xdean.jfxex.bean.BeanUtil.map;
 import static xdean.jfxex.bean.BeanUtil.mapToBoolean;
 import static xdean.jfxex.bean.ListenerUtil.weak;
 
+import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
@@ -43,6 +44,7 @@ import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.feature.CssEditorFeature;
 import xdean.css.editor.model.CssContext;
 import xdean.css.editor.model.FileWrapper;
+import xdean.css.editor.service.RecentFileService;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
@@ -55,6 +57,7 @@ import xdean.jfxex.extra.ModifiableObject;
 public class CssEditor extends CodeArea implements FxInitializable {
   public final CssContext context = CssContext.createByDefault();
   private CssContext lastContext;
+  private @Inject RecentFileService recentFileService;
   private @Inject List<CssEditorFeature> features;
   private @Inject PreferenceSettings preference;
   private @Inject OtherSettings otherSettings;
@@ -66,7 +69,7 @@ public class CssEditor extends CodeArea implements FxInitializable {
   public ObjectProperty<FileWrapper> fileProperty() {
     return file;
   }
-  
+
   public ObjectBinding<String> nameBinding() {
     return cache(this, "nameBinding", () -> map(file, f -> f.getFileName()));
   }
@@ -85,6 +88,14 @@ public class CssEditor extends CodeArea implements FxInitializable {
         TaskUtil.firstSuccess(
             () -> CssEditor.class.getResource("/css/css-highlighting.bss").toExternalForm(),
             () -> CssEditor.class.getResource("/css/css-highlighting.css").toExternalForm()));
+
+    // recent
+    file.addListener((ob, o, n) -> {
+      if (n.isExistFile()) {
+        recentFileService.setLatestFile(n.getExistFile().get());
+        reload();
+      }
+    });
 
     features.forEach(f -> f.bind(this));
 
@@ -205,6 +216,15 @@ public class CssEditor extends CodeArea implements FxInitializable {
       zoomOut();
     }
   };
+
+  public void reload() {
+    file.get().getExistFile().ifPresent(p -> uncatch(() -> {
+      replaceText(new String(Files.readAllBytes(p), preference.charset().getValue()));
+      moveTo(0);
+      getUndoManager().forgetHistory();
+      modify().saved();
+    }));
+  }
 
   private void zoomIn() {
     preference.fontSize().setValue(preference.fontSize().getValue() + 1);

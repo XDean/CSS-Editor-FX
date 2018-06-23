@@ -262,7 +262,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void revert() {
-    model.currentTabEntity.get().reload();
+    model.currentEditor.get().reload();
   }
 
   @FXML

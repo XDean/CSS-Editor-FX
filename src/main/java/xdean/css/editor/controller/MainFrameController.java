@@ -26,6 +26,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Menu;
@@ -306,7 +307,7 @@ public class MainFrameController implements FxInitializable, Logable, ContextSer
 
   @FXML
   public void comment() {
-    editActions.comment().fire(activeEditor());
+    fire(editActions.comment());
   }
 
   @FXML
@@ -421,7 +422,12 @@ public class MainFrameController implements FxInitializable, Logable, ContextSer
   }
 
   @Override
-  public Optional<CssEditor> activeEditor() {
-    return Optional.ofNullable(model.currentEditor.get());
+  public CssEditor activeEditor() {
+    return model.currentEditor.get();
+  }
+
+  @Override
+  public Node eventNode() {
+    return tabPane;
   }
 }

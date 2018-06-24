@@ -104,7 +104,7 @@ public class MenuBarController implements FxInitializable {
   public void help() {
   }
 
-  private void onAction(CssEditorKeyEventOption action) {
-    action.fire(contextService.activeEditor());
+  private void onAction(CssEditorKeyEventOption keyOption) {
+    contextService.fire(keyOption);
   }
 }

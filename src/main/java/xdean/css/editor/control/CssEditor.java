@@ -58,6 +58,7 @@ import xdean.jfxex.extra.ModifiableObject;
 
 @FxComponent
 public class CssEditor extends CodeArea implements FxInitializable, EventTarget {
+
   public final CssContext context = CssContext.createByDefault();
   private CssContext lastContext;
   private @Inject RecentFileService recentFileService;

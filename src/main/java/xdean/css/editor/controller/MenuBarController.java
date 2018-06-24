@@ -31,7 +31,12 @@ public class MenuBarController implements FxInitializable {
 
   @Override
   public void initAfterFxSpringReady() {
+    bind(closeItem, fileActions.close());
+  }
 
+  private void bind(MenuItem item, CssEditorKeyEventOption key) {
+    item.acceleratorProperty().bind(key.valueProperty());
+    item.disableProperty().bind(key.disableProperty());
   }
 
   @FXML

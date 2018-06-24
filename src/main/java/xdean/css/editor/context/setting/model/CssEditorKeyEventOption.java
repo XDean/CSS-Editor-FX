@@ -1,5 +1,7 @@
 package xdean.css.editor.context.setting.model;
 
+import static xdean.jfxex.event.EventHandlers.consumeIf;
+
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -22,7 +24,7 @@ public class CssEditorKeyEventOption implements Option<KeyCombination> {
   private final EventType<CssEditorEvent> eventType;
   private final ObjectPropertyEX<KeyCombination> value = new ObjectPropertyEX<>(this, "value");
   private final KeyCombination defaultValue;
-  private final BooleanProperty enable = new SimpleBooleanProperty(this, "enable", true);
+  private final BooleanProperty disable = new SimpleBooleanProperty(this, "disable", true);
 
   public CssEditorKeyEventOption(String key, KeyCombination defaultValue) {
     this.key = key;
@@ -39,8 +41,8 @@ public class CssEditorKeyEventOption implements Option<KeyCombination> {
     return eventType;
   }
 
-  public BooleanProperty enableProperty() {
-    return enable;
+  public BooleanProperty disableProperty() {
+    return disable;
   }
 
   @Override
@@ -59,8 +61,8 @@ public class CssEditorKeyEventOption implements Option<KeyCombination> {
   }
 
   public void bind(CssEditor editor) {
+    editor.addEventFilter(eventType, consumeIf(e -> disable.get()));
     JavaFxObservable.eventsOf(editor, KeyEvent.KEY_PRESSED)
-        .filter(e -> e.isConsumed() == false)
         .filter(getValue()::match)
         .doOnNext(KeyEvent::consume)
         .subscribe(e -> editor.fireEvent(getEvent(editor)));

@@ -31,10 +31,6 @@ component MenuBar controlledby MenuBarController {
           MenuItem {
             text : "New",
             onAction : controllermethod newFile,
-            accelerator : KeyCodeCombination {
-              code : "N",
-              modifiers : const KeyCodeCombination#CONTROL_DOWN
-            },
             graphic : FontAwesomeIconView {
               glyphName : "FILE_ALT"
             }
@@ -42,10 +38,6 @@ component MenuBar controlledby MenuBarController {
           MenuItem {
             text : "Open...",
             onAction : controllermethod open,
-            accelerator : KeyCodeCombination {
-              code : "O",
-              modifiers : const KeyCodeCombination#CONTROL_DOWN
-            },
             graphic : FontAwesomeIconView {
               glyphName : "FOLDER_OPEN_ALT"
             }
@@ -71,22 +63,13 @@ component MenuBar controlledby MenuBarController {
           MenuItem id saveItem {
             text : "Save",
             onAction : controllermethod save,
-            accelerator : KeyCodeCombination {
-              code : "S",
-              modifiers : const KeyCodeCombination#CONTROL_DOWN
-            },
             graphic : FontAwesomeIconView {
               glyphName : "SAVE"
             }
           },
           MenuItem id saveAsItem {
             text : "Save as...",
-            onAction : controllermethod saveAs,
-            accelerator : KeyCodeCombination {
-              code : "S",
-              modifiers : const KeyCodeCombination#CONTROL_DOWN,
-              modifiers : const KeyCodeCombination#ALT_DOWN
-            }
+            onAction : controllermethod saveAs
           },
           MenuItem id revertItem {
             text : "Revert",
@@ -105,10 +88,6 @@ component MenuBar controlledby MenuBarController {
           MenuItem id undoItem {
             text : "Undo",
             onAction : controllermethod undo,
-            accelerator : KeyCodeCombination {
-              code : "Z",
-              modifiers : const KeyCodeCombination#CONTROL_DOWN
-            },
             graphic : FontAwesomeIconView {
               glyphName : "UNDO"
             }
@@ -116,10 +95,6 @@ component MenuBar controlledby MenuBarController {
           MenuItem id redoItem {
             text : "Redo",
             onAction : controllermethod redo,
-            accelerator : KeyCodeCombination {
-              code : "Y",
-              modifiers : const KeyCodeCombination#CONTROL_DOWN
-            },
             graphic : FontAwesomeIconView {
               glyphName : "REPEAT"
             }

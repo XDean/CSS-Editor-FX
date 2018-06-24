@@ -5,6 +5,8 @@ import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
 import static xdean.jfxex.bean.BeanUtil.*;
+import static xdean.jfxex.event.EventHandlers.consume;
+import static xdean.jfxex.event.EventHandlers.consumeIf;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +49,7 @@ import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.FileActions;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.control.CssEditor;
+import xdean.css.editor.feature.CssEditorFeature;
 import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.DialogService;
@@ -65,11 +68,12 @@ import xdean.jfxex.support.skin.SkinStyle;
 
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @FxController(fxml = "/fxml/MainFrame.fxml")
-public class MainFrameController implements FxInitializable, Logable, ContextService {
+public class MainFrameController implements FxInitializable, Logable,
+    ContextService, CssEditorFeature {
 
   @FXML
   MenuItem formatItem, undoItem, redoItem, commentItem,
-      closeItem, saveItem, saveAsItem, revertItem, findItem;
+      saveItem, saveAsItem, revertItem, findItem;
   @FXML
   Button newButton, openButton, saveButton, undoButton, redoButton;
 
@@ -158,7 +162,6 @@ public class MainFrameController implements FxInitializable, Logable, ContextSer
     formatItem.acceleratorProperty().bind(editActions.format().valueProperty());
     commentItem.acceleratorProperty().bind(editActions.comment().valueProperty());
     findItem.acceleratorProperty().bind(editActions.find().valueProperty());
-    closeItem.acceleratorProperty().bind(fileActions.close().valueProperty());
 
     // disable
     BooleanBinding nullArea = model.currentEditor.isNull();
@@ -169,7 +172,7 @@ public class MainFrameController implements FxInitializable, Logable, ContextSer
     redoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.redoAvailableProperty()).not()));
     undoButton.disableProperty().bind(undoItem.disableProperty());
     redoButton.disableProperty().bind(redoItem.disableProperty());
-    closeItem.disableProperty().bind(nullArea);
+    fileActions.close().disableProperty().bind(nullArea);
     saveAsItem.disableProperty().bind(nullArea);
     saveItem.disableProperty().bind(saveAsItem.disableProperty().or(model.currentModified.not()));
     saveButton.disableProperty().bind(saveItem.disableProperty());
@@ -212,6 +215,13 @@ public class MainFrameController implements FxInitializable, Logable, ContextSer
     model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
   }
 
+  @Override
+  public void bind(CssEditor cssEditor) {
+    cssEditor.addEventFilter(fileActions.close().getEventType(), consumeIf(e -> askToSaveAndShouldContinue()));
+    cssEditor.addEventHandler(fileActions.close().getEventType(),
+        e -> model.currentTabEntity.getSafe().ifPresent(model.tabEntities::remove));
+  }
+
   @FXML
   public void newFile() {
     openFile(FileWrapper.newFile(model.nextNewOrder()));
@@ -232,13 +242,6 @@ public class MainFrameController implements FxInitializable, Logable, ContextSer
   @FXML
   public void clearRecent() {
     recentSupport.clear();
-  }
-
-  @FXML
-  public void close() {
-    if (askToSaveAndShouldContinue()) {
-      model.currentTabEntity.getSafe().ifPresent(model.tabEntities::remove);
-    }
   }
 
   @FXML
@@ -402,7 +405,7 @@ public class MainFrameController implements FxInitializable, Logable, ContextSer
       return existTab.get();
     }
     CssEditorTab tabEntity = model.newTab(file);
-    tabEntity.setOnCloseRequest(e -> andFinal(() -> close(), () -> e.consume()));
+    tabEntity.setOnCloseRequest(consume(e -> fire(tabEntity.getEditor(), fileActions.close())));
     tabPane.getSelectionModel().select(tabEntity);
     return tabEntity;
   }

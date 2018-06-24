@@ -9,7 +9,6 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.input.KeyCodeCombination?>
 
 <MenuBar xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.MenuBarController">
 
@@ -17,21 +16,11 @@
 		<Menu text="File"> 
 			<items>
 				<MenuItem text="New" onAction="#newFile"> 
-					<accelerator>
-						<KeyCodeCombination code="N"> 
-							<modifiers><KeyCodeCombination fx:constant="CONTROL_DOWN" /></modifiers>
-						</KeyCodeCombination>
-					</accelerator>
 					<graphic>
 						<FontAwesomeIconView glyphName="FILE_ALT"/> 
 					</graphic>
 				</MenuItem>
 				<MenuItem text="Open..." onAction="#open"> 
-					<accelerator>
-						<KeyCodeCombination code="O"> 
-							<modifiers><KeyCodeCombination fx:constant="CONTROL_DOWN" /></modifiers>
-						</KeyCodeCombination>
-					</accelerator>
 					<graphic>
 						<FontAwesomeIconView glyphName="FOLDER_OPEN_ALT"/> 
 					</graphic>
@@ -49,23 +38,11 @@
 					</graphic>
 				</MenuItem>
 				<MenuItem fx:id="saveItem" text="Save" onAction="#save"> 
-					<accelerator>
-						<KeyCodeCombination code="S"> 
-							<modifiers><KeyCodeCombination fx:constant="CONTROL_DOWN" /></modifiers>
-						</KeyCodeCombination>
-					</accelerator>
 					<graphic>
 						<FontAwesomeIconView glyphName="SAVE"/> 
 					</graphic>
 				</MenuItem>
-				<MenuItem fx:id="saveAsItem" text="Save as..." onAction="#saveAs"> 
-					<accelerator>
-						<KeyCodeCombination code="S"> 
-							<modifiers><KeyCodeCombination fx:constant="CONTROL_DOWN" /></modifiers>
-							<modifiers><KeyCodeCombination fx:constant="ALT_DOWN" /></modifiers>
-						</KeyCodeCombination>
-					</accelerator>
-				</MenuItem>
+				<MenuItem fx:id="saveAsItem" text="Save as..." onAction="#saveAs"/> 
 				<MenuItem fx:id="revertItem" text="Revert" onAction="#revert"/> 
 				<SeparatorMenuItem/> 
 				<MenuItem text="Exit" onAction="#exit"/> 
@@ -74,21 +51,11 @@
 		<Menu text="Edit"> 
 			<items>
 				<MenuItem fx:id="undoItem" text="Undo" onAction="#undo"> 
-					<accelerator>
-						<KeyCodeCombination code="Z"> 
-							<modifiers><KeyCodeCombination fx:constant="CONTROL_DOWN" /></modifiers>
-						</KeyCodeCombination>
-					</accelerator>
 					<graphic>
 						<FontAwesomeIconView glyphName="UNDO"/> 
 					</graphic>
 				</MenuItem>
 				<MenuItem fx:id="redoItem" text="Redo" onAction="#redo"> 
-					<accelerator>
-						<KeyCodeCombination code="Y"> 
-							<modifiers><KeyCodeCombination fx:constant="CONTROL_DOWN" /></modifiers>
-						</KeyCodeCombination>
-					</accelerator>
 					<graphic>
 						<FontAwesomeIconView glyphName="REPEAT"/> 
 					</graphic>

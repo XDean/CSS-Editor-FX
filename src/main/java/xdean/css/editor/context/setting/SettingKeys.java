@@ -1,21 +1,6 @@
 package xdean.css.editor.context.setting;
 
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_FIND_CASE_SENSITIVE;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_FIND_REGEX;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_FIND_WRAP_SEARCH;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_COMMON;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_COMMON_AUTO_SUGGEST;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_COMMON_CHARSET;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_COMMON_OPEN_LAST;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_COMMON_SHOW_LINE;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEXT;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEXT_FONT_FAMILY;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEXT_FONT_SIZE;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_GENERAL_TEXT_WRAP_TEXT;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_LANGUAGE;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_RECENT_LOCATION;
-import static xdean.css.editor.context.setting.RawSettingKeys.OPTION_SKIN;
+import static xdean.css.editor.context.setting.RawSettingKeys.*;
 
 import xdean.auto.message.AutoMessage;
 
@@ -52,4 +37,23 @@ public interface SettingKeys {
   String LANGUAGE = OPTION_LANGUAGE;
   String SKIN = OPTION_SKIN;
   String RECENT_LOC = OPTION_RECENT_LOCATION;
+
+
+
+  interface File {
+    String NEW = ACTION_FILE_NEW;
+    String OPEN = ACTION_FILE_OPEN;
+    String SAVE = ACTION_FILE_SAVE;
+    String SAVE_AS = ACTION_FILE_SAVEAS;
+    String CLOSE = ACTION_FILE_CLOSE;
+  }
+
+  interface Edit {
+    String UNDO = ACTION_EDIT_UNDO;
+    String REDO = ACTION_EDIT_REDO;
+    String SUGGEST = ACTION_EDIT_SUGGEST;
+    String FORMAT = ACTION_EDIT_FORMAT;
+    String COMMENT = ACTION_EDIT_COMMENT;
+    String FIND = ACTION_EDIT_FIND;
+  }
 }

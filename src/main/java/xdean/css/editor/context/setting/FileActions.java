@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import xdean.css.editor.context.setting.ActionKeys.File;
+import xdean.css.editor.context.setting.SettingKeys.File;
 import xdean.css.editor.context.setting.model.CssEditorKeyActionOption;
 import xdean.css.editor.context.setting.model.action.Action;
 import xdean.css.editor.context.setting.model.action.SimpleAction;

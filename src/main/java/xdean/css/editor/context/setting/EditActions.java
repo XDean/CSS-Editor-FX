@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import xdean.css.editor.context.setting.ActionKeys.Edit;
+import xdean.css.editor.context.setting.SettingKeys.Edit;
 import xdean.css.editor.context.setting.model.CssEditorKeyActionOption;
 
 @Configuration

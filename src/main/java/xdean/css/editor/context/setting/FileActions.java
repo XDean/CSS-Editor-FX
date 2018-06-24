@@ -1,7 +1,5 @@
 package xdean.css.editor.context.setting;
 
-import java.nio.file.Path;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,26 +8,23 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import xdean.css.editor.context.setting.SettingKeys.File;
 import xdean.css.editor.context.setting.model.CssEditorKeyActionOption;
-import xdean.css.editor.context.setting.model.action.Action;
-import xdean.css.editor.context.setting.model.action.SimpleAction;
-import xdean.css.editor.context.setting.model.action.VoidAction;
 
 @Configuration
 public class FileActions {
 
   @Bean(File.NEW)
-  public VoidAction newFile() {
-    return new VoidAction(File.NEW);
+  public CssEditorKeyActionOption newFile() {
+    return new CssEditorKeyActionOption(File.NEW, new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
   }
 
   @Bean(File.OPEN)
-  public Action<Path> open() {
-    return new SimpleAction<>(File.OPEN);
+  public CssEditorKeyActionOption open() {
+    return new CssEditorKeyActionOption(File.OPEN, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
   }
 
   @Bean(File.SAVE)
-  public VoidAction save() {
-    return new VoidAction(File.SAVE);
+  public CssEditorKeyActionOption save() {
+    return new CssEditorKeyActionOption(File.SAVE, new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
   }
 
   @Bean(File.SAVE_AS)

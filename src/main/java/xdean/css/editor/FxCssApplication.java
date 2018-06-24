@@ -16,11 +16,9 @@ import xdean.jfx.spring.FxmlResult;
 @Component
 public class FxCssApplication implements FxApplication {
 
-  @Inject
-  FxmlResult<MainFrameController, Parent> mainFrame;
+  private @Inject FxmlResult<MainFrameController, Parent> mainFrame;
 
-  @Inject
-  NodeFactoryService nodeFactory;
+  private @Inject NodeFactoryService nodeFactory;
 
   @Override
   public void start(Stage stage) throws Exception {

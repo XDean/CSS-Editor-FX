@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.FileActions;
 import xdean.css.editor.context.setting.model.CssEditorKeyEventOption;
 import xdean.css.editor.service.ContextService;
@@ -16,10 +17,13 @@ public class MenuBarController implements FxInitializable {
 
   private @FXML Menu openRecentMenu;
   private @FXML Menu skinMenu;
+  private @FXML MenuItem newItem;
+  private @FXML MenuItem openItem;
   private @FXML MenuItem closeItem;
   private @FXML MenuItem saveItem;
   private @FXML MenuItem saveAsItem;
   private @FXML MenuItem revertItem;
+
   private @FXML MenuItem undoItem;
   private @FXML MenuItem redoItem;
   private @FXML MenuItem findItem;
@@ -27,11 +31,24 @@ public class MenuBarController implements FxInitializable {
   private @FXML MenuItem formatItem;
 
   private @Inject ContextService contextService;
+  private @Inject EditActions editActions;
   private @Inject FileActions fileActions;
 
   @Override
   public void initAfterFxSpringReady() {
+    bind(newItem, fileActions.newFile());
+    bind(openItem, fileActions.open());
     bind(closeItem, fileActions.close());
+    bind(saveItem, fileActions.save());
+    bind(saveAsItem, fileActions.saveAs());
+    bind(revertItem, fileActions.revert());
+
+    bind(undoItem, editActions.undo());
+    bind(redoItem, editActions.redo());
+    // bind(suggestItem, editActions.suggest());
+    bind(findItem, editActions.find());
+    bind(commentItem, editActions.comment());
+    bind(formatItem, editActions.format());
   }
 
   private void bind(MenuItem item, CssEditorKeyEventOption key) {
@@ -79,22 +96,27 @@ public class MenuBarController implements FxInitializable {
 
   @FXML
   public void undo() {
+    onAction(editActions.undo());
   }
 
   @FXML
   public void redo() {
+    onAction(editActions.redo());
   }
 
   @FXML
   public void find() {
+    onAction(editActions.find());
   }
 
   @FXML
   public void comment() {
+    onAction(editActions.comment());
   }
 
   @FXML
   public void format() {
+    onAction(editActions.format());
   }
 
   @FXML

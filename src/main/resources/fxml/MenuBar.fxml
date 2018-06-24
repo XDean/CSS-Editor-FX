@@ -15,12 +15,12 @@
 	<menus>
 		<Menu text="File"> 
 			<items>
-				<MenuItem text="New" onAction="#newFile"> 
+				<MenuItem fx:id="newItem" text="New" onAction="#newFile"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="FILE_ALT"/> 
 					</graphic>
 				</MenuItem>
-				<MenuItem text="Open..." onAction="#open"> 
+				<MenuItem fx:id="openItem" text="Open..." onAction="#open"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="FOLDER_OPEN_ALT"/> 
 					</graphic>

@@ -218,17 +218,17 @@ public class MainFrameController implements FxInitializable, Logable,
   @Override
   public void bind(CssEditor cssEditor) {
     cssEditor.addEventFilter(fileActions.close().getEventType(), consumeIf(e -> askToSaveAndShouldContinue()));
-    cssEditor.addEventHandler(fileActions.close().getEventType(),
-        e -> model.currentTabEntity.getSafe().ifPresent(model.tabEntities::remove));
+    cssEditor.addEventHandler(fileActions.close().getEventType(), e -> close());
+
+    cssEditor.addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
+    cssEditor.addEventHandler(fileActions.open().getEventType(), e -> open());
   }
 
-  @FXML
-  public void newFile() {
+  private void newFile() {
     openFile(FileWrapper.newFile(model.nextNewOrder()));
   }
 
-  @FXML
-  public void open() {
+  private void open() {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Open");
     fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
@@ -264,6 +264,10 @@ public class MainFrameController implements FxInitializable, Logable,
       return andFinal(() -> saveToFile(path),
           b -> If.that(b).todo(() -> model.currentEditor.get().fileProperty().set(FileWrapper.existFile(path))));
     }
+  }
+
+  private void close() {
+    model.currentTabEntity.getSafe().ifPresent(model.tabEntities::remove);
   }
 
   @FXML

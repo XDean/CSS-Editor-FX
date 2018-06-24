@@ -28,14 +28,14 @@ component MenuBar controlledby MenuBarController {
       Menu {
         text : "File",
         items : [
-          MenuItem {
+          MenuItem id newItem {
             text : "New",
             onAction : controllermethod newFile,
             graphic : FontAwesomeIconView {
               glyphName : "FILE_ALT"
             }
           },
-          MenuItem {
+          MenuItem id openItem {
             text : "Open...",
             onAction : controllermethod open,
             graphic : FontAwesomeIconView {

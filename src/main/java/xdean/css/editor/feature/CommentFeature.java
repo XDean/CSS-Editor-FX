@@ -6,7 +6,6 @@ import javax.inject.Inject;
 
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import javafx.scene.control.IndexRange;
@@ -14,7 +13,7 @@ import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.control.CssEditor;
 
 @Service
-public class CommentFeature implements CssEditorFeature, InitializingBean {
+public class CommentFeature implements CssEditorFeature {
 
   private static final String LINE_COMMENT_PATTERN = "^\\s*/\\*.*\\*/\\s*$";
 
@@ -22,23 +21,18 @@ public class CommentFeature implements CssEditorFeature, InitializingBean {
   EditActions actions;
 
   @Override
-  public void afterPropertiesSet() throws Exception {
-    actions.comment()
-        .consumer()
-        .subscribe(editor -> {
-          selectLines(editor);
-          String selectedText = editor.getSelectedText();
-          IndexRange selection = editor.getSelection();
-          editor.getUndoManager().preventMerge();
-          editor.replaceSelection(CommentFeature.toggleComment(selectedText));
-          editor.getUndoManager().preventMerge();
-          editor.moveTo(selection.getStart(), SelectionPolicy.EXTEND);
-        });
+  public void bind(CssEditor editor) {
+    editor.addEventHandler(actions.comment().getEventType(), e -> onAction((CssEditor) e.getSource()));
   }
 
-  @Override
-  public void bind(CssEditor editor) {
-    actions.comment().bind(editor);
+  private void onAction(CssEditor editor) {
+    selectLines(editor);
+    String selectedText = editor.getSelectedText();
+    IndexRange selection = editor.getSelection();
+    editor.getUndoManager().preventMerge();
+    editor.replaceSelection(CommentFeature.toggleComment(selectedText));
+    editor.getUndoManager().preventMerge();
+    editor.moveTo(selection.getStart(), SelectionPolicy.EXTEND);
   }
 
   private static void selectLines(CodeArea area) {

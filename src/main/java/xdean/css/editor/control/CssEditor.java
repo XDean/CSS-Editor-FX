@@ -7,6 +7,7 @@ import static xdean.jfxex.bean.BeanUtil.mapToBoolean;
 import static xdean.jfxex.bean.ListenerUtil.weak;
 
 import java.nio.file.Files;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntFunction;
@@ -32,6 +33,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
+import javafx.event.EventTarget;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.input.KeyCode;
@@ -41,6 +43,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 import xdean.css.editor.context.setting.OtherSettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
+import xdean.css.editor.context.setting.model.CssEditorKeyEventOption;
 import xdean.css.editor.feature.CssEditorFeature;
 import xdean.css.editor.model.CssContext;
 import xdean.css.editor.model.FileWrapper;
@@ -54,11 +57,12 @@ import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.extra.ModifiableObject;
 
 @FxComponent
-public class CssEditor extends CodeArea implements FxInitializable {
+public class CssEditor extends CodeArea implements FxInitializable, EventTarget {
   public final CssContext context = CssContext.createByDefault();
   private CssContext lastContext;
   private @Inject RecentFileService recentFileService;
-  private @Inject List<CssEditorFeature> features;
+  private @Inject List<CssEditorKeyEventOption> keys = Collections.emptyList();
+  private @Inject List<CssEditorFeature> features = Collections.emptyList();
   private @Inject PreferenceSettings preference;
   private @Inject OtherSettings otherSettings;
   private final BooleanProperty override = new SimpleBooleanProperty(this, "overrride");
@@ -97,6 +101,7 @@ public class CssEditor extends CodeArea implements FxInitializable {
       }
     });
 
+    keys.forEach(f -> f.bind(this));
     features.forEach(f -> f.bind(this));
 
     Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(this, KeyEvent.KEY_PRESSED).share();

@@ -1,8 +1,13 @@
 package xdean.css.editor.controller;
 
+import javax.inject.Inject;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import xdean.css.editor.context.setting.FileActions;
+import xdean.css.editor.context.setting.model.CssEditorKeyEventOption;
+import xdean.css.editor.service.ContextService;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 
@@ -21,6 +26,9 @@ public class MenuBarController implements FxInitializable {
   private @FXML MenuItem commentItem;
   private @FXML MenuItem formatItem;
 
+  private @Inject ContextService contextService;
+  private @Inject FileActions fileActions;
+
   @Override
   public void initAfterFxSpringReady() {
 
@@ -28,10 +36,12 @@ public class MenuBarController implements FxInitializable {
 
   @FXML
   public void newFile() {
+    onAction(fileActions.newFile());
   }
 
   @FXML
   public void open() {
+    onAction(fileActions.open());
   }
 
   @FXML
@@ -40,18 +50,22 @@ public class MenuBarController implements FxInitializable {
 
   @FXML
   public void close() {
+    onAction(fileActions.close());
   }
 
   @FXML
   public void save() {
+    onAction(fileActions.save());
   }
 
   @FXML
   public void saveAs() {
+    onAction(fileActions.saveAs());
   }
 
   @FXML
   public void revert() {
+    onAction(fileActions.revert());
   }
 
   @FXML
@@ -90,4 +104,7 @@ public class MenuBarController implements FxInitializable {
   public void help() {
   }
 
+  private void onAction(CssEditorKeyEventOption action) {
+    action.fire(contextService.activeEditor());
+  }
 }

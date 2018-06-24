@@ -4,11 +4,7 @@ import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfxex.bean.BeanUtil.map;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanProp;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
-import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
-import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
+import static xdean.jfxex.bean.BeanUtil.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +18,9 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Scope;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -46,7 +45,9 @@ import javafx.stage.Stage;
 import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.FileActions;
 import xdean.css.editor.context.setting.PreferenceSettings;
+import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.model.FileWrapper;
+import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.SkinService;
 import xdean.jex.extra.tryto.Try;
@@ -61,8 +62,9 @@ import xdean.jfx.spring.context.FxContext;
 import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
+@Scope(BeanDefinition.SCOPE_SINGLETON)
 @FxController(fxml = "/fxml/MainFrame.fxml")
-public class MainFrameController implements FxInitializable, Logable {
+public class MainFrameController implements FxInitializable, Logable, ContextService {
 
   @FXML
   MenuItem formatItem, undoItem, redoItem, commentItem,
@@ -304,7 +306,7 @@ public class MainFrameController implements FxInitializable, Logable {
 
   @FXML
   public void comment() {
-    editActions.comment().onAction(model.currentEditor.get());
+    editActions.comment().fire(activeEditor());
   }
 
   @FXML
@@ -416,5 +418,10 @@ public class MainFrameController implements FxInitializable, Logable {
 
   Optional<CssEditorTab> findEntity(Tab t) {
     return CacheUtil.get(MainFrameController.this, t);
+  }
+
+  @Override
+  public Optional<CssEditor> activeEditor() {
+    return Optional.ofNullable(model.currentEditor.get());
   }
 }

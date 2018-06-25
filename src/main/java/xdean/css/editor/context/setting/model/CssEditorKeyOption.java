@@ -16,17 +16,17 @@ import xdean.css.editor.control.CssEditorEvent;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 import xdean.jfxex.util.StringConverters;
 
-public class CssEditorKeyEventOption implements Option<KeyCombination> {
+public class CssEditorKeyOption<T> implements Option<KeyCombination> {
 
   private static final StringConverter<KeyCombination> CONVERTER = StringConverters.create(KeyCombination::valueOf);
 
   private final String key;
-  private final EventType<CssEditorEvent> eventType;
+  private final EventType<CssEditorEvent<T>> eventType;
   private final ObjectPropertyEX<KeyCombination> value = new ObjectPropertyEX<>(this, "value");
   private final KeyCombination defaultValue;
   private final BooleanProperty disable = new SimpleBooleanProperty(this, "disable", true);
 
-  public CssEditorKeyEventOption(String key, KeyCombination defaultValue) {
+  public CssEditorKeyOption(String key, KeyCombination defaultValue) {
     this.key = key;
     this.defaultValue = defaultValue;
     this.eventType = new EventType<>(CssEditorEvent.ANY, key);
@@ -37,7 +37,7 @@ public class CssEditorKeyEventOption implements Option<KeyCombination> {
     return key;
   }
 
-  public EventType<CssEditorEvent> getEventType() {
+  public EventType<CssEditorEvent<T>> getEventType() {
     return eventType;
   }
 
@@ -68,7 +68,11 @@ public class CssEditorKeyEventOption implements Option<KeyCombination> {
         .subscribe(e -> editor.fireEvent(getEvent(editor)));
   }
 
-  public CssEditorEvent getEvent(CssEditor editor) {
-    return new CssEditorEvent(editor, getEventType());
+  public CssEditorEvent<T> getEvent(CssEditor editor) {
+    return new CssEditorEvent<>(editor, getEventType());
+  }
+
+  public CssEditorEvent<T> getEvent(CssEditor editor, T data) {
+    return new CssEditorEvent<>(editor, getEventType(), data);
   }
 }

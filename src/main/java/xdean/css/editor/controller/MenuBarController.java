@@ -11,7 +11,7 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ToggleGroup;
 import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.FileActions;
-import xdean.css.editor.context.setting.model.CssEditorKeyEventOption;
+import xdean.css.editor.context.setting.model.CssEditorKeyOption;
 import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.SkinService;
 import xdean.jfx.spring.FxInitializable;
@@ -82,7 +82,7 @@ public class MenuBarController implements FxInitializable {
     }
   }
 
-  private void bind(MenuItem item, CssEditorKeyEventOption key) {
+  private void bind(MenuItem item, CssEditorKeyOption<?> key) {
     item.acceleratorProperty().bind(key.valueProperty());
     item.disableProperty().bind(key.disableProperty());
   }
@@ -158,7 +158,7 @@ public class MenuBarController implements FxInitializable {
   public void help() {
   }
 
-  private void onAction(CssEditorKeyEventOption keyOption) {
+  private void onAction(CssEditorKeyOption keyOption) {
     contextService.fire(keyOption);
   }
 }

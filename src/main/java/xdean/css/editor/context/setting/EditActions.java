@@ -7,39 +7,39 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import xdean.css.editor.context.setting.SettingKeys.Edit;
-import xdean.css.editor.context.setting.model.CssEditorKeyEventOption;
+import xdean.css.editor.context.setting.model.CssEditorActionKeyOption;
 
 @Configuration
 public class EditActions {
 
   @Bean(Edit.UNDO)
-  public CssEditorKeyEventOption undo() {
-    return new CssEditorKeyEventOption(Edit.UNDO, new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
+  public CssEditorActionKeyOption undo() {
+    return new CssEditorActionKeyOption(Edit.UNDO, new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
   }
 
   @Bean(Edit.REDO)
-  public CssEditorKeyEventOption redo() {
-    return new CssEditorKeyEventOption(Edit.REDO, new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN));
+  public CssEditorActionKeyOption redo() {
+    return new CssEditorActionKeyOption(Edit.REDO, new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN));
   }
 
   @Bean(Edit.SUGGEST)
-  public CssEditorKeyEventOption suggest() {
-    return new CssEditorKeyEventOption(Edit.SUGGEST, new KeyCodeCombination(KeyCode.SLASH, KeyCombination.ALT_DOWN));
+  public CssEditorActionKeyOption suggest() {
+    return new CssEditorActionKeyOption(Edit.SUGGEST, new KeyCodeCombination(KeyCode.SLASH, KeyCombination.ALT_DOWN));
   }
 
   @Bean(Edit.FORMAT)
-  public CssEditorKeyEventOption format() {
-    return new CssEditorKeyEventOption(Edit.FORMAT,
+  public CssEditorActionKeyOption format() {
+    return new CssEditorActionKeyOption(Edit.FORMAT,
         new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
   }
 
   @Bean(Edit.COMMENT)
-  public CssEditorKeyEventOption comment() {
-    return new CssEditorKeyEventOption(Edit.COMMENT, new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
+  public CssEditorActionKeyOption comment() {
+    return new CssEditorActionKeyOption(Edit.COMMENT, new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN));
   }
 
   @Bean(Edit.FIND)
-  public CssEditorKeyEventOption find() {
-    return new CssEditorKeyEventOption(Edit.FIND, new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
+  public CssEditorActionKeyOption find() {
+    return new CssEditorActionKeyOption(Edit.FIND, new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
   }
 }

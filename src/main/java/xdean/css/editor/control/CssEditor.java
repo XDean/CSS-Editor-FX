@@ -43,7 +43,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 import xdean.css.editor.context.setting.OtherSettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
-import xdean.css.editor.context.setting.model.CssEditorKeyEventOption;
+import xdean.css.editor.context.setting.model.CssEditorKeyOption;
 import xdean.css.editor.feature.CssEditorFeature;
 import xdean.css.editor.model.CssContext;
 import xdean.css.editor.model.FileWrapper;
@@ -62,7 +62,7 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
   public final CssContext context = CssContext.createByDefault();
   private CssContext lastContext;
   private @Inject RecentFileService recentFileService;
-  private @Inject List<CssEditorKeyEventOption> keys = Collections.emptyList();
+  private @Inject List<CssEditorKeyOption<?>> keys = Collections.emptyList();
   private @Inject List<CssEditorFeature> features = Collections.emptyList();
   private @Inject PreferenceSettings preference;
   private @Inject OtherSettings otherSettings;
@@ -296,7 +296,7 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
     return modify.modifiedProperty();
   }
 
-  public void fire(CssEditorKeyEventOption keyOption) {
+  public void fire(CssEditorKeyOption keyOption) {
     fireEvent(keyOption.getEvent(this));
   }
 }

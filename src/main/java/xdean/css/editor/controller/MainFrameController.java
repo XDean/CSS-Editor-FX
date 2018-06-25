@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Scope;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -62,6 +63,7 @@ import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.context.FxContext;
+import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.support.RecentFileMenuSupport;
 
 @Scope(BeanDefinition.SCOPE_SINGLETON)
@@ -405,8 +407,8 @@ public class MainFrameController implements FxInitializable, Logable,
   }
 
   @Override
-  public CssEditor activeEditor() {
-    return model.currentEditor.get();
+  public ObservableValue<@CheckNull CssEditor> activeEditorBinding() {
+    return model.currentEditor;
   }
 
   @Override

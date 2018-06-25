@@ -2,18 +2,25 @@ package xdean.css.editor.service;
 
 import javax.annotation.Nullable;
 
+import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.scene.Node;
-import xdean.css.editor.context.setting.model.CssEditorKeyEventOption;
+import xdean.css.editor.context.setting.model.CssEditorKeyOption;
 import xdean.css.editor.control.CssEditor;
-import xdean.css.editor.control.CssEditorEvent;
+import xdean.jfxex.bean.annotation.CheckNull;
 
 public interface ContextService {
+
+  ObservableValue<@CheckNull CssEditor> activeEditorBinding();
+
   @Nullable
-  CssEditor activeEditor();
+  default CssEditor getActiveEditor() {
+    return activeEditorBinding().getValue();
+  }
 
   Node eventNode();
 
-  default void fire(@Nullable CssEditor editor, CssEditorEvent event) {
+  default void fire(@Nullable CssEditor editor, Event event) {
     if (editor == null) {
       eventNode().fireEvent(event);
     } else {
@@ -21,15 +28,15 @@ public interface ContextService {
     }
   }
 
-  default void fire(@Nullable CssEditor editor, CssEditorKeyEventOption keyOption) {
+  default void fire(@Nullable CssEditor editor, CssEditorKeyOption<?> keyOption) {
     fire(editor, keyOption.getEvent(editor));
   }
 
-  default void fire(CssEditorEvent event) {
-    fire(activeEditor(), event);
+  default void fire(Event event) {
+    fire(getActiveEditor(), event);
   }
 
-  default void fire(CssEditorKeyEventOption keyOption) {
-    fire(activeEditor(), keyOption);
+  default void fire(CssEditorKeyOption<?> keyOption) {
+    fire(getActiveEditor(), keyOption);
   }
 }

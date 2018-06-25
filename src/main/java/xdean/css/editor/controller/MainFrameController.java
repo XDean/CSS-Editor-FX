@@ -20,13 +20,10 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.Scope;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.binding.ObjectBinding;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
@@ -60,7 +57,6 @@ import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.context.FxContext;
 import xdean.jfxex.bean.annotation.CheckNull;
 
-@Scope(BeanDefinition.SCOPE_SINGLETON)
 @FxController(fxml = "/fxml/MainFrame.fxml")
 public class MainFrameController implements FxInitializable, Logable,
     ContextService, CssEditorFeature {
@@ -76,9 +72,6 @@ public class MainFrameController implements FxInitializable, Logable,
 
   @FXML
   StatusBarController statusBarController;
-
-  @FXML
-  SearchBarController searchBarController;
 
   @Inject
   @Named(FxContext.FX_PRIMARY_STAGE)
@@ -122,7 +115,6 @@ public class MainFrameController implements FxInitializable, Logable,
   }
 
   private void initField() {
-    searchBarController.editorProperty().bind(model.currentEditor);
     statusBarController.override.bindBidirectional(nestBooleanProp(model.currentEditor, m -> m.overrideProperty()));
     statusBarController.area.bind(model.currentEditor);
   }
@@ -197,7 +189,6 @@ public class MainFrameController implements FxInitializable, Logable,
 
     editor.addEventHandler(editActions.undo().getEventType(), e -> editor.undo());
     editor.addEventHandler(editActions.redo().getEventType(), e -> editor.redo());
-    editor.addEventHandler(editActions.find().getEventType(), e -> find());
   }
 
   private void newFile() {
@@ -295,10 +286,6 @@ public class MainFrameController implements FxInitializable, Logable,
       });
     }
     stage.close();
-  }
-
-  public void find() {
-    searchBarController.toggle();
   }
 
   @FXML
@@ -412,7 +399,7 @@ public class MainFrameController implements FxInitializable, Logable,
   }
 
   @Override
-  public ObservableValue<@CheckNull CssEditor> activeEditorBinding() {
+  public ObjectBinding<@CheckNull CssEditor> activeEditorBinding() {
     return model.currentEditor;
   }
 

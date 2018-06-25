@@ -53,10 +53,10 @@ import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfx.spring.FxInitializable;
-import xdean.jfx.spring.annotation.FxComponent;
+import xdean.jfx.spring.annotation.FxNode;
 import xdean.jfxex.extra.ModifiableObject;
 
-@FxComponent
+@FxNode
 public class CssEditor extends CodeArea implements FxInitializable, EventTarget {
 
   public final CssContext context = CssContext.createByDefault();

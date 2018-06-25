@@ -1,6 +1,5 @@
 package xdean.css.editor.controller;
 
-import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jfxex.bean.ListenerUtil.on;
 
 import java.util.regex.Matcher;
@@ -11,23 +10,25 @@ import javax.inject.Inject;
 import org.controlsfx.control.textfield.TextFields;
 import org.fxmisc.richtext.CodeArea;
 
-import javafx.beans.property.Property;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.OtherSettings;
+import xdean.css.editor.control.CssEditor;
+import xdean.css.editor.feature.CssEditorFeature;
+import xdean.css.editor.service.ContextService;
 import xdean.jex.extra.function.Func3;
 import xdean.jex.util.string.StringUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
-import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.BooleanPropertyEX;
-import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @FxController(fxml = "/fxml/SearchBar.fxml")
-public class SearchBarController implements FxInitializable {
+public class SearchBarController implements FxInitializable, CssEditorFeature {
 
   private @FXML HBox root;
   private @FXML HBox textContainer;
@@ -36,10 +37,11 @@ public class SearchBarController implements FxInitializable {
   private @FXML CheckBox regex;
   private @FXML CheckBox wrapSearch;
   private @Inject OtherSettings otherSettings;
+  private @Inject ContextService contextService;
+  private @Inject EditActions editActions;
 
   private TextField findField;
   private final BooleanPropertyEX visible = new BooleanPropertyEX(this, "visible", false);
-  private final ObjectPropertyEX<@CheckNull CodeArea> editor = new ObjectPropertyEX<>(this, "editor");
 
   @Override
   public void initAfterFxSpringReady() {
@@ -49,24 +51,29 @@ public class SearchBarController implements FxInitializable {
     regex.selectedProperty().bindBidirectional(otherSettings.regexSearch().valueProperty());
     caseSensitive.selectedProperty().bindBidirectional(otherSettings.caseSensitive().valueProperty());
     wrapSearch.selectedProperty().bindBidirectional(otherSettings.wrapSearch().valueProperty());
-    visible.and(editor.isNotNull());
+    visible.and(contextService.activeEditorBinding().isNotNull());
 
     root.visibleProperty().addListener(on(true, findField::requestFocus)
-        .on(false, () -> uncatch(() -> editor.getValue().requestFocus())));
+        .on(false, () -> contextService.getActiveEditorSafe().ifPresent(Node::requestFocus)));
     root.visibleProperty().bind(visible);
     root.managedProperty().bind(root.visibleProperty());
     findField.setOnAction(e -> find());
   }
 
+  @Override
+  public void bind(CssEditor editor) {
+    editor.addEventHandler(editActions.find().getEventType(), e -> toggle());
+  }
+
   @FXML
   public void find() {
-    if (findFrom(editor.getValue().getCaretPosition()) == false && wrapSearch.isSelected()) {
+    if (findFrom(contextService.getActiveEditor().getCaretPosition()) == false && wrapSearch.isSelected()) {
       findFrom(0);
     }
   }
 
   private boolean findFrom(int offset) {
-    CodeArea area = editor.getValue();
+    CodeArea area = contextService.getActiveEditor();
     String findText = findField.getText();
     if (regex.isSelected()) {
       return regexFind(area, findText, offset);
@@ -100,9 +107,5 @@ public class SearchBarController implements FxInitializable {
 
   public void toggle() {
     visible.set(!visible.get());
-  }
-
-  public Property<CodeArea> editorProperty() {
-    return editor;
   }
 }

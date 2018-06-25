@@ -1,8 +1,10 @@
 package xdean.css.editor.service;
 
+import java.util.Optional;
+
 import javax.annotation.Nullable;
 
-import javafx.beans.value.ObservableValue;
+import javafx.beans.binding.ObjectBinding;
 import javafx.event.Event;
 import javafx.scene.Node;
 import xdean.css.editor.context.setting.model.CssEditorKeyOption;
@@ -11,11 +13,15 @@ import xdean.jfxex.bean.annotation.CheckNull;
 
 public interface ContextService {
 
-  ObservableValue<@CheckNull CssEditor> activeEditorBinding();
+  ObjectBinding<@CheckNull CssEditor> activeEditorBinding();
 
   @Nullable
   default CssEditor getActiveEditor() {
     return activeEditorBinding().getValue();
+  }
+
+  default Optional<CssEditor> getActiveEditorSafe() {
+    return Optional.ofNullable(getActiveEditor());
   }
 
   Node eventNode();

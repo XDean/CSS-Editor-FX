@@ -7,17 +7,18 @@ import static xdean.jfxex.bean.BeanUtil.nestValue;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
+import org.springframework.stereotype.Component;
+
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.model.FileWrapper;
-import xdean.jfx.spring.annotation.FxComponent;
 import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
-@FxComponent
+@Component
 public class MainFrameModel {
 
   private @Inject Provider<CssEditorTab> tabFactory;

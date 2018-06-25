@@ -13,9 +13,9 @@ import javafx.scene.control.Tab;
 import xdean.css.editor.control.CssEditor;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jfx.spring.FxInitializable;
-import xdean.jfx.spring.annotation.FxComponent;
+import xdean.jfx.spring.annotation.FxNode;
 
-@FxComponent
+@FxNode
 public class CssEditorTab extends Tab implements FxInitializable {
 
   private @Inject CssEditor editor;

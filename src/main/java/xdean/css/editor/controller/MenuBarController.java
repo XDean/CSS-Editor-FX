@@ -1,9 +1,10 @@
 package xdean.css.editor.controller;
 
+import static xdean.jfxex.bean.BeanUtil.mapList;
+
 import javax.inject.Inject;
 
 import javafx.beans.binding.Bindings;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -13,10 +14,10 @@ import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.FileActions;
 import xdean.css.editor.context.setting.model.CssEditorKeyOption;
 import xdean.css.editor.service.ContextService;
+import xdean.css.editor.service.RecentFileService;
 import xdean.css.editor.service.SkinService;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
-import xdean.jfxex.support.RecentFileMenuSupport;
 import xdean.jfxex.support.skin.SkinStyle;
 
 @FxController(fxml = "/fxml/MenuBar.fxml")
@@ -37,7 +38,7 @@ public class MenuBarController implements FxInitializable {
   private @FXML MenuItem commentItem;
   private @FXML MenuItem formatItem;
 
-  private @Inject RecentFileMenuSupport recentSupport;
+  private @Inject RecentFileService recentSupport;
   private @Inject SkinService skinManager;
   private @Inject ContextService contextService;
   private @Inject EditActions editActions;
@@ -64,8 +65,12 @@ public class MenuBarController implements FxInitializable {
   }
 
   private void initRecentMenu() {
-    ObservableList<MenuItem> items = recentSupport.toMenuItems();
-    Bindings.bindContent(recentMenu.getItems(), items);
+    Bindings.bindContent(recentMenu.getItems(), mapList(recentSupport.getRecentFiles(), p -> {
+      MenuItem item = new MenuItem();
+      item.setText(p.toString());
+      item.setOnAction(e -> contextService.fire(fileActions.open().getEvent(null, p)));
+      return item;
+    }));
   }
 
   private void initSkinMenu() {

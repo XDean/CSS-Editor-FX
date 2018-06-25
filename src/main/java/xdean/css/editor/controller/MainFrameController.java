@@ -4,11 +4,7 @@ import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfxex.bean.BeanUtil.map;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanProp;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
-import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
-import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
+import static xdean.jfxex.bean.BeanUtil.*;
 import static xdean.jfxex.event.EventHandlers.consume;
 import static xdean.jfxex.event.EventHandlers.consumeIf;
 
@@ -33,7 +29,6 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Tab;
@@ -53,18 +48,17 @@ import xdean.css.editor.feature.CssEditorFeature;
 import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.DialogService;
+import xdean.css.editor.service.RecentFileService;
 import xdean.css.editor.service.SkinService;
 import xdean.jex.extra.tryto.Try;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.file.FileUtil;
-import xdean.jex.util.task.If;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.context.FxContext;
 import xdean.jfxex.bean.annotation.CheckNull;
-import xdean.jfxex.support.RecentFileMenuSupport;
 
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @FxController(fxml = "/fxml/MainFrame.fxml")
@@ -94,7 +88,7 @@ public class MainFrameController implements FxInitializable, Logable,
   MainFrameModel model;
 
   @Inject
-  RecentFileMenuSupport recentSupport;
+  RecentFileService recentService;
 
   @Inject
   OptionsController oc;
@@ -128,7 +122,6 @@ public class MainFrameController implements FxInitializable, Logable,
   }
 
   private void initField() {
-    recentSupport.addHandler(p -> openFile(FileWrapper.existFile(p)));
     searchBarController.editorProperty().bind(model.currentEditor);
     statusBarController.override.bindBidirectional(nestBooleanProp(model.currentEditor, m -> m.overrideProperty()));
     statusBarController.area.bind(model.currentEditor);
@@ -219,7 +212,7 @@ public class MainFrameController implements FxInitializable, Logable,
       FileChooser fileChooser = new FileChooser();
       fileChooser.setTitle("Open");
       fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
-      fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
+      fileChooser.setInitialDirectory(recentService.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
       File selectedFile = fileChooser.showOpenDialog(stage);
       if (selectedFile == null) {
         return false;
@@ -242,7 +235,7 @@ public class MainFrameController implements FxInitializable, Logable,
       FileChooser fileChooser = new FileChooser();
       fileChooser.setTitle("Save");
       fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
-      fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
+      fileChooser.setInitialDirectory(recentService.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
       fileChooser.setInitialFileName(model.currentEditor.get().nameBinding().get());
       File selectedFile = fileChooser.showSaveDialog(stage);
       if (selectedFile == null) {

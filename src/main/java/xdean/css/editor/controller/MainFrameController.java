@@ -199,22 +199,22 @@ public class MainFrameController implements FxInitializable, Logable,
     cssEditor.addEventHandler(fileActions.close().getEventType(), e -> close());
 
     cssEditor.addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
-    cssEditor.addEventHandler(fileActions.open().getEventType(), e -> open());
+    cssEditor.addEventHandler(fileActions.open().getEventType(), e -> open(e.getData()));
   }
 
   private void newFile() {
     openFile(FileWrapper.newFile(model.nextNewOrder()));
   }
 
-  private void open() {
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Open");
-    fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
-    fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
-    File selectedFile = fileChooser.showOpenDialog(stage);
-    if (selectedFile != null) {
-      openFile(FileWrapper.existFile(selectedFile.toPath()));
-    }
+  private void open(Optional<Path> path) {
+    path.flatMap(e -> {
+      FileChooser fileChooser = new FileChooser();
+      fileChooser.setTitle("Open");
+      fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
+      fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
+      File selectedFile = fileChooser.showOpenDialog(stage);
+      return Optional.ofNullable(selectedFile).map(f -> f.toPath());
+    }).ifPresent(p -> openFile(FileWrapper.existFile(p)));
   }
 
   @FXML

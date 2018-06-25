@@ -1,5 +1,7 @@
 package xdean.css.editor.context.setting;
 
+import java.nio.file.Path;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,6 +10,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import xdean.css.editor.context.setting.SettingKeys.File;
 import xdean.css.editor.context.setting.model.CssEditorActionKeyOption;
+import xdean.css.editor.context.setting.model.CssEditorKeyOption;
 
 @Configuration
 public class FileActions {
@@ -18,8 +21,8 @@ public class FileActions {
   }
 
   @Bean(File.OPEN)
-  public CssEditorActionKeyOption open() {
-    return new CssEditorActionKeyOption(File.OPEN, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+  public CssEditorKeyOption<Path> open() {
+    return new CssEditorKeyOption<>(File.OPEN, new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
   }
 
   @Bean(File.SAVE)

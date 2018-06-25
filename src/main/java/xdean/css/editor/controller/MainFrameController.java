@@ -4,7 +4,11 @@ import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfxex.bean.BeanUtil.*;
+import static xdean.jfxex.bean.BeanUtil.map;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanProp;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
+import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
+import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
 import static xdean.jfxex.event.EventHandlers.consume;
 import static xdean.jfxex.event.EventHandlers.consumeIf;
 
@@ -16,7 +20,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,13 +34,9 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -64,7 +63,6 @@ import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.context.FxContext;
 import xdean.jfxex.support.RecentFileMenuSupport;
-import xdean.jfxex.support.skin.SkinStyle;
 
 @Scope(BeanDefinition.SCOPE_SINGLETON)
 @FxController(fxml = "/fxml/MainFrame.fxml")
@@ -72,13 +70,7 @@ public class MainFrameController implements FxInitializable, Logable,
     ContextService, CssEditorFeature {
 
   @FXML
-  MenuItem formatItem, undoItem, redoItem, commentItem,
-      saveItem, saveAsItem, revertItem, findItem;
-  @FXML
   Button newButton, openButton, saveButton, undoButton, redoButton;
-
-  @FXML
-  Menu openRecentMenu, skinMenu;
 
   @FXML
   ScrollBar verticalScrollBar, horizontalScrollBar;
@@ -126,7 +118,6 @@ public class MainFrameController implements FxInitializable, Logable,
   @Override
   public void initAfterFxSpringReady() {
     initField();
-    initMenu();
     initBind();
     Try.to(() -> openLastFile()).onException(e -> error("Load last closed file fail.", e));
 
@@ -138,45 +129,30 @@ public class MainFrameController implements FxInitializable, Logable,
   }
 
   private void initField() {
-    recentSupport.bind(openRecentMenu, (Consumer<Path>) f -> openFile(FileWrapper.existFile(f)));
+    recentSupport.addHandler(p -> openFile(FileWrapper.existFile(p)));
     searchBarController.editorProperty().bind(model.currentEditor);
     statusBarController.override.bindBidirectional(nestBooleanProp(model.currentEditor, m -> m.overrideProperty()));
     statusBarController.area.bind(model.currentEditor);
   }
 
-  private void initMenu() {
-    ToggleGroup group = new ToggleGroup();
-    for (SkinStyle style : skinManager.getSkinList()) {
-      RadioMenuItem item = new RadioMenuItem(style.getName());
-      item.setToggleGroup(group);
-      item.setOnAction(e -> skinManager.changeSkin(style));
-      if (skinManager.currentSkin() == style) {
-        item.setSelected(true);
-      }
-      skinMenu.getItems().add(item);
-    }
-  }
-
   private void initBind() {
-    // shortcut
-    formatItem.acceleratorProperty().bind(editActions.format().valueProperty());
-    commentItem.acceleratorProperty().bind(editActions.comment().valueProperty());
-    findItem.acceleratorProperty().bind(editActions.find().valueProperty());
 
     // disable
     BooleanBinding nullArea = model.currentEditor.isNull();
-    formatItem.disableProperty().bind(nullArea);
-    commentItem.disableProperty().bind(nullArea);
-    findItem.disableProperty().bind(nullArea);
-    undoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.undoAvailableProperty()).not()));
-    redoItem.disableProperty().bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.redoAvailableProperty()).not()));
-    undoButton.disableProperty().bind(undoItem.disableProperty());
-    redoButton.disableProperty().bind(redoItem.disableProperty());
+    editActions.format().disableProperty().bind(nullArea);
+    editActions.comment().disableProperty().bind(nullArea);
+    editActions.find().disableProperty().bind(nullArea);
+    editActions.undo().disableProperty()
+        .bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.undoAvailableProperty()).not()));
+    editActions.redo().disableProperty()
+        .bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.redoAvailableProperty()).not()));
+    undoButton.disableProperty().bind(editActions.undo().disableProperty());
+    redoButton.disableProperty().bind(editActions.redo().disableProperty());
     fileActions.close().disableProperty().bind(nullArea);
-    saveAsItem.disableProperty().bind(nullArea);
-    saveItem.disableProperty().bind(saveAsItem.disableProperty().or(model.currentModified.not()));
-    saveButton.disableProperty().bind(saveItem.disableProperty());
-    revertItem.disableProperty().bind(model.currentFile.isNull()
+    fileActions.saveAs().disableProperty().bind(nullArea);
+    fileActions.save().disableProperty().bind(fileActions.saveAs().disableProperty().or(model.currentModified.not()));
+    saveButton.disableProperty().bind(fileActions.save().disableProperty());
+    fileActions.revert().disableProperty().bind(model.currentFile.isNull()
         .or(model.currentModified.not())
         .or(nestBooleanValue(model.currentTabEntity, t -> t.getEditor().isNewBinding())));
 

@@ -3,6 +3,7 @@ package xdean.css.editor.service;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -19,13 +20,18 @@ public class RecentFileService extends RecentFileMenuSupport {
   @Named(SettingKeys.RECENT_LOC)
   StringOption recent;
 
+  @PostConstruct
+  private void init() {
+    load();
+  }
+
   @Override
-  public List<String> load() {
+  public List<String> doLoad() {
     return Arrays.asList(recent.getValue().split(","));
   }
 
   @Override
-  public void save(List<String> s) {
+  public void doSave(List<String> s) {
     recent.setValue(String.join(", ", s));
   }
 }

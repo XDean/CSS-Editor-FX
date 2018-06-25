@@ -42,15 +42,8 @@ component MenuBar controlledby MenuBarController {
               glyphName : "FOLDER_OPEN_ALT"
             }
           },
-          Menu id openRecentMenu {
-            text : "Open Recent",
-            items : [
-              SeparatorMenuItem,
-              MenuItem {
-                text : "Clear Recent",
-                onAction : controllermethod clearRecent
-              }
-            ]
+          Menu id recentMenu {
+            text : "Open Recent"
           },
           SeparatorMenuItem,
           MenuItem id closeItem {

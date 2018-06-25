@@ -25,12 +25,7 @@
 						<FontAwesomeIconView glyphName="FOLDER_OPEN_ALT"/> 
 					</graphic>
 				</MenuItem>
-				<Menu fx:id="openRecentMenu" text="Open Recent"> 
-					<items>
-						<SeparatorMenuItem/> 
-						<MenuItem text="Clear Recent" onAction="#clearRecent"/> 
-					</items>
-				</Menu>
+				<Menu fx:id="recentMenu" text="Open Recent"/> 
 				<SeparatorMenuItem/> 
 				<MenuItem fx:id="closeItem" text="Close" onAction="#close"> 
 					<graphic>

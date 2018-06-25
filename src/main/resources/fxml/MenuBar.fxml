@@ -15,50 +15,50 @@
 	<menus>
 		<Menu text="File"> 
 			<items>
-				<MenuItem fx:id="newItem" text="New" onAction="#newFile"> 
+				<MenuItem fx:id="newItem" text="New"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="FILE_ALT"/> 
 					</graphic>
 				</MenuItem>
-				<MenuItem fx:id="openItem" text="Open..." onAction="#open"> 
+				<MenuItem fx:id="openItem" text="Open..."> 
 					<graphic>
 						<FontAwesomeIconView glyphName="FOLDER_OPEN_ALT"/> 
 					</graphic>
 				</MenuItem>
 				<Menu fx:id="recentMenu" text="Open Recent"/> 
 				<SeparatorMenuItem/> 
-				<MenuItem fx:id="closeItem" text="Close" onAction="#close"> 
+				<MenuItem fx:id="closeItem" text="Close"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="CLOSE"/> 
 					</graphic>
 				</MenuItem>
-				<MenuItem fx:id="saveItem" text="Save" onAction="#save"> 
+				<MenuItem fx:id="saveItem" text="Save"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="SAVE"/> 
 					</graphic>
 				</MenuItem>
-				<MenuItem fx:id="saveAsItem" text="Save as..." onAction="#saveAs"/> 
-				<MenuItem fx:id="revertItem" text="Revert" onAction="#revert"/> 
+				<MenuItem fx:id="saveAsItem" text="Save as..."/> 
+				<MenuItem fx:id="revertItem" text="Revert"/> 
 				<SeparatorMenuItem/> 
 				<MenuItem text="Exit" onAction="#exit"/> 
 			</items>
 		</Menu>
 		<Menu text="Edit"> 
 			<items>
-				<MenuItem fx:id="undoItem" text="Undo" onAction="#undo"> 
+				<MenuItem fx:id="undoItem" text="Undo"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="UNDO"/> 
 					</graphic>
 				</MenuItem>
-				<MenuItem fx:id="redoItem" text="Redo" onAction="#redo"> 
+				<MenuItem fx:id="redoItem" text="Redo"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="REPEAT"/> 
 					</graphic>
 				</MenuItem>
 				<SeparatorMenuItem/> 
-				<MenuItem fx:id="findItem" text="Find" onAction="#find"/> 
-				<MenuItem fx:id="commentItem" text="Toggle Comment" onAction="#comment"/> 
-				<MenuItem fx:id="formatItem" text="Format" onAction="#format"/> 
+				<MenuItem fx:id="findItem" text="Find"/> 
+				<MenuItem fx:id="commentItem" text="Toggle Comment"/> 
+				<MenuItem fx:id="formatItem" text="Format"/> 
 			</items>
 		</Menu>
 		<Menu text="Help"> 

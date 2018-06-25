@@ -1,5 +1,4 @@
 package fxml
-
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.geometry.Insets
 import javafx.scene.control.Button
@@ -21,7 +20,6 @@ import javafx.scene.layout.VBox
 import org.controlsfx.control.StatusBar
 import org.fxmisc.richtext.CodeArea
 import xdean.css.editor.controller.MenuBarController
-
 component MenuBar controlledby MenuBarController {
   MenuBar {
     menus : [
@@ -30,14 +28,12 @@ component MenuBar controlledby MenuBarController {
         items : [
           MenuItem id newItem {
             text : "New",
-            onAction : controllermethod newFile,
             graphic : FontAwesomeIconView {
               glyphName : "FILE_ALT"
             }
           },
           MenuItem id openItem {
             text : "Open...",
-            onAction : controllermethod open,
             graphic : FontAwesomeIconView {
               glyphName : "FOLDER_OPEN_ALT"
             }
@@ -48,25 +44,21 @@ component MenuBar controlledby MenuBarController {
           SeparatorMenuItem,
           MenuItem id closeItem {
             text : "Close",
-            onAction : controllermethod close,
             graphic : FontAwesomeIconView {
               glyphName : "CLOSE"
             }
           },
           MenuItem id saveItem {
             text : "Save",
-            onAction : controllermethod save,
             graphic : FontAwesomeIconView {
               glyphName : "SAVE"
             }
           },
           MenuItem id saveAsItem {
-            text : "Save as...",
-            onAction : controllermethod saveAs
+            text : "Save as..."
           },
           MenuItem id revertItem {
-            text : "Revert",
-            onAction : controllermethod revert
+            text : "Revert"
           },
           SeparatorMenuItem,
           MenuItem {
@@ -80,30 +72,25 @@ component MenuBar controlledby MenuBarController {
         items : [
           MenuItem id undoItem {
             text : "Undo",
-            onAction : controllermethod undo,
             graphic : FontAwesomeIconView {
               glyphName : "UNDO"
             }
           },
           MenuItem id redoItem {
             text : "Redo",
-            onAction : controllermethod redo,
             graphic : FontAwesomeIconView {
               glyphName : "REPEAT"
             }
           },
           SeparatorMenuItem,
           MenuItem id findItem {
-            text : "Find",
-            onAction : controllermethod find
+            text : "Find"
           },
           MenuItem id commentItem {
-            text : "Toggle Comment",
-            onAction : controllermethod comment
+            text : "Toggle Comment"
           },
           MenuItem id formatItem {
-            text : "Format",
-            onAction : controllermethod format
+            text : "Format"
           }
         ]
       },

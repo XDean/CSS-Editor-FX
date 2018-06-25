@@ -45,7 +45,6 @@ public class MenuBarController implements FxInitializable {
 
   @Override
   public void initAfterFxSpringReady() {
-
     initRecentMenu();
     initSkinMenu();
 
@@ -85,65 +84,11 @@ public class MenuBarController implements FxInitializable {
   private void bind(MenuItem item, CssEditorKeyOption<?> key) {
     item.acceleratorProperty().bind(key.valueProperty());
     item.disableProperty().bind(key.disableProperty());
-  }
-
-  @FXML
-  public void newFile() {
-    onAction(fileActions.newFile());
-  }
-
-  @FXML
-  public void open() {
-    onAction(fileActions.open());
-  }
-
-  @FXML
-  public void close() {
-    onAction(fileActions.close());
-  }
-
-  @FXML
-  public void save() {
-    onAction(fileActions.save());
-  }
-
-  @FXML
-  public void saveAs() {
-    onAction(fileActions.saveAs());
-  }
-
-  @FXML
-  public void revert() {
-    onAction(fileActions.revert());
+    item.setOnAction(e -> contextService.fire(key));
   }
 
   @FXML
   public void exit() {
-  }
-
-  @FXML
-  public void undo() {
-    onAction(editActions.undo());
-  }
-
-  @FXML
-  public void redo() {
-    onAction(editActions.redo());
-  }
-
-  @FXML
-  public void find() {
-    onAction(editActions.find());
-  }
-
-  @FXML
-  public void comment() {
-    onAction(editActions.comment());
-  }
-
-  @FXML
-  public void format() {
-    onAction(editActions.format());
   }
 
   @FXML
@@ -156,9 +101,5 @@ public class MenuBarController implements FxInitializable {
 
   @FXML
   public void help() {
-  }
-
-  private void onAction(CssEditorKeyOption keyOption) {
-    contextService.fire(keyOption);
   }
 }

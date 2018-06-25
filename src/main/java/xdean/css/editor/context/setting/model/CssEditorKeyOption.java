@@ -24,7 +24,7 @@ public class CssEditorKeyOption<T> implements Option<KeyCombination> {
   private final EventType<CssEditorEvent<T>> eventType;
   private final ObjectPropertyEX<KeyCombination> value = new ObjectPropertyEX<>(this, "value");
   private final KeyCombination defaultValue;
-  private final BooleanProperty disable = new SimpleBooleanProperty(this, "disable", true);
+  private final BooleanProperty disable = new SimpleBooleanProperty(this, "disable", false);
 
   public CssEditorKeyOption(String key, KeyCombination defaultValue) {
     this.key = key;

@@ -16,7 +16,7 @@ import xdean.css.editor.control.CssEditorEvent;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 import xdean.jfxex.util.StringConverters;
 
-public class CssEditorKeyOption<T> implements Option<KeyCombination> {
+public class CssEditorKeyOption<T>  implements Option<KeyCombination> {
 
   private static final StringConverter<KeyCombination> CONVERTER = StringConverters.create(KeyCombination::valueOf);
 

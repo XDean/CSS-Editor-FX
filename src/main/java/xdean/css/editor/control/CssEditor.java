@@ -296,7 +296,7 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
     return modify.modifiedProperty();
   }
 
-  public void fire(CssEditorKeyOption keyOption) {
+  public void fire(CssEditorKeyOption<?> keyOption) {
     fireEvent(keyOption.getEvent(this));
   }
 }

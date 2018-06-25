@@ -185,69 +185,111 @@ public class MainFrameController implements FxInitializable, Logable,
     Bindings.bindContent(tabPane.getTabs(), model.tabEntities);
     tabPane.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> model.currentTabEntity.set((CssEditorTab) n));
     model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
+
+    // events
+    eventNode().addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
+    eventNode().addEventHandler(fileActions.open().getEventType(), e -> open(e.getData()));
+
+    eventNode().addEventFilter(fileActions.exit().getEventType(), consumeIf(e -> !canExit()));
+    eventNode().addEventHandler(fileActions.exit().getEventType(), e -> exit());
   }
 
   @Override
-  public void bind(CssEditor cssEditor) {
-    cssEditor.addEventFilter(fileActions.close().getEventType(), consumeIf(e -> askToSaveAndShouldContinue()));
-    cssEditor.addEventHandler(fileActions.close().getEventType(), e -> close());
+  public void bind(CssEditor editor) {
+    editor.addEventHandler(fileActions.save().getEventType(), e -> save());
+    editor.addEventHandler(fileActions.saveAs().getEventType(), e -> saveAs(e.getData()));
+    editor.addEventHandler(fileActions.revert().getEventType(), e -> revert());
+    editor.addEventFilter(fileActions.close().getEventType(), consumeIf(e -> !canClose(editor)));
+    editor.addEventHandler(fileActions.close().getEventType(), e -> close(editor));
 
-    cssEditor.addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
-    cssEditor.addEventHandler(fileActions.open().getEventType(), e -> open(e.getData()));
+    editor.addEventHandler(editActions.undo().getEventType(), e -> editor.undo());
+    editor.addEventHandler(editActions.redo().getEventType(), e -> editor.redo());
+    editor.addEventHandler(editActions.find().getEventType(), e -> find());
   }
 
   private void newFile() {
     openFile(FileWrapper.newFile(model.nextNewOrder()));
   }
 
-  private void open(Optional<Path> path) {
-    path.flatMap(e -> {
+  private boolean open(Optional<Path> data) {
+    Path path;
+    if (data.isPresent()) {
+      path = data.get();
+    } else {
       FileChooser fileChooser = new FileChooser();
       fileChooser.setTitle("Open");
       fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
       fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
       File selectedFile = fileChooser.showOpenDialog(stage);
-      return Optional.ofNullable(selectedFile).map(f -> f.toPath());
-    }).ifPresent(p -> openFile(FileWrapper.existFile(p)));
-  }
-
-  @FXML
-  public void clearRecent() {
-    recentSupport.clear();
-  }
-
-  @FXML
-  public boolean save() {
-    return model.currentFile.get().fileOrNew.unify(p -> saveToFile(p), i -> saveAs());
-  }
-
-  @FXML
-  public boolean saveAs() {
-    FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("Save");
-    fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
-    fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
-    fileChooser.setInitialFileName(model.currentEditor.get().nameBinding().get());
-    File selectedFile = fileChooser.showSaveDialog(stage);
-    if (selectedFile == null) {
-      return false;
-    } else {
-      Path path = selectedFile.toPath();
-      return andFinal(() -> saveToFile(path),
-          b -> If.that(b).todo(() -> model.currentEditor.get().fileProperty().set(FileWrapper.existFile(path))));
+      if (selectedFile == null) {
+        return false;
+      }
+      path = selectedFile.toPath();
     }
+    openFile(FileWrapper.existFile(path));
+    return true;
   }
 
-  private void close() {
-    model.currentTabEntity.getSafe().ifPresent(model.tabEntities::remove);
+  public boolean save() {
+    return model.currentFile.get().fileOrNew.unify(p -> saveToFile(p), i -> saveAs(Optional.empty()));
   }
 
-  @FXML
+  public boolean saveAs(Optional<Path> data) {
+    Path path;
+    if (data.isPresent()) {
+      path = data.get();
+    } else {
+      FileChooser fileChooser = new FileChooser();
+      fileChooser.setTitle("Save");
+      fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
+      fileChooser.setInitialDirectory(recentSupport.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
+      fileChooser.setInitialFileName(model.currentEditor.get().nameBinding().get());
+      File selectedFile = fileChooser.showSaveDialog(stage);
+      if (selectedFile == null) {
+        return false;
+      }
+      path = selectedFile.toPath();
+    }
+    boolean result = saveToFile(path);
+    if (result) {
+      getActiveEditor().fileProperty().set(FileWrapper.existFile(path));
+    } else {
+      // TODO show save fail
+    }
+    return result;
+  }
+
   public void revert() {
     model.currentEditor.get().reload();
   }
 
-  @FXML
+  private boolean canClose(CssEditor editor) {
+    if (editor.modifiedProperty().get()) {
+      ButtonType result = messageService.showConfirmCancelDialog(stage, "Save",
+          String.format("File\n\t%s\nhas been modified. Save changes?", editor.fileProperty().get().toString()));
+      if (result.equals(ButtonType.YES)) {
+        return save();
+      }
+      return result.equals(ButtonType.NO);
+    }
+    return true;
+  }
+
+  private void close(CssEditor editor) {
+    model.tabEntities.removeIf(t -> t.getEditor() == editor);
+  }
+
+  private boolean canExit() {
+    if (options.openLast().getValue()) {
+      return true;
+    }
+    return model.tabEntities.stream()
+        .allMatch(tab -> {
+          tab.getTabPane().getSelectionModel().select(tab);
+          return canClose(tab.getEditor());
+        });
+  }
+
   public void exit() {
     if (options.openLast().getValue()) {
       uncheck(() -> FileUtil.createDirectory(LAST_FILE_PATH));
@@ -258,23 +300,10 @@ public class MainFrameController implements FxInitializable, Logable,
         Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(options.charset().getValue())));
       });
-      stage.close();
-    } else if (askToSaveAndShouldContinue()) {
-      stage.close();
     }
+    stage.close();
   }
 
-  @FXML
-  public void undo() {
-    model.currentEditor.get().undo();
-  }
-
-  @FXML
-  public void redo() {
-    model.currentEditor.get().redo();
-  }
-
-  @FXML
   public void find() {
     searchBarController.toggle();
   }
@@ -348,17 +377,6 @@ public class MainFrameController implements FxInitializable, Logable,
             });
       }));
     }
-  }
-
-  protected boolean askToSaveAndShouldContinue() {
-    if (model.currentModified.get()) {
-      ButtonType result = messageService.showConfirmCancelDialog(stage, "Save", "This file has been modified. Save changes?");
-      if (result.equals(ButtonType.YES)) {
-        return save();
-      }
-      return result.equals(ButtonType.NO);
-    }
-    return true;
   }
 
   protected boolean saveToFile(Path file) {

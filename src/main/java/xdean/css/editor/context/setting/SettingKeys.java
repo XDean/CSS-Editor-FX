@@ -47,6 +47,7 @@ public interface SettingKeys {
     String SAVE_AS = ACTION_FILE_SAVEAS;
     String CLOSE = ACTION_FILE_CLOSE;
     String REVERT = ACTION_FILE_REVERT;
+    String EXIT = ACTION_FILE_EXIT;
   }
 
   interface Edit {

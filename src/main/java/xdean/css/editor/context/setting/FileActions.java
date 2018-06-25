@@ -31,8 +31,8 @@ public class FileActions {
   }
 
   @Bean(File.SAVE_AS)
-  public CssEditorActionKeyOption saveAs() {
-    return new CssEditorActionKeyOption(File.SAVE_AS,
+  public CssEditorKeyOption<Path> saveAs() {
+    return new CssEditorKeyOption<>(File.SAVE_AS,
         new KeyCodeCombination(KeyCode.S, KeyCombination.ALT_DOWN, KeyCombination.CONTROL_DOWN));
   }
 
@@ -43,6 +43,11 @@ public class FileActions {
 
   @Bean(File.REVERT)
   public CssEditorActionKeyOption revert() {
-    return new CssEditorActionKeyOption(File.REVERT, null);
+    return new CssEditorActionKeyOption(File.REVERT, KeyCodeCombination.NO_MATCH);
+  }
+
+  @Bean(File.EXIT)
+  public CssEditorActionKeyOption exit() {
+    return new CssEditorActionKeyOption(File.EXIT, KeyCodeCombination.NO_MATCH);
   }
 }

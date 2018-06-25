@@ -19,6 +19,7 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
 import org.controlsfx.control.StatusBar
 import org.fxmisc.richtext.CodeArea
+
 component MainFrame controlledby xdean.css.editor.controller.MainFrameController {
   VBox {
     prefHeight : 600.0,
@@ -29,70 +30,7 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
     },
     children : [
       include fxml.MenuBar as menuBar,
-      ToolBar {
-        items : [
-          Separator {
-            orientation : "VERTICAL"
-          },
-          Button id newButton {
-            onAction : controllermethod newFile,
-            tooltip : Tooltip {
-              autoHide : true,
-              text : "New"
-            },
-            graphic : FontAwesomeIconView {
-              glyphName : "FILE_ALT",
-              size : 15
-            }
-          },
-          Button id openButton {
-            onAction : controllermethod open,
-            tooltip : Tooltip {
-              text : "Open"
-            },
-            graphic : FontAwesomeIconView {
-              glyphName : "FOLDER_OPEN_ALT",
-              size : 15
-            }
-          },
-          Button id saveButton {
-            onAction : controllermethod save,
-            tooltip : Tooltip {
-              text : "Save"
-            },
-            graphic : FontAwesomeIconView {
-              glyphName : "SAVE",
-              size : 15
-            }
-          },
-          Separator {
-            orientation : "VERTICAL"
-          },
-          Button id undoButton {
-            onAction : controllermethod undo,
-            tooltip : Tooltip {
-              text : "Undo"
-            },
-            graphic : FontAwesomeIconView {
-              glyphName : "UNDO",
-              size : 15
-            }
-          },
-          Button id redoButton {
-            onAction : controllermethod redo,
-            tooltip : Tooltip {
-              text : "Redo"
-            },
-            graphic : FontAwesomeIconView {
-              glyphName : "REPEAT",
-              size : 15
-            }
-          },
-          Separator {
-            orientation : "VERTICAL"
-          }
-        ]
-      },
+      include fxml.ToolBar as toolBar,
       SplitPane {
         call VBox#vgrow : "ALWAYS",
         items : [

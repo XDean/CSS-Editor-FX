@@ -4,15 +4,10 @@
 -->
 
 <?import java.lang.*?>
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ScrollBar?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.ToolBar?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -23,53 +18,7 @@
 	</padding>
 	<children>
 		<fx:include fx:id="menuBar" source="/fxml/MenuBar.fxml" />
-		<ToolBar> 
-			<items>
-				<Separator orientation="VERTICAL"/> 
-				<Button fx:id="newButton" onAction="#newFile"> 
-					<tooltip>
-						<Tooltip autoHide="true" text="New"/> 
-					</tooltip>
-					<graphic>
-						<FontAwesomeIconView glyphName="FILE_ALT" size="15"/> 
-					</graphic>
-				</Button>
-				<Button fx:id="openButton" onAction="#open"> 
-					<tooltip>
-						<Tooltip text="Open"/> 
-					</tooltip>
-					<graphic>
-						<FontAwesomeIconView glyphName="FOLDER_OPEN_ALT" size="15"/> 
-					</graphic>
-				</Button>
-				<Button fx:id="saveButton" onAction="#save"> 
-					<tooltip>
-						<Tooltip text="Save"/> 
-					</tooltip>
-					<graphic>
-						<FontAwesomeIconView glyphName="SAVE" size="15"/> 
-					</graphic>
-				</Button>
-				<Separator orientation="VERTICAL"/> 
-				<Button fx:id="undoButton" onAction="#undo"> 
-					<tooltip>
-						<Tooltip text="Undo"/> 
-					</tooltip>
-					<graphic>
-						<FontAwesomeIconView glyphName="UNDO" size="15"/> 
-					</graphic>
-				</Button>
-				<Button fx:id="redoButton" onAction="#redo"> 
-					<tooltip>
-						<Tooltip text="Redo"/> 
-					</tooltip>
-					<graphic>
-						<FontAwesomeIconView glyphName="REPEAT" size="15"/> 
-					</graphic>
-				</Button>
-				<Separator orientation="VERTICAL"/> 
-			</items>
-		</ToolBar>
+		<fx:include fx:id="toolBar" source="/fxml/ToolBar.fxml" />
 		<SplitPane VBox.vgrow="ALWAYS"> 
 			<items>
 				<BorderPane> 

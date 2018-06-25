@@ -72,9 +72,6 @@ public class MainFrameController implements FxInitializable, Logable,
     ContextService, CssEditorFeature {
 
   @FXML
-  Button newButton, openButton, saveButton, undoButton, redoButton;
-
-  @FXML
   ScrollBar verticalScrollBar, horizontalScrollBar;
 
   @FXML
@@ -148,12 +145,9 @@ public class MainFrameController implements FxInitializable, Logable,
         .bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.undoAvailableProperty()).not()));
     editActions.redo().disableProperty()
         .bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.redoAvailableProperty()).not()));
-    undoButton.disableProperty().bind(editActions.undo().disableProperty());
-    redoButton.disableProperty().bind(editActions.redo().disableProperty());
     fileActions.close().disableProperty().bind(nullArea);
     fileActions.saveAs().disableProperty().bind(nullArea);
     fileActions.save().disableProperty().bind(fileActions.saveAs().disableProperty().or(model.currentModified.not()));
-    saveButton.disableProperty().bind(fileActions.save().disableProperty());
     fileActions.revert().disableProperty().bind(model.currentFile.isNull()
         .or(model.currentModified.not())
         .or(nestBooleanValue(model.currentTabEntity, t -> t.getEditor().isNewBinding())));

@@ -30,6 +30,7 @@ public class CssEditorKeyOption<T> implements Option<KeyCombination> {
     this.key = key;
     this.defaultValue = defaultValue;
     this.eventType = new EventType<>(CssEditorEvent.ANY, key);
+    this.value.defaultForNull(KeyCombination.NO_MATCH);
   }
 
   @Override
@@ -63,7 +64,7 @@ public class CssEditorKeyOption<T> implements Option<KeyCombination> {
   public void bind(CssEditor editor) {
     editor.addEventFilter(eventType, consumeIf(e -> disable.get()));
     JavaFxObservable.eventsOf(editor, KeyEvent.KEY_PRESSED)
-        .filter(getValue()::match)
+        .filter(e -> getValue().match(e))
         .doOnNext(KeyEvent::consume)
         .subscribe(e -> editor.fireEvent(getEvent(editor)));
   }

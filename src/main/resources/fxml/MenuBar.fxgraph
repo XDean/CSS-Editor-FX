@@ -97,9 +97,8 @@ component MenuBar controlledby MenuBarController {
       Menu {
         text : "Help",
         items : [
-          MenuItem {
+          MenuItem id optionItem {
             text : "Options",
-            onAction : controllermethod option,
             graphic : FontAwesomeIconView {
               glyphName : "GEAR"
             }
@@ -108,16 +107,14 @@ component MenuBar controlledby MenuBarController {
           Menu id skinMenu {
             text : "Skin"
           },
-          MenuItem {
+          MenuItem id aboutItem {
             text : "About",
-            onAction : controllermethod about,
             graphic : FontAwesomeIconView {
               glyphName : "EXCLAMATION_CIRCLE"
             }
           },
-          MenuItem {
+          MenuItem id helpItem {
             text : "Help",
-            onAction : controllermethod help,
             graphic : FontAwesomeIconView {
               glyphName : "QUESTION_CIRCLE"
             }

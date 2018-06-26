@@ -44,4 +44,9 @@ public class FileWrapper {
   public static String newFileName(int i) {
     return "new " + i;
   }
+
+  @Override
+  public String toString() {
+    return getFileName();
+  }
 }

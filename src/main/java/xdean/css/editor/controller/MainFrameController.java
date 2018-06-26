@@ -4,7 +4,11 @@ import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfxex.bean.BeanUtil.*;
+import static xdean.jfxex.bean.BeanUtil.map;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanProp;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
+import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
+import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
 import static xdean.jfxex.event.EventHandlers.consume;
 import static xdean.jfxex.event.EventHandlers.consumeIf;
 
@@ -39,6 +43,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.FileActions;
+import xdean.css.editor.context.setting.HelpActions;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.feature.CssEditorFeature;
@@ -46,7 +51,6 @@ import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.RecentFileService;
-import xdean.css.editor.service.SkinService;
 import xdean.jex.extra.tryto.Try;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
@@ -61,45 +65,18 @@ import xdean.jfxex.bean.annotation.CheckNull;
 public class MainFrameController implements FxInitializable, Logable,
     ContextService, CssEditorFeature {
 
-  @FXML
-  ScrollBar verticalScrollBar, horizontalScrollBar;
-
-  @FXML
-  TabPane tabPane;
-
-  @FXML
-  VBox bottomExtraPane;
-
-  @FXML
-  StatusBarController statusBarController;
-
-  @Inject
-  @Named(FxContext.FX_PRIMARY_STAGE)
-  Stage stage;
-
-  @Inject
-  MainFrameModel model;
-
-  @Inject
-  RecentFileService recentService;
-
-  @Inject
-  OptionsController oc;
-
-  @Inject
-  SkinService skinManager;
-
-  @Inject
-  DialogService messageService;
-
-  @Inject
-  PreferenceSettings options;
-
-  @Inject
-  EditActions editActions;
-
-  @Inject
-  FileActions fileActions;
+  private @FXML ScrollBar verticalScrollBar, horizontalScrollBar;
+  private @FXML TabPane tabPane;
+  private @FXML VBox bottomExtraPane;
+  private @FXML StatusBarController statusBarController;
+  private @Inject @Named(FxContext.FX_PRIMARY_STAGE) Stage stage;
+  private @Inject MainFrameModel model;
+  private @Inject RecentFileService recentService;
+  private @Inject DialogService messageService;
+  private @Inject PreferenceSettings options;
+  private @Inject EditActions editActions;
+  private @Inject FileActions fileActions;
+  private @Inject HelpActions helpActions;
 
   @Override
   public void initAfterFxSpringReady() {
@@ -177,18 +154,17 @@ public class MainFrameController implements FxInitializable, Logable,
 
     eventNode().addEventFilter(fileActions.exit().getEventType(), consumeIf(e -> !canExit()));
     eventNode().addEventHandler(fileActions.exit().getEventType(), e -> exit());
+
+    eventNode().addEventHandler(helpActions.about().getEventType(), e -> about());
+    eventNode().addEventHandler(helpActions.help().getEventType(), e -> help());
   }
 
   @Override
   public void bind(CssEditor editor) {
     editor.addEventHandler(fileActions.save().getEventType(), e -> save());
     editor.addEventHandler(fileActions.saveAs().getEventType(), e -> saveAs(e.getData()));
-    editor.addEventHandler(fileActions.revert().getEventType(), e -> revert());
     editor.addEventFilter(fileActions.close().getEventType(), consumeIf(e -> !canClose(editor)));
     editor.addEventHandler(fileActions.close().getEventType(), e -> close(editor));
-
-    editor.addEventHandler(editActions.undo().getEventType(), e -> editor.undo());
-    editor.addEventHandler(editActions.redo().getEventType(), e -> editor.redo());
   }
 
   private void newFile() {
@@ -243,10 +219,6 @@ public class MainFrameController implements FxInitializable, Logable,
     return result;
   }
 
-  public void revert() {
-    model.currentEditor.get().reload();
-  }
-
   private boolean canClose(CssEditor editor) {
     if (editor.modifiedProperty().get()) {
       ButtonType result = messageService.showConfirmCancelDialog(stage, "Save",
@@ -288,29 +260,12 @@ public class MainFrameController implements FxInitializable, Logable,
     stage.close();
   }
 
-  @FXML
-  public void format() {
-    model.currentEditor.get().format();
-  }
-
-  @FXML
-  public void comment() {
-    fire(editActions.comment());
-  }
-
-  @FXML
-  public void option() {
-    oc.open(stage);
-  }
-
-  @FXML
-  public void help() {
-    messageService.showMessageDialog(stage, "Help", "Send email to xuda1107@gmail.com for help.");
-  }
-
-  @FXML
   public void about() {
     // TODO About
+  }
+
+  public void help() {
+    messageService.showMessageDialog(stage, "Help", "Send email to xuda1107@gmail.com for help.");
   }
 
   @FXML

@@ -41,6 +41,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
+import xdean.css.editor.context.setting.EditActions;
+import xdean.css.editor.context.setting.FileActions;
 import xdean.css.editor.context.setting.OtherSettings;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.context.setting.model.CssEditorKeyOption;
@@ -66,6 +68,8 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
   private @Inject List<CssEditorFeature> features = Collections.emptyList();
   private @Inject PreferenceSettings preference;
   private @Inject OtherSettings otherSettings;
+  private @Inject FileActions fileActions;
+  private @Inject EditActions editActions;
   private final BooleanProperty override = new SimpleBooleanProperty(this, "overrride");
   private final ModifiableObject modify = new ModifiableObject();
   private final ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
@@ -104,6 +108,11 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
 
     keys.forEach(f -> f.bind(this));
     features.forEach(f -> f.bind(this));
+
+    // events
+    addEventHandler(editActions.undo().getEventType(), e -> undo());
+    addEventHandler(editActions.redo().getEventType(), e -> redo());
+    addEventHandler(fileActions.revert().getEventType(), e -> reload());
 
     Observable<KeyEvent> keyPress = JavaFxObservable.eventsOf(this, KeyEvent.KEY_PRESSED).share();
     // font and line number

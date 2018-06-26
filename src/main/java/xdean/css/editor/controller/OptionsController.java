@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import com.sun.javafx.binding.ContentBinding;
 
@@ -35,18 +36,21 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import xdean.css.editor.context.setting.HelpActions;
 import xdean.css.editor.context.setting.PreferenceSettings;
 import xdean.css.editor.context.setting.model.option.BooleanOption;
 import xdean.css.editor.context.setting.model.option.IntegerOption;
 import xdean.css.editor.context.setting.model.option.Option;
 import xdean.css.editor.context.setting.model.option.OptionGroup;
 import xdean.css.editor.context.setting.model.option.ValueOption;
+import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.MessageService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
+import xdean.jfx.spring.context.FxContext;
 
 @FxController(fxml = "/fxml/Options.fxml")
 public class OptionsController implements FxInitializable, Logable {
@@ -61,6 +65,11 @@ public class OptionsController implements FxInitializable, Logable {
 
   private int nowTab = 0;
   private List<Runnable> onSubmit = new ArrayList<>();
+
+  @Inject
+  private void bindShorcut(ContextService service, HelpActions help, @Named(FxContext.FX_PRIMARY_STAGE) Stage stage) {
+    service.eventNode().addEventHandler(help.settings().getEventType(), e -> open(stage));
+  }
 
   @Override
   public void initAfterFxSpringReady() {

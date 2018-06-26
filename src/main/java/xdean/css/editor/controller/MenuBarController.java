@@ -12,6 +12,7 @@ import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ToggleGroup;
 import xdean.css.editor.context.setting.EditActions;
 import xdean.css.editor.context.setting.FileActions;
+import xdean.css.editor.context.setting.HelpActions;
 import xdean.css.editor.context.setting.model.CssEditorKeyOption;
 import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.RecentFileService;
@@ -38,11 +39,16 @@ public class MenuBarController implements FxInitializable {
   private @FXML MenuItem commentItem;
   private @FXML MenuItem formatItem;
 
+  private @FXML MenuItem optionItem;
+  private @FXML MenuItem aboutItem;
+  private @FXML MenuItem helpItem;
+
   private @Inject RecentFileService recentSupport;
   private @Inject SkinService skinManager;
   private @Inject ContextService contextService;
   private @Inject EditActions editActions;
   private @Inject FileActions fileActions;
+  private @Inject HelpActions helpActions;
 
   @Override
   public void initAfterFxSpringReady() {
@@ -62,6 +68,10 @@ public class MenuBarController implements FxInitializable {
     bind(findItem, editActions.find());
     bind(commentItem, editActions.comment());
     bind(formatItem, editActions.format());
+
+    bind(optionItem, helpActions.settings());
+    bind(aboutItem, helpActions.about());
+    bind(helpItem, helpActions.help());
   }
 
   private void initRecentMenu() {

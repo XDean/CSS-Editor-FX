@@ -38,24 +38,28 @@ public interface SettingKeys {
   String SKIN = OPTION_SKIN;
   String RECENT_LOC = OPTION_RECENT_LOCATION;
 
-
-
   interface File {
-    String NEW = ACTION_FILE_NEW;
-    String OPEN = ACTION_FILE_OPEN;
-    String SAVE = ACTION_FILE_SAVE;
-    String SAVE_AS = ACTION_FILE_SAVEAS;
-    String CLOSE = ACTION_FILE_CLOSE;
-    String REVERT = ACTION_FILE_REVERT;
-    String EXIT = ACTION_FILE_EXIT;
+    String NEW = FILE_NEW;
+    String OPEN = FILE_OPEN;
+    String SAVE = FILE_SAVE;
+    String SAVE_AS = FILE_SAVEAS;
+    String CLOSE = FILE_CLOSE;
+    String REVERT = FILE_REVERT;
+    String EXIT = FILE_EXIT;
   }
 
   interface Edit {
-    String UNDO = ACTION_EDIT_UNDO;
-    String REDO = ACTION_EDIT_REDO;
-    String SUGGEST = ACTION_EDIT_SUGGEST;
-    String FORMAT = ACTION_EDIT_FORMAT;
-    String COMMENT = ACTION_EDIT_COMMENT;
-    String FIND = ACTION_EDIT_FIND;
+    String UNDO = EDIT_UNDO;
+    String REDO = EDIT_REDO;
+    String SUGGEST = EDIT_SUGGEST;
+    String FORMAT = EDIT_FORMAT;
+    String COMMENT = EDIT_COMMENT;
+    String FIND = EDIT_FIND;
+  }
+
+  interface Help {
+    String SETTINGS = HELP_SETTINGS;
+    String ABOUT = HELP_ABOUT;
+    String HELP = HELP_HELP;
   }
 }

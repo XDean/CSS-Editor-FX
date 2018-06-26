@@ -63,19 +63,19 @@
 		</Menu>
 		<Menu text="Help"> 
 			<items>
-				<MenuItem text="Options" onAction="#option"> 
+				<MenuItem fx:id="optionItem" text="Options"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="GEAR"/> 
 					</graphic>
 				</MenuItem>
 				<SeparatorMenuItem/> 
 				<Menu fx:id="skinMenu" text="Skin"/> 
-				<MenuItem text="About" onAction="#about"> 
+				<MenuItem fx:id="aboutItem" text="About"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="EXCLAMATION_CIRCLE"/> 
 					</graphic>
 				</MenuItem>
-				<MenuItem text="Help" onAction="#help"> 
+				<MenuItem fx:id="helpItem" text="Help"> 
 					<graphic>
 						<FontAwesomeIconView glyphName="QUESTION_CIRCLE"/> 
 					</graphic>

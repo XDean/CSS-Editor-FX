@@ -1,47 +1,43 @@
 package xdean.css.editor.controller;
 
-import static xdean.jfxex.bean.BeanUtil.map;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
-import static xdean.jfxex.bean.BeanUtil.nestValue;
+import static xdean.jfxex.bean.BeanUtil.mapList;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 import org.springframework.stereotype.Component;
 
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.model.FileWrapper;
+import xdean.jex.util.task.If;
 import xdean.jfxex.bean.annotation.CheckNull;
 import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @Component
 public class MainFrameModel {
 
-  private @Inject Provider<CssEditorTab> tabFactory;
+  private @Inject Provider<CssEditor> editorFactory;
+  private @Inject Provider<CssEditorTab> editorTabFactory;
 
-  final ObservableList<CssEditorTab> tabEntities = FXCollections.observableArrayList();
-  final ObjectPropertyEX<@CheckNull CssEditorTab> currentTabEntity = new ObjectPropertyEX<>(this, "currentTabEntity");
-  final ObjectBinding<@CheckNull CssEditor> currentEditor = map(currentTabEntity, t -> t == null ? null : t.getEditor());
-  final ObjectBinding<@CheckNull FileWrapper> currentFile = nestValue(currentEditor, t -> t.fileProperty());
-  final BooleanBinding currentModified = nestBooleanValue(currentEditor, m -> m.modifiedProperty());
+  final ObservableList<CssEditor> editors = FXCollections.observableArrayList();
+  final ObservableList<CssEditorTab> tabs = mapList(editors, e -> editorTabFactory.get().bind(e));
+  final ObjectPropertyEX<@CheckNull CssEditor> activeEditor = new ObjectPropertyEX<>(this, "currentEditor");
 
-  public CssEditorTab newTab(FileWrapper file) {
-    CssEditorTab te = tabFactory.get();
-    te.getEditor().activeProperty().bind(currentTabEntity.isEqualTo(te));
-    te.getEditor().fileProperty().set(file);
-    tabEntities.add(te);
-    return te;
+  public CssEditor newTab(FileWrapper file) {
+    CssEditor editor = editorFactory.get();
+    editors.add(editor);
+    editor.activeProperty().addListener((ob, o, n) -> If.that(n).todo(() -> activeEditor.set(editor)));
+    editor.fileProperty().set(file);
+    return editor;
   }
 
   public int nextNewOrder() {
     for (int i = 1;; i++) {
       int ii = i;
-      if (tabEntities.stream()
-          .map(t -> t.getEditor().fileProperty().get())
+      if (editors.stream()
+          .map(t -> t.fileProperty().get())
           .filter(f -> f.isNewFile())
           .map(f -> f.getNewOrder().get())
           .allMatch(n -> n != ii)) {

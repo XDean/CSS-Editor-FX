@@ -4,6 +4,7 @@ import static xdean.jex.util.function.Predicates.isEquals;
 import static xdean.jfxex.bean.ListenerUtil.addListenerAndInvoke;
 import static xdean.jfxex.bean.ListenerUtil.list;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -59,6 +60,7 @@ public class RecentFileService implements Logable, CssEditorFeature {
           .map(String::trim)
           .filter(s -> !s.isEmpty())
           .map(Paths::get)
+          .filter(Files::exists)
           .collect(Collectors.toList()));
     } catch (Exception e) {
       error().log("Error to load recent location", e);

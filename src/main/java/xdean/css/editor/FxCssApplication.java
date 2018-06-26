@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -31,21 +33,26 @@ import xdean.jfxex.bean.annotation.CheckNull;
 @Component
 public class FxCssApplication implements FxApplication, ContextService {
 
-  private final ObjectProperty<@CheckNull CssEditor> editor = new SimpleObjectProperty<>(this, "editor");
-
   private @Inject FxmlResult<MainFrameController, Parent> mainFrame;
-
   private @Inject NodeFactoryService nodeFactory;
-
   private @Inject FileActions fileActions;
-
   private @Inject List<CssAppFeature> features = Collections.emptyList();
 
   private final Stage stage;
+  private final ObjectProperty<@CheckNull CssEditor> editor = new SimpleObjectProperty<>(this, "editor");
+  private final ObservableList<CssEditor> editors = FXCollections.observableArrayList();
 
   @Inject
   public FxCssApplication(@Named(FxContext.FX_PRIMARY_STAGE) Stage stage) {
     this.stage = stage;
+    editor.addListener((ob, o, n) -> {
+      if (o != null) {
+        o.activeProperty().set(false);
+      }
+      if (n != null) {
+        n.activeProperty().set(true);
+      }
+    });
   }
 
   @Override
@@ -62,6 +69,11 @@ public class FxCssApplication implements FxApplication, ContextService {
     stage.show();
 
     stage.getIcons().add(new Image(FxCssApplication.class.getClassLoader().getResourceAsStream("image/icon.jpg")));
+  }
+
+  @Override
+  public ObservableList<CssEditor> edtiorList() {
+    return editors;
   }
 
   @Override

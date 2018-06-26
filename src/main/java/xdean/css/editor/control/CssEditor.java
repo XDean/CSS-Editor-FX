@@ -55,6 +55,7 @@ import xdean.jex.util.task.If;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxNode;
+import xdean.jfxex.bean.property.BooleanPropertyEX;
 import xdean.jfxex.extra.ModifiableObject;
 
 @FxNode
@@ -65,14 +66,16 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
 
   private @Inject List<CssEditorKeyOption<?>> keys = Collections.emptyList();
   private @Inject List<CssEditorFeature> features = Collections.emptyList();
+
   private @Inject PreferenceSettings preference;
   private @Inject OtherSettings otherSettings;
   private @Inject FileActions fileActions;
   private @Inject EditActions editActions;
+
   private final BooleanProperty override = new SimpleBooleanProperty(this, "overrride");
   private final ModifiableObject modify = new ModifiableObject();
   private final ObjectProperty<FileWrapper> file = new SimpleObjectProperty<>(this, "file", FileWrapper.newFile(0));
-  private final BooleanProperty active = new SimpleBooleanProperty(this, "active");
+  private final BooleanPropertyEX active = new BooleanPropertyEX(this, "active");
 
   public ObjectProperty<FileWrapper> fileProperty() {
     return file;
@@ -86,7 +89,7 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
     return cache(this, "isNewBinding", () -> mapToBoolean(file, f -> f.isNewFile()));
   }
 
-  public BooleanProperty activeProperty() {
+  public BooleanPropertyEX activeProperty() {
     return active;
   }
 
@@ -197,10 +200,6 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
     modify.bindModified(this.textProperty());
     this.getUndoManager().atMarkedPositionProperty().addListener((ob, o, n) -> If.that(n).todo(() -> modify.saved()));
     modify.modifiedProperty().addListener((ob, o, n) -> If.that(n).ordo(() -> this.getUndoManager().mark()));
-  }
-
-  public void format() {
-    // TODO Format
   }
 
   private void refreshContextSuggestion(String text) {

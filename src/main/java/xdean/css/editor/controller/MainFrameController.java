@@ -4,9 +4,11 @@ import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
+import static xdean.jfxex.bean.BeanUtil.mapToBoolean;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
+import static xdean.jfxex.bean.BeanUtil.nestValue;
 import static xdean.jfxex.event.EventHandlers.consume;
 import static xdean.jfxex.event.EventHandlers.consumeIf;
 
@@ -79,60 +81,57 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   }
 
   private void initBind() {
-    model.currentEditor.addListener((ob, o, n) -> contextService.activeEditorProperty().set(n));
-    contextService.activeEditorProperty().addListener((ob, o, n) -> {
-      // TODO
-    });
+    Bindings.bindContentBidirectional(contextService.edtiorList(), model.editors);
+    contextService.activeEditorProperty().bindBidirectional(model.activeEditor);
 
     // disable
-    BooleanBinding nullArea = model.currentEditor.isNull();
+    BooleanBinding nullArea = model.activeEditor.isNull();
     editActions.format().disableProperty().bind(nullArea);
     editActions.comment().disableProperty().bind(nullArea);
     editActions.find().disableProperty().bind(nullArea);
     editActions.undo().disableProperty()
-        .bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.undoAvailableProperty()).not()));
+        .bind(nullArea.or(nestBooleanValue(model.activeEditor, c -> c.undoAvailableProperty()).not()));
     editActions.redo().disableProperty()
-        .bind(nullArea.or(nestBooleanValue(model.currentEditor, c -> c.redoAvailableProperty()).not()));
+        .bind(nullArea.or(nestBooleanValue(model.activeEditor, c -> c.redoAvailableProperty()).not()));
     fileActions.close().disableProperty().bind(nullArea);
     fileActions.saveAs().disableProperty().bind(nullArea);
-    fileActions.save().disableProperty().bind(fileActions.saveAs().disableProperty().or(model.currentModified.not()));
-    fileActions.revert().disableProperty().bind(model.currentFile.isNull()
-        .or(model.currentModified.not())
-        .or(nestBooleanValue(model.currentTabEntity, t -> t.getEditor().isNewBinding())));
+    BooleanBinding modified = nestBooleanValue(model.activeEditor, m -> m.modifiedProperty());
+    fileActions.save().disableProperty().bind(fileActions.saveAs().disableProperty().or(modified.not()));
+    fileActions.revert().disableProperty()
+        .bind(mapToBoolean(nestValue(model.activeEditor, t -> t.fileProperty()), f -> f == null || f.isNewFile())
+            .or(modified.not()));
 
     // scroll bar
-    DoubleBinding editorTextHeight = nestDoubleValue(model.currentEditor, c -> c.totalHeightEstimateProperty());
-    DoubleBinding editorHeight = nestDoubleValue(model.currentEditor, c -> c.heightProperty());
+    DoubleBinding editorTextHeight = nestDoubleValue(model.activeEditor, c -> c.totalHeightEstimateProperty());
+    DoubleBinding editorHeight = nestDoubleValue(model.activeEditor, c -> c.heightProperty());
     verticalScrollBar.maxProperty().bind(editorTextHeight.subtract(editorHeight));
     verticalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, toDoubleBinding(verticalScrollBar.maxProperty())
             .multiply(editorHeight).divide(editorTextHeight)));
     verticalScrollBar.valueProperty()
-        .bindBidirectional(nestDoubleProp(model.currentEditor, c -> c.estimatedScrollYProperty()).normalize());
-    verticalScrollBar.visibleProperty().bind(model.currentEditor.isNotNull()
+        .bindBidirectional(nestDoubleProp(model.activeEditor, c -> c.estimatedScrollYProperty()).normalize());
+    verticalScrollBar.visibleProperty().bind(model.activeEditor.isNotNull()
         .and(verticalScrollBar.maxProperty().greaterThan(verticalScrollBar.visibleAmountProperty())));
     verticalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
         () -> andFinal(() -> verticalScrollBar.isVisible(), v -> verticalScrollBar.getParent().layout()),
         verticalScrollBar.visibleProperty()));
 
-    DoubleBinding editorTextWidth = nestDoubleValue(model.currentEditor, c -> c.totalWidthEstimateProperty());
-    DoubleBinding editorWidth = nestDoubleValue(model.currentEditor, c -> c.widthProperty());
+    DoubleBinding editorTextWidth = nestDoubleValue(model.activeEditor, c -> c.totalWidthEstimateProperty());
+    DoubleBinding editorWidth = nestDoubleValue(model.activeEditor, c -> c.widthProperty());
     horizontalScrollBar.maxProperty().bind(editorTextWidth.subtract(editorWidth));
     horizontalScrollBar.visibleAmountProperty().bind(
         Bindings.max(0, horizontalScrollBar.maxProperty()
             .multiply(editorWidth).divide(editorTextWidth)));
     horizontalScrollBar.valueProperty()
-        .bindBidirectional(nestDoubleProp(model.currentEditor, c -> c.estimatedScrollXProperty()).normalize());
-    horizontalScrollBar.visibleProperty().bind(options.wrapText().booleanProperty().not().and(model.currentEditor.isNotNull())
+        .bindBidirectional(nestDoubleProp(model.activeEditor, c -> c.estimatedScrollXProperty()).normalize());
+    horizontalScrollBar.visibleProperty().bind(options.wrapText().booleanProperty().not().and(model.activeEditor.isNotNull())
         .and(horizontalScrollBar.maxProperty().greaterThan(horizontalScrollBar.visibleAmountProperty())));
     horizontalScrollBar.managedProperty().bind(Bindings.createBooleanBinding(
         () -> andFinal(() -> horizontalScrollBar.isVisible(), v -> horizontalScrollBar.getParent().layout()),
         horizontalScrollBar.visibleProperty()));
 
     // tabList
-    Bindings.bindContent(tabPane.getTabs(), model.tabEntities);
-    tabPane.getSelectionModel().selectedItemProperty().addListener((ob, o, n) -> model.currentTabEntity.set((CssEditorTab) n));
-    model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
+    Bindings.bindContent(tabPane.getTabs(), model.tabs);
 
     // events
     stage.addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
@@ -177,7 +176,7 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   }
 
   public boolean save(CssEditor editor) {
-    return model.currentFile.get().fileOrNew.unify(p -> saveToFile(p), i -> saveAs(editor, Optional.empty()));
+    return editor.fileProperty().get().fileOrNew.unify(p -> saveToFile(editor, p), i -> saveAs(editor, Optional.empty()));
   }
 
   public boolean saveAs(CssEditor editor, Optional<Path> data) {
@@ -189,14 +188,14 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
       fileChooser.setTitle("Save");
       fileChooser.getExtensionFilters().add(new ExtensionFilter("Style Sheet", "*.css"));
       fileChooser.setInitialDirectory(recentService.getLatestFile().map(p -> p.getParent().toFile()).orElse(new File(".")));
-      fileChooser.setInitialFileName(model.currentEditor.get().nameBinding().get());
+      fileChooser.setInitialFileName(editor.nameBinding().get());
       File selectedFile = fileChooser.showSaveDialog(stage);
       if (selectedFile == null) {
         return false;
       }
       path = selectedFile.toPath();
     }
-    boolean result = saveToFile(path);
+    boolean result = saveToFile(editor, path);
     if (result) {
       editor.fileProperty().set(FileWrapper.existFile(path));
     } else {
@@ -218,17 +217,17 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   }
 
   private void close(CssEditor editor) {
-    model.tabEntities.removeIf(t -> t.getEditor() == editor);
+    model.editors.remove(editor);
   }
 
   private boolean canExit() {
     if (options.openLast().getValue()) {
       return true;
     }
-    return model.tabEntities.stream()
-        .allMatch(tab -> {
-          tab.getTabPane().getSelectionModel().select(tab);
-          return canClose(tab.getEditor());
+    return model.editors.stream()
+        .allMatch(editor -> {
+          select(editor);
+          return canClose(editor);
         });
   }
 
@@ -236,9 +235,9 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
     if (options.openLast().getValue()) {
       uncheck(() -> FileUtil.createDirectory(LAST_FILE_PATH));
       uncheck(() -> Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
-      ListUtil.forEach(model.tabEntities, (te, i) -> {
-        String nameString = te.getEditor().fileProperty().get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
-        String text = te.getEditor().modifiedProperty().get() ? te.getEditor().getText() : "";
+      ListUtil.forEach(model.editors, (e, i) -> {
+        String nameString = e.fileProperty().get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
+        String text = e.modifiedProperty().get() ? e.getText() : "";
         Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
         uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(options.charset().getValue())));
       });
@@ -287,23 +286,23 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
           return;
         }
         String head = lines.get(0);
-        CssEditorTab te = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
+        CssEditor editor = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
             .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
         lines.stream()
             .skip(1)
             .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
             .ifPresent(t -> {
-              te.getEditor().replaceText(t);
-              te.getEditor().getUndoManager().forgetHistory();
+              editor.replaceText(t);
+              editor.getUndoManager().forgetHistory();
             });
       }));
     }
   }
 
-  protected boolean saveToFile(Path file) {
+  protected boolean saveToFile(CssEditor editor, Path file) {
     try {
-      Files.write(file, model.currentEditor.get().getText().getBytes(options.charset().getValue()));
-      saved();
+      Files.write(file, editor.getText().getBytes(options.charset().getValue()));
+      editor.modify().saved();
       return true;
     } catch (UnsupportedOperationException e) {
       throw e;
@@ -313,30 +312,29 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
     }
   }
 
-  private CssEditorTab openFile(FileWrapper file) {
-    Optional<CssEditorTab> existTab = file.getExistFile().flatMap(f -> findExistTab(f));
-    if (existTab.isPresent()) {
-      tabPane.getSelectionModel().select(existTab.get());
-      return existTab.get();
+  private CssEditor openFile(FileWrapper file) {
+    Optional<CssEditor> existEditor = file.getExistFile().flatMap(f -> findExistTab(f));
+    if (existEditor.isPresent()) {
+      tabPane.getSelectionModel().select(CssEditorTab.get(existEditor.get()));
+      return existEditor.get();
     }
-    CssEditorTab tabEntity = model.newTab(file);
-    tabEntity.getEditor().reload();
-    tabEntity.setOnCloseRequest(consume(e -> contextService.fire(tabEntity.getEditor(), fileActions.close())));
-    tabPane.getSelectionModel().select(tabEntity);
-    return tabEntity;
+    CssEditor editor = model.newTab(file);
+    editor.reload();
+    select(editor);
+    return editor;
   }
 
-  private void saved() {
-    model.currentEditor.get().modify().saved();
-  }
-
-  private Optional<CssEditorTab> findExistTab(Path file) {
-    return model.tabEntities.stream()
-        .filter(t -> t.getEditor().fileProperty().get().getExistFile().map(p -> Objects.equals(file, p)).orElse(false))
+  private Optional<CssEditor> findExistTab(Path file) {
+    return model.editors.stream()
+        .filter(e -> e.fileProperty().get().getExistFile().map(p -> Objects.equals(file, p)).orElse(false))
         .findFirst();
   }
 
   Optional<CssEditorTab> findEntity(Tab t) {
     return CacheUtil.get(MainFrameController.this, t);
+  }
+
+  private void select(CssEditor editor) {
+    tabPane.getSelectionModel().select(CssEditorTab.get(editor));
   }
 }

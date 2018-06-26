@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.stage.Stage;
 import xdean.css.editor.context.setting.model.CssEditorKeyOption;
@@ -12,6 +13,8 @@ import xdean.css.editor.control.CssEditor;
 import xdean.jfxex.bean.annotation.CheckNull;
 
 public interface ContextService {
+
+  ObservableList<CssEditor> edtiorList();
 
   ObjectProperty<@CheckNull CssEditor> activeEditorProperty();
 

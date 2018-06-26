@@ -135,14 +135,14 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
     model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
 
     // events
-    contextService.stage().addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
-    contextService.stage().addEventHandler(fileActions.open().getEventType(), e -> open(e.getData()));
+    stage.addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
+    stage.addEventHandler(fileActions.open().getEventType(), e -> open(e.getData()));
 
-    contextService.stage().addEventFilter(fileActions.exit().getEventType(), consumeIf(e -> !canExit()));
-    contextService.stage().addEventHandler(fileActions.exit().getEventType(), e -> exit());
+    stage.addEventFilter(fileActions.exit().getEventType(), consumeIf(e -> !canExit()));
+    stage.addEventHandler(fileActions.exit().getEventType(), e -> exit());
 
-    contextService.stage().addEventHandler(helpActions.about().getEventType(), e -> about());
-    contextService.stage().addEventHandler(helpActions.help().getEventType(), e -> help());
+    stage.addEventHandler(helpActions.about().getEventType(), e -> about());
+    stage.addEventHandler(helpActions.help().getEventType(), e -> help());
   }
 
   @Override
@@ -320,6 +320,7 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
       return existTab.get();
     }
     CssEditorTab tabEntity = model.newTab(file);
+    tabEntity.getEditor().reload();
     tabEntity.setOnCloseRequest(consume(e -> contextService.fire(tabEntity.getEditor(), fileActions.close())));
     tabPane.getSelectionModel().select(tabEntity);
     return tabEntity;

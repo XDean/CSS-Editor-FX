@@ -20,10 +20,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import xdean.css.editor.context.setting.SettingKeys;
 import xdean.css.editor.context.setting.model.option.StringOption;
+import xdean.css.editor.control.CssEditor;
+import xdean.css.editor.feature.CssEditorFeature;
 import xdean.jex.log.Logable;
 
 @Service
-public class RecentFileService implements Logable {
+public class RecentFileService implements Logable, CssEditorFeature {
 
   @Inject
   @Named(SettingKeys.RECENT_LOC)
@@ -35,6 +37,15 @@ public class RecentFileService implements Logable {
   private void init() {
     recentFiles.addListener(list(b -> b.onAdd(c -> save())));
     addListenerAndInvoke(recent.valueProperty(), (ob, o, n) -> load());
+  }
+
+  @Override
+  public void bind(CssEditor editor) {
+    editor.fileProperty().addListener((ob, o, n) -> {
+      if (n.isExistFile()) {
+        setLatestFile(n.getExistFile().get());
+      }
+    });
   }
 
   public ObservableList<Path> getRecentFiles() {

@@ -49,7 +49,6 @@ import xdean.css.editor.context.setting.model.CssEditorKeyOption;
 import xdean.css.editor.feature.CssEditorFeature;
 import xdean.css.editor.model.CssContext;
 import xdean.css.editor.model.FileWrapper;
-import xdean.css.editor.service.RecentFileService;
 import xdean.jex.extra.StringURL;
 import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.If;
@@ -63,7 +62,7 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
 
   public final CssContext context = CssContext.createByDefault();
   private CssContext lastContext;
-  private @Inject RecentFileService recentFileService;
+
   private @Inject List<CssEditorKeyOption<?>> keys = Collections.emptyList();
   private @Inject List<CssEditorFeature> features = Collections.emptyList();
   private @Inject PreferenceSettings preference;
@@ -99,13 +98,6 @@ public class CssEditor extends CodeArea implements FxInitializable, EventTarget 
             () -> CssEditor.class.getResource("/css/css-highlighting.css").toExternalForm()));
 
     // recent
-    file.addListener((ob, o, n) -> {
-      if (n.isExistFile()) {
-        recentFileService.setLatestFile(n.getExistFile().get());
-        reload();
-      }
-    });
-
     keys.forEach(f -> f.bind(this));
     features.forEach(f -> f.bind(this));
 

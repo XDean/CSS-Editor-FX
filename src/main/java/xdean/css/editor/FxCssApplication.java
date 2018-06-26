@@ -1,5 +1,8 @@
 package xdean.css.editor;
 
+import static xdean.jfxex.bean.BeanUtil.map;
+import static xdean.jfxex.event.EventHandlers.consume;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -14,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import xdean.css.editor.context.setting.FileActions;
 import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.controller.MainFrameController;
 import xdean.css.editor.feature.CssAppFeature;
@@ -33,6 +37,8 @@ public class FxCssApplication implements FxApplication, ContextService {
 
   private @Inject NodeFactoryService nodeFactory;
 
+  private @Inject FileActions fileActions;
+
   private @Inject List<CssAppFeature> features = Collections.emptyList();
 
   private final Stage stage;
@@ -49,6 +55,9 @@ public class FxCssApplication implements FxApplication, ContextService {
 
     features.forEach(f -> f.bind(stage));
 
+    stage.titleProperty()
+        .bind(map(activeEditorProperty(), e -> (e == null ? "" : e.fileProperty().get().getFileName()) + " - CSS Editor FX"));
+    stage.setOnCloseRequest(consume(e -> fire(fileActions.exit())));
     stage.setMaximized(true);
     stage.show();
 

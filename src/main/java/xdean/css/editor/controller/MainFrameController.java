@@ -4,7 +4,6 @@ import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
-import static xdean.jfxex.bean.BeanUtil.map;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
@@ -77,9 +76,6 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   public void initAfterFxSpringReady() {
     initBind();
     Try.to(() -> openLastFile()).onException(e -> error("Load last closed file fail.", e));
-
-    stage.titleProperty().bind(map(model.currentFile, f -> (f == null ? "" : f.getFileName()) + " - CSS Editor FX"));
-    stage.setOnCloseRequest(consume(e -> exit()));
   }
 
   private void initBind() {

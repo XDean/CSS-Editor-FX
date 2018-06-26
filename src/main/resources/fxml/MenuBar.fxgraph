@@ -1,5 +1,4 @@
 package fxml
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.geometry.Insets
 import javafx.scene.control.Button
 import javafx.scene.control.Menu
@@ -20,7 +19,10 @@ import javafx.scene.layout.VBox
 import org.controlsfx.control.StatusBar
 import org.fxmisc.richtext.CodeArea
 import xdean.css.editor.controller.MenuBarController
-component MenuBar controlledby MenuBarController {
+import org.controlsfx.glyphfont.Glyph
+import javafx.scene.paint.Color
+
+component MenuBar controlledby MenuBarController styledwith "../css/global.css"{
   MenuBar {
     menus : [
       Menu {
@@ -28,14 +30,14 @@ component MenuBar controlledby MenuBarController {
         items : [
           MenuItem id newItem {
             text : "New",
-            graphic : FontAwesomeIconView {
-              glyphName : "FILE_ALT"
+            graphic : Glyph {
+              icon : "FILE_ALT"
             }
           },
           MenuItem id openItem {
             text : "Open...",
-            graphic : FontAwesomeIconView {
-              glyphName : "FOLDER_OPEN_ALT"
+            graphic : Glyph {
+              icon : "FOLDER_OPEN_ALT"
             }
           },
           Menu id recentMenu {
@@ -44,14 +46,14 @@ component MenuBar controlledby MenuBarController {
           SeparatorMenuItem,
           MenuItem id closeItem {
             text : "Close",
-            graphic : FontAwesomeIconView {
-              glyphName : "CLOSE"
+            graphic : Glyph {
+              icon : "CLOSE"
             }
           },
           MenuItem id saveItem {
             text : "Save",
-            graphic : FontAwesomeIconView {
-              glyphName : "SAVE"
+            graphic : Glyph {
+              icon : "SAVE"
             }
           },
           MenuItem id saveAsItem {
@@ -72,14 +74,14 @@ component MenuBar controlledby MenuBarController {
         items : [
           MenuItem id undoItem {
             text : "Undo",
-            graphic : FontAwesomeIconView {
-              glyphName : "UNDO"
+            graphic : Glyph {
+              icon : "UNDO"
             }
           },
           MenuItem id redoItem {
             text : "Redo",
-            graphic : FontAwesomeIconView {
-              glyphName : "REPEAT"
+            graphic : Glyph {
+              icon : "REPEAT"
             }
           },
           SeparatorMenuItem,
@@ -99,8 +101,8 @@ component MenuBar controlledby MenuBarController {
         items : [
           MenuItem id optionItem {
             text : "Options",
-            graphic : FontAwesomeIconView {
-              glyphName : "GEAR"
+            graphic : Glyph {
+              icon : "GEAR"
             }
           },
           SeparatorMenuItem,
@@ -109,14 +111,14 @@ component MenuBar controlledby MenuBarController {
           },
           MenuItem id aboutItem {
             text : "About",
-            graphic : FontAwesomeIconView {
-              glyphName : "EXCLAMATION_CIRCLE"
+            graphic : Glyph {
+              icon : "EXCLAMATION_CIRCLE"
             }
           },
           MenuItem id helpItem {
             text : "Help",
-            graphic : FontAwesomeIconView {
-              glyphName : "QUESTION_CIRCLE"
+            graphic : Glyph {
+              icon : "QUESTION_CIRCLE"
             }
           }
         ]

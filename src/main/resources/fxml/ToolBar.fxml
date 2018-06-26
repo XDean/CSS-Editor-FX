@@ -4,11 +4,12 @@
 -->
 
 <?import java.lang.*?>
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
+<?import org.controlsfx.glyphfont.Glyph?>
+<?scenebuilder-stylesheet ../css/global.css?>
 
 <ToolBar xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.ToolBarController">
 
@@ -16,10 +17,10 @@
 		<Separator orientation="VERTICAL"/> 
 		<Button fx:id="newButton"> 
 			<tooltip>
-				<Tooltip autoHide="true" text="New"/> 
+				<Tooltip text="New"/> 
 			</tooltip>
 			<graphic>
-				<FontAwesomeIconView glyphName="FILE_ALT" size="15"/> 
+				<Glyph icon="FILE_ALT" fontSize="15"/> 
 			</graphic>
 		</Button>
 		<Button fx:id="openButton"> 
@@ -27,7 +28,7 @@
 				<Tooltip text="Open"/> 
 			</tooltip>
 			<graphic>
-				<FontAwesomeIconView glyphName="FOLDER_OPEN_ALT" size="15"/> 
+				<Glyph icon="FOLDER_OPEN_ALT" fontSize="15"/> 
 			</graphic>
 		</Button>
 		<Button fx:id="saveButton"> 
@@ -35,7 +36,7 @@
 				<Tooltip text="Save"/> 
 			</tooltip>
 			<graphic>
-				<FontAwesomeIconView glyphName="SAVE" size="15"/> 
+				<Glyph icon="SAVE" fontSize="15"/> 
 			</graphic>
 		</Button>
 		<Separator orientation="VERTICAL"/> 
@@ -44,7 +45,7 @@
 				<Tooltip text="Undo"/> 
 			</tooltip>
 			<graphic>
-				<FontAwesomeIconView glyphName="UNDO" size="15"/> 
+				<Glyph icon="UNDO" fontSize="15"/> 
 			</graphic>
 		</Button>
 		<Button fx:id="redoButton"> 
@@ -52,7 +53,7 @@
 				<Tooltip text="Redo"/> 
 			</tooltip>
 			<graphic>
-				<FontAwesomeIconView glyphName="REPEAT" size="15"/> 
+				<Glyph icon="REPEAT" fontSize="15"/> 
 			</graphic>
 		</Button>
 		<Separator orientation="VERTICAL"/> 

@@ -58,6 +58,7 @@ public class FxCssApplication implements FxApplication, ContextService {
   @Override
   public void start(Stage stage) throws Exception {
     Scene scene = nodeFactory.createScene(mainFrame.getRoot());
+    scene.getStylesheets().add("/css/global.css");
     stage.setScene(scene);
 
     features.forEach(f -> f.bind(stage));

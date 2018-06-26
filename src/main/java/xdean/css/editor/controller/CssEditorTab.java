@@ -5,10 +5,10 @@ import static xdean.jfxex.event.EventHandlers.consume;
 
 import javax.inject.Inject;
 
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 import org.springframework.util.Assert;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
 import javafx.css.PseudoClass;
@@ -45,10 +45,10 @@ public class CssEditorTab extends Tab {
 
     textProperty().bind(editor.nameBinding());
     // graphics
-    FontAwesomeIconView icon = new FontAwesomeIconView();
+    Glyph icon = new Glyph();
+    icon.getStyleClass().add("tab-icon");
+    icon.setIcon(FontAwesome.Glyph.SAVE);
     setGraphic(icon);
-    icon.setStyleClass("tab-icon");
-    icon.setIcon(FontAwesomeIcon.SAVE);
     // Hold the object in cache to avoid gc
     StringBinding state = CacheUtil.cache(this, "state",
         () -> Bindings.when(editor.activeProperty().normalize())

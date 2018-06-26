@@ -5,10 +5,11 @@ import javafx.scene.control.ToolBar
 import javafx.scene.control.Separator
 import javafx.scene.control.Button
 import javafx.scene.control.Tooltip
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import xdean.css.editor.controller.ToolBarController
+import org.controlsfx.glyphfont.Glyph
+import javafx.scene.paint.Color
 
-component ToolBar controlledby ToolBarController {
+component ToolBar controlledby ToolBarController styledwith "../css/global.css" {
   ToolBar {
     items : [
       Separator {
@@ -16,30 +17,29 @@ component ToolBar controlledby ToolBarController {
       },
       Button id newButton {
         tooltip : Tooltip {
-          autoHide : true,
           text : "New"
         },
-        graphic : FontAwesomeIconView {
-          glyphName : "FILE_ALT",
-          size : 15
+        graphic : Glyph {
+          icon : "FILE_ALT",
+          fontSize : 15
         }
       },
       Button id openButton {
         tooltip : Tooltip {
           text : "Open"
         },
-        graphic : FontAwesomeIconView {
-          glyphName : "FOLDER_OPEN_ALT",
-          size : 15
+        graphic : Glyph {
+          icon : "FOLDER_OPEN_ALT",
+          fontSize : 15
         }
       },
       Button id saveButton {
         tooltip : Tooltip {
           text : "Save"
         },
-        graphic : FontAwesomeIconView {
-          glyphName : "SAVE",
-          size : 15
+        graphic : Glyph {
+          icon : "SAVE",
+          fontSize : 15
         }
       },
       Separator {
@@ -49,18 +49,18 @@ component ToolBar controlledby ToolBarController {
         tooltip : Tooltip {
           text : "Undo"
         },
-        graphic : FontAwesomeIconView {
-          glyphName : "UNDO",
-          size : 15
+        graphic : Glyph {
+          icon : "UNDO",
+          fontSize : 15
         }
       },
       Button id redoButton {
         tooltip : Tooltip {
           text : "Redo"
         },
-        graphic : FontAwesomeIconView {
-          glyphName : "REPEAT",
-          size : 15
+        graphic : Glyph {
+          icon : "REPEAT",
+          fontSize : 15
         }
       },
       Separator {

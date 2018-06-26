@@ -13,8 +13,9 @@
 	-fx-background-insets: 0, 1;
 }
 
-.glyph-icon{
-	-fx-fill: -fx-text-base-color;
+.glyph-font {
+	-fx-text-fill: -fx-text-base-color;
+	-fx-font-family : "FontAwesome";
 }
 
 .tab-icon {

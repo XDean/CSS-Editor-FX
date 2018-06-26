@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -49,7 +47,6 @@ import xdean.css.editor.model.FileWrapper;
 import xdean.css.editor.service.ContextService;
 import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.RecentFileService;
-import xdean.jex.extra.tryto.Try;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.collection.ListUtil;
@@ -77,7 +74,6 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   @Override
   public void initAfterFxSpringReady() {
     initBind();
-    Try.to(() -> openLastFile()).onException(e -> error("Load last closed file fail.", e));
   }
 
   private void initBind() {
@@ -277,27 +273,27 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
     event.consume();
   }
 
-  private void openLastFile() throws IOException {
-    if (options.openLast().getValue()) {
-      FileUtil.createDirectory(LAST_FILE_PATH);
-      Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> {
-        List<String> lines = Files.readAllLines(p, options.charset().getValue());
-        if (lines.isEmpty()) {
-          return;
-        }
-        String head = lines.get(0);
-        CssEditor editor = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
-            .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
-        lines.stream()
-            .skip(1)
-            .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
-            .ifPresent(t -> {
-              editor.replaceText(t);
-              editor.getUndoManager().forgetHistory();
-            });
-      }));
-    }
-  }
+//  private void openLastFile() throws IOException {
+//    if (options.openLast().getValue()) {
+//      FileUtil.createDirectory(LAST_FILE_PATH);
+//      Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> {
+//        List<String> lines = Files.readAllLines(p, options.charset().getValue());
+//        if (lines.isEmpty()) {
+//          return;
+//        }
+//        String head = lines.get(0);
+//        CssEditor editor = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
+//            .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
+//        lines.stream()
+//            .skip(1)
+//            .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
+//            .ifPresent(t -> {
+//              editor.replaceText(t);
+//              editor.getUndoManager().forgetHistory();
+//            });
+//      }));
+//    }
+//  }
 
   protected boolean saveToFile(CssEditor editor, Path file) {
     try {

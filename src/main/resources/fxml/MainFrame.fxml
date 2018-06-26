@@ -10,6 +10,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?scenebuilder-stylesheet ../css/global.css?>
 
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.MainFrameController" prefHeight="600.0" prefWidth="800.0" stylesheets="@../css/global.css">
 

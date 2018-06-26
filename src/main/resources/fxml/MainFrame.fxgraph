@@ -19,8 +19,9 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
 import org.controlsfx.control.StatusBar
 import org.fxmisc.richtext.CodeArea
+import org.controlsfx.glyphfont.Glyph
 
-component MainFrame controlledby xdean.css.editor.controller.MainFrameController {
+component MainFrame controlledby xdean.css.editor.controller.MainFrameController styledwith "../css/global.css"{
   VBox {
     prefHeight : 600.0,
     prefWidth : 800.0,
@@ -53,10 +54,8 @@ component MainFrame controlledby xdean.css.editor.controller.MainFrameController
                   content : CodeArea {
                     wrapText : true
                   },
-                  graphic : FontAwesomeIconView {
-                    fill : "#7a9ece",
-                    fontSmoothingType : "LCD",
-                    glyphName : "SAVE"
+                  graphic : Glyph {
+                    icon : "SAVE"
                   }
                 }
               ]

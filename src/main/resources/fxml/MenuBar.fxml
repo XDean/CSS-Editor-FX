@@ -4,11 +4,12 @@
 -->
 
 <?import java.lang.*?>
-<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import org.controlsfx.glyphfont.Glyph?>
+<?scenebuilder-stylesheet ../css/global.css?>
 
 <MenuBar xmlns:fx="http://javafx.com/fxml" fx:controller="xdean.css.editor.controller.MenuBarController">
 
@@ -17,24 +18,24 @@
 			<items>
 				<MenuItem fx:id="newItem" text="New"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="FILE_ALT"/> 
+						<Glyph icon="FILE_ALT"/> 
 					</graphic>
 				</MenuItem>
 				<MenuItem fx:id="openItem" text="Open..."> 
 					<graphic>
-						<FontAwesomeIconView glyphName="FOLDER_OPEN_ALT"/> 
+						<Glyph icon="FOLDER_OPEN_ALT"/> 
 					</graphic>
 				</MenuItem>
 				<Menu fx:id="recentMenu" text="Open Recent"/> 
 				<SeparatorMenuItem/> 
 				<MenuItem fx:id="closeItem" text="Close"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="CLOSE"/> 
+						<Glyph icon="CLOSE"/> 
 					</graphic>
 				</MenuItem>
 				<MenuItem fx:id="saveItem" text="Save"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="SAVE"/> 
+						<Glyph icon="SAVE"/> 
 					</graphic>
 				</MenuItem>
 				<MenuItem fx:id="saveAsItem" text="Save as..."/> 
@@ -47,12 +48,12 @@
 			<items>
 				<MenuItem fx:id="undoItem" text="Undo"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="UNDO"/> 
+						<Glyph icon="UNDO"/> 
 					</graphic>
 				</MenuItem>
 				<MenuItem fx:id="redoItem" text="Redo"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="REPEAT"/> 
+						<Glyph icon="REPEAT"/> 
 					</graphic>
 				</MenuItem>
 				<SeparatorMenuItem/> 
@@ -65,19 +66,19 @@
 			<items>
 				<MenuItem fx:id="optionItem" text="Options"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="GEAR"/> 
+						<Glyph icon="GEAR"/> 
 					</graphic>
 				</MenuItem>
 				<SeparatorMenuItem/> 
 				<Menu fx:id="skinMenu" text="Skin"/> 
 				<MenuItem fx:id="aboutItem" text="About"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="EXCLAMATION_CIRCLE"/> 
+						<Glyph icon="EXCLAMATION_CIRCLE"/> 
 					</graphic>
 				</MenuItem>
 				<MenuItem fx:id="helpItem" text="Help"> 
 					<graphic>
-						<FontAwesomeIconView glyphName="QUESTION_CIRCLE"/> 
+						<Glyph icon="QUESTION_CIRCLE"/> 
 					</graphic>
 				</MenuItem>
 			</items>

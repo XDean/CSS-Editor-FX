@@ -69,6 +69,7 @@ public class RecentFileService implements Logable, CssEditorFeature {
 
   public void save() {
     recent.setValue(String.join(", ", recentFiles.stream()
+        .filter(Files::exists)
         .map(Path::toString)
         .collect(Collectors.toList())));
   }

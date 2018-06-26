@@ -51,7 +51,7 @@ public class SearchBarController implements FxInitializable, CssEditorFeature {
     regex.selectedProperty().bindBidirectional(otherSettings.regexSearch().valueProperty());
     caseSensitive.selectedProperty().bindBidirectional(otherSettings.caseSensitive().valueProperty());
     wrapSearch.selectedProperty().bindBidirectional(otherSettings.wrapSearch().valueProperty());
-    visible.and(contextService.activeEditorBinding().isNotNull());
+    visible.and(contextService.activeEditorProperty().isNotNull());
 
     root.visibleProperty().addListener(on(true, findField::requestFocus)
         .on(false, () -> contextService.getActiveEditorSafe().ifPresent(Node::requestFocus)));

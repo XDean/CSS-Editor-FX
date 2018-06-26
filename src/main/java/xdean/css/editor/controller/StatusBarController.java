@@ -2,6 +2,7 @@ package xdean.css.editor.controller;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 import static xdean.jfxex.bean.BeanUtil.mapToString;
+import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestValue;
 
 import java.util.function.Function;
@@ -10,10 +11,11 @@ import javax.inject.Inject;
 
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
-import org.fxmisc.richtext.CodeArea;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -21,17 +23,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseEvent;
 import xdean.css.editor.context.setting.PreferenceSettings;
+import xdean.css.editor.control.CssEditor;
+import xdean.css.editor.service.ContextService;
 import xdean.jex.util.calc.MathUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
-import xdean.jfxex.bean.property.BooleanPropertyEX;
-import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @FxController(fxml = "/fxml/StatusBar.fxml")
 public class StatusBarController implements FxInitializable {
-
-  public final ObjectPropertyEX<CodeArea> area = new ObjectPropertyEX<>(this, "area");
-  public final BooleanPropertyEX override = new BooleanPropertyEX(this, "override");
 
   private @FXML Label length;
   private @FXML Label lines;
@@ -41,23 +40,27 @@ public class StatusBarController implements FxInitializable {
   private @FXML Label charset;
   private @FXML Label inputType;
   private @Inject PreferenceSettings options;
+  private @Inject ContextService contextService;
 
   @Override
   public void initAfterFxSpringReady() {
-    lines.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> countLine(t)));
-    length.textProperty().bind(map(nestValue(area, c -> c.textProperty()), t -> t.length()));
-    caretCol.textProperty().bind(map(nestValue(area, c -> c.caretColumnProperty()), t -> t));
-    caretLine.textProperty().bind(map(nestValue(area, c -> c.caretPositionProperty()),
-        t -> countLine(area.getValue().getText().substring(0, t))));
+    ObjectProperty<CssEditor> editor = contextService.activeEditorProperty();
+    lines.textProperty().bind(map(nestValue(editor, c -> c.textProperty()), t -> countLine(t)));
+    length.textProperty().bind(map(nestValue(editor, c -> c.textProperty()), t -> t.length()));
+    caretCol.textProperty().bind(map(nestValue(editor, c -> c.caretColumnProperty()), t -> t));
+    caretLine.textProperty().bind(map(nestValue(editor, c -> c.caretPositionProperty()),
+        t -> countLine(editor.getValue().getText().substring(0, t))));
     select.textProperty()
-        .bind(map(nestValue(area, c -> c.selectedTextProperty()), t -> t.length() + " | " + countLine(t)));
+        .bind(map(nestValue(editor, c -> c.selectedTextProperty()), t -> t.length() + " | " + countLine(t)));
     charset.textProperty().bind(map(options.charset().valueProperty(), t -> t.toString()));
-    inputType.textProperty().bind(Bindings.when(override.normalize()).then("Override").otherwise("Insert"));
+    inputType.textProperty()
+        .bind(Bindings.when(nestBooleanValue(editor, e -> e.overrideProperty())).then("Override").otherwise("Insert"));
   }
 
   @FXML
   public void toggleType(MouseEvent e) {
-    override.setValue(!override.getValue());
+    BooleanProperty override = contextService.getActiveEditor().overrideProperty();
+    override.set(!override.get());
   }
 
   @FXML
@@ -68,13 +71,14 @@ public class StatusBarController implements FxInitializable {
   }
 
   private void showLineJumpDialog() {
+    CssEditor editor = contextService.activeEditorProperty().getValue();
     TextInputDialog dialog = new TextInputDialog();
     dialog.setTitle("Goto Line");
     dialog.getDialogPane().setContentText("Input Line Number: ");
-    dialog.initOwner(area.getValue().getScene().getWindow());
+    dialog.initOwner(editor.getScene().getWindow());
     TextField tf = dialog.getEditor();
 
-    int lines = countLine(area.getValue().getText());
+    int lines = countLine(editor.getText());
     ValidationSupport vs = new ValidationSupport();
     vs.registerValidator(tf, Validator.<String> createPredicateValidator(
         s -> uncatch(() -> MathUtil.inRange(Integer.valueOf(s), 1, lines)) == Boolean.TRUE,
@@ -82,7 +86,7 @@ public class StatusBarController implements FxInitializable {
 
     dialog.showAndWait().ifPresent(s -> {
       if (vs.isInvalid() == false) {
-        area.getValue().moveTo(Integer.valueOf(s) - 1, 0);
+        editor.moveTo(Integer.valueOf(s) - 1, 0);
       }
     });
   }

@@ -5,7 +5,6 @@ import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
 import static xdean.jfxex.bean.BeanUtil.map;
-import static xdean.jfxex.bean.BeanUtil.nestBooleanProp;
 import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
@@ -27,9 +26,7 @@ import javax.inject.Named;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Tab;
@@ -59,20 +56,18 @@ import xdean.jex.util.file.FileUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.context.FxContext;
-import xdean.jfxex.bean.annotation.CheckNull;
 
 @FxController(fxml = "/fxml/MainFrame.fxml")
-public class MainFrameController implements FxInitializable, Logable,
-    ContextService, CssEditorFeature {
+public class MainFrameController implements FxInitializable, Logable, CssEditorFeature {
 
   private @FXML ScrollBar verticalScrollBar, horizontalScrollBar;
   private @FXML TabPane tabPane;
   private @FXML VBox bottomExtraPane;
-  private @FXML StatusBarController statusBarController;
   private @Inject @Named(FxContext.FX_PRIMARY_STAGE) Stage stage;
   private @Inject MainFrameModel model;
   private @Inject RecentFileService recentService;
   private @Inject DialogService messageService;
+  private @Inject ContextService contextService;
   private @Inject PreferenceSettings options;
   private @Inject EditActions editActions;
   private @Inject FileActions fileActions;
@@ -80,23 +75,18 @@ public class MainFrameController implements FxInitializable, Logable,
 
   @Override
   public void initAfterFxSpringReady() {
-    initField();
     initBind();
     Try.to(() -> openLastFile()).onException(e -> error("Load last closed file fail.", e));
 
     stage.titleProperty().bind(map(model.currentFile, f -> (f == null ? "" : f.getFileName()) + " - CSS Editor FX"));
-    stage.setOnCloseRequest(e -> {
-      e.consume();
-      exit();
-    });
-  }
-
-  private void initField() {
-    statusBarController.override.bindBidirectional(nestBooleanProp(model.currentEditor, m -> m.overrideProperty()));
-    statusBarController.area.bind(model.currentEditor);
+    stage.setOnCloseRequest(consume(e -> exit()));
   }
 
   private void initBind() {
+    model.currentEditor.addListener((ob, o, n) -> contextService.activeEditorProperty().set(n));
+    contextService.activeEditorProperty().addListener((ob, o, n) -> {
+      // TODO
+    });
 
     // disable
     BooleanBinding nullArea = model.currentEditor.isNull();
@@ -149,22 +139,22 @@ public class MainFrameController implements FxInitializable, Logable,
     model.currentTabEntity.addListener((ob, o, n) -> tabPane.getSelectionModel().select(n));
 
     // events
-    eventNode().addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
-    eventNode().addEventHandler(fileActions.open().getEventType(), e -> open(e.getData()));
+    contextService.stage().addEventHandler(fileActions.newFile().getEventType(), e -> newFile());
+    contextService.stage().addEventHandler(fileActions.open().getEventType(), e -> open(e.getData()));
 
-    eventNode().addEventFilter(fileActions.exit().getEventType(), consumeIf(e -> !canExit()));
-    eventNode().addEventHandler(fileActions.exit().getEventType(), e -> exit());
+    contextService.stage().addEventFilter(fileActions.exit().getEventType(), consumeIf(e -> !canExit()));
+    contextService.stage().addEventHandler(fileActions.exit().getEventType(), e -> exit());
 
-    eventNode().addEventHandler(helpActions.about().getEventType(), e -> about());
-    eventNode().addEventHandler(helpActions.help().getEventType(), e -> help());
+    contextService.stage().addEventHandler(helpActions.about().getEventType(), e -> about());
+    contextService.stage().addEventHandler(helpActions.help().getEventType(), e -> help());
   }
 
   @Override
   public void bind(CssEditor editor) {
-    editor.addEventHandler(fileActions.save().getEventType(), e -> save());
-    editor.addEventHandler(fileActions.saveAs().getEventType(), e -> saveAs(e.getData()));
+    editor.addEventHandler(fileActions.save().getEventType(), consumeIf(e -> save(editor)));
+    editor.addEventHandler(fileActions.saveAs().getEventType(), consumeIf(e -> saveAs(editor, e.getData())));
     editor.addEventFilter(fileActions.close().getEventType(), consumeIf(e -> !canClose(editor)));
-    editor.addEventHandler(fileActions.close().getEventType(), e -> close(editor));
+    editor.addEventHandler(fileActions.close().getEventType(), consume(e -> close(editor)));
   }
 
   private void newFile() {
@@ -190,11 +180,11 @@ public class MainFrameController implements FxInitializable, Logable,
     return true;
   }
 
-  public boolean save() {
-    return model.currentFile.get().fileOrNew.unify(p -> saveToFile(p), i -> saveAs(Optional.empty()));
+  public boolean save(CssEditor editor) {
+    return model.currentFile.get().fileOrNew.unify(p -> saveToFile(p), i -> saveAs(editor, Optional.empty()));
   }
 
-  public boolean saveAs(Optional<Path> data) {
+  public boolean saveAs(CssEditor editor, Optional<Path> data) {
     Path path;
     if (data.isPresent()) {
       path = data.get();
@@ -212,7 +202,7 @@ public class MainFrameController implements FxInitializable, Logable,
     }
     boolean result = saveToFile(path);
     if (result) {
-      getActiveEditor().fileProperty().set(FileWrapper.existFile(path));
+      editor.fileProperty().set(FileWrapper.existFile(path));
     } else {
       // TODO show save fail
     }
@@ -224,7 +214,7 @@ public class MainFrameController implements FxInitializable, Logable,
       ButtonType result = messageService.showConfirmCancelDialog(stage, "Save",
           String.format("File\n\t%s\nhas been modified. Save changes?", editor.fileProperty().get().toString()));
       if (result.equals(ButtonType.YES)) {
-        return save();
+        return save(editor);
       }
       return result.equals(ButtonType.NO);
     }
@@ -334,7 +324,7 @@ public class MainFrameController implements FxInitializable, Logable,
       return existTab.get();
     }
     CssEditorTab tabEntity = model.newTab(file);
-    tabEntity.setOnCloseRequest(consume(e -> fire(tabEntity.getEditor(), fileActions.close())));
+    tabEntity.setOnCloseRequest(consume(e -> contextService.fire(tabEntity.getEditor(), fileActions.close())));
     tabPane.getSelectionModel().select(tabEntity);
     return tabEntity;
   }
@@ -351,15 +341,5 @@ public class MainFrameController implements FxInitializable, Logable,
 
   Optional<CssEditorTab> findEntity(Tab t) {
     return CacheUtil.get(MainFrameController.this, t);
-  }
-
-  @Override
-  public ObjectBinding<@CheckNull CssEditor> activeEditorBinding() {
-    return model.currentEditor;
-  }
-
-  @Override
-  public Node eventNode() {
-    return tabPane;
   }
 }

@@ -123,7 +123,7 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
         horizontalScrollBar.visibleProperty()));
 
     // tabList
-    Bindings.bindContent(tabPane.getTabs(), model.tabs);
+    Bindings.bindContentBidirectional(tabPane.getTabs(), model.tabs);
 
     // events
     stage.addEventHandler(fileActions.newFile().getEventType(), e -> newFile());

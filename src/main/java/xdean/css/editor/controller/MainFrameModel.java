@@ -1,6 +1,7 @@
 package xdean.css.editor.controller;
 
 import static xdean.jfxex.bean.BeanUtil.mapList;
+import static xdean.jfxex.bean.ListenerUtil.list;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Tab;
 import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.model.FileWrapper;
 import xdean.jex.util.task.If;
@@ -22,13 +24,17 @@ public class MainFrameModel {
   private @Inject Provider<CssEditorTab> editorTabFactory;
 
   final ObservableList<CssEditor> editors = FXCollections.observableArrayList();
-  final ObservableList<CssEditorTab> tabs = mapList(editors, e -> editorTabFactory.get().bind(e));
+  final ObservableList<Tab> tabs = mapList(editors, e -> editorTabFactory.get().bind(e));
   final ObjectPropertyEX<@CheckNull CssEditor> activeEditor = new ObjectPropertyEX<>(this, "currentEditor");
+
+  public MainFrameModel() {
+    editors.addListener(list(b -> b
+        .onAdd(editor -> editor.activeProperty().addListener((ob, o, n) -> If.that(n).todo(() -> activeEditor.set(editor))))));
+  }
 
   public CssEditor newTab(FileWrapper file) {
     CssEditor editor = editorFactory.get();
     editors.add(editor);
-    editor.activeProperty().addListener((ob, o, n) -> If.that(n).todo(() -> activeEditor.set(editor)));
     editor.fileProperty().set(file);
     return editor;
   }

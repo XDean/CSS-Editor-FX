@@ -12,7 +12,6 @@ import javax.inject.Named;
 import org.springframework.stereotype.Component;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Parent;
@@ -29,6 +28,7 @@ import xdean.jfx.spring.FxApplication;
 import xdean.jfx.spring.FxmlResult;
 import xdean.jfx.spring.context.FxContext;
 import xdean.jfxex.bean.annotation.CheckNull;
+import xdean.jfxex.bean.property.ObjectPropertyEX;
 
 @Component
 public class FxCssApplication implements FxApplication, ContextService {
@@ -39,13 +39,14 @@ public class FxCssApplication implements FxApplication, ContextService {
   private @Inject List<CssAppFeature> features = Collections.emptyList();
 
   private final Stage stage;
-  private final ObjectProperty<@CheckNull CssEditor> editor = new SimpleObjectProperty<>(this, "editor");
   private final ObservableList<CssEditor> editors = FXCollections.observableArrayList();
+  private final ObjectPropertyEX<@CheckNull CssEditor> activeEditor = new ObjectPropertyEX<CssEditor>(this, "editor")
+      .in(editors, false);
 
   @Inject
   public FxCssApplication(@Named(FxContext.FX_PRIMARY_STAGE) Stage stage) {
     this.stage = stage;
-    editor.addListener((ob, o, n) -> {
+    activeEditor.addListener((ob, o, n) -> {
       if (o != null) {
         o.activeProperty().set(false);
       }
@@ -79,7 +80,7 @@ public class FxCssApplication implements FxApplication, ContextService {
 
   @Override
   public ObjectProperty<@CheckNull CssEditor> activeEditorProperty() {
-    return editor;
+    return activeEditor;
   }
 
   @Override

@@ -9,6 +9,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.controlsfx.glyphfont.Glyph;
 import org.springframework.stereotype.Component;
 
 import javafx.beans.property.ObjectProperty;
@@ -58,6 +59,9 @@ public class FxCssApplication implements FxApplication, ContextService {
 
   @Override
   public void start(Stage stage) throws Exception {
+    // To ensure font awesome loaded
+    new Glyph().setFontFamily("FontAwesome");
+    
     Scene scene = nodeFactory.createScene(mainFrame.getRoot());
     scene.getStylesheets().add("/css/global.css");
     stage.setScene(scene);

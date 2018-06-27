@@ -19,17 +19,17 @@
 }
 
 .tab-icon {
-	-fx-fill: DEEPSKYBLUE;
+	-fx-text-fill: DEEPSKYBLUE;
 }
 
 .tab-icon:selected {
-	-fx-fill: BLUE;
+	-fx-text-fill: BLUE;
 }
 
 .tab-icon:modified {
-	-fx-fill: PURPLE;
+	-fx-text-fill: PURPLE;
 }
 
 .tab-icon:selected-modified {
-	-fx-fill: RED;
+	-fx-text-fill: RED;
 }

@@ -73,7 +73,7 @@ public class FxCssApplication implements FxApplication, ContextService {
   }
 
   @Override
-  public ObservableList<CssEditor> edtiorList() {
+  public ObservableList<CssEditor> editorList() {
     return editors;
   }
 

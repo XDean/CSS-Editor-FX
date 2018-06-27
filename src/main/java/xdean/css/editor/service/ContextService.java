@@ -14,7 +14,7 @@ import xdean.jfxex.bean.annotation.CheckNull;
 
 public interface ContextService {
 
-  ObservableList<CssEditor> edtiorList();
+  ObservableList<CssEditor> editorList();
 
   ObjectProperty<@CheckNull CssEditor> activeEditorProperty();
 

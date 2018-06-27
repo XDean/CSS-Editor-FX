@@ -1,7 +1,5 @@
 package xdean.css.editor.controller;
 
-import static xdean.css.editor.context.Context.LAST_FILE_PATH;
-import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
 import static xdean.jfxex.bean.BeanUtil.mapToBoolean;
@@ -49,8 +47,6 @@ import xdean.css.editor.service.DialogService;
 import xdean.css.editor.service.RecentFileService;
 import xdean.jex.log.Logable;
 import xdean.jex.util.cache.CacheUtil;
-import xdean.jex.util.collection.ListUtil;
-import xdean.jex.util.file.FileUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
 import xdean.jfx.spring.context.FxContext;
@@ -77,7 +73,7 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   }
 
   private void initBind() {
-    Bindings.bindContentBidirectional(contextService.edtiorList(), model.editors);
+    Bindings.bindContentBidirectional(contextService.editorList(), model.editors);
     contextService.activeEditorProperty().bindBidirectional(model.activeEditor);
 
     // disable
@@ -217,10 +213,7 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   }
 
   private boolean canExit() {
-    if (options.openLast().getValue()) {
-      return true;
-    }
-    return model.editors.stream()
+    return options.openLast().getValue() || model.editors.stream()
         .allMatch(editor -> {
           select(editor);
           return canClose(editor);
@@ -228,16 +221,6 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   }
 
   public void exit() {
-    if (options.openLast().getValue()) {
-      uncheck(() -> FileUtil.createDirectory(LAST_FILE_PATH));
-      uncheck(() -> Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> Files.delete(p))));
-      ListUtil.forEach(model.editors, (e, i) -> {
-        String nameString = e.fileProperty().get().fileOrNew.unify(p -> p.toString(), n -> n.toString());
-        String text = e.modifiedProperty().get() ? e.getText() : "";
-        Path path = LAST_FILE_PATH.resolve(String.format("%s.tmp", i));
-        uncheck(() -> Files.write(path, String.join("\n", nameString, text).getBytes(options.charset().getValue())));
-      });
-    }
     stage.close();
   }
 
@@ -272,28 +255,6 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
     }
     event.consume();
   }
-
-//  private void openLastFile() throws IOException {
-//    if (options.openLast().getValue()) {
-//      FileUtil.createDirectory(LAST_FILE_PATH);
-//      Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> {
-//        List<String> lines = Files.readAllLines(p, options.charset().getValue());
-//        if (lines.isEmpty()) {
-//          return;
-//        }
-//        String head = lines.get(0);
-//        CssEditor editor = openFile(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
-//            .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
-//        lines.stream()
-//            .skip(1)
-//            .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
-//            .ifPresent(t -> {
-//              editor.replaceText(t);
-//              editor.getUndoManager().forgetHistory();
-//            });
-//      }));
-//    }
-//  }
 
   protected boolean saveToFile(CssEditor editor, Path file) {
     try {

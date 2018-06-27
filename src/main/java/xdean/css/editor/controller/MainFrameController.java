@@ -1,5 +1,6 @@
 package xdean.css.editor.controller;
 
+import static xdean.jex.util.function.Predicates.not;
 import static xdean.jex.util.task.TaskUtil.andFinal;
 import static xdean.jfxex.bean.BeanConvertUtil.toDoubleBinding;
 import static xdean.jfxex.bean.BeanUtil.mapToBoolean;
@@ -7,6 +8,7 @@ import static xdean.jfxex.bean.BeanUtil.nestBooleanValue;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleProp;
 import static xdean.jfxex.bean.BeanUtil.nestDoubleValue;
 import static xdean.jfxex.bean.BeanUtil.nestValue;
+import static xdean.jfxex.bean.ListenerUtil.on;
 import static xdean.jfxex.event.EventHandlers.consume;
 import static xdean.jfxex.event.EventHandlers.consumeIf;
 
@@ -75,6 +77,9 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   private void initBind() {
     Bindings.bindContentBidirectional(contextService.editorList(), model.editors);
     contextService.activeEditorProperty().bindBidirectional(model.activeEditor);
+    tabPane.getSelectionModel().selectedItemProperty()
+        .addListener(on(not(null), n -> model.activeEditor.set(((CssEditorTab) n).getEditor())));
+    model.activeEditor.addListener(on(not(null), n -> tabPane.getSelectionModel().select(CssEditorTab.get(n))));
 
     // disable
     BooleanBinding nullArea = model.activeEditor.isNull();

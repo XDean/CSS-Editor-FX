@@ -24,7 +24,7 @@ import xdean.css.editor.control.CssEditor;
 import xdean.css.editor.controller.MainFrameController;
 import xdean.css.editor.feature.CssAppFeature;
 import xdean.css.editor.service.ContextService;
-import xdean.css.editor.service.NodeFactoryService;
+import xdean.css.editor.service.SkinService;
 import xdean.jfx.spring.FxApplication;
 import xdean.jfx.spring.FxmlResult;
 import xdean.jfx.spring.context.FxContext;
@@ -35,7 +35,7 @@ import xdean.jfxex.bean.property.ObjectPropertyEX;
 public class FxCssApplication implements FxApplication, ContextService {
 
   private @Inject FxmlResult<MainFrameController, Parent> mainFrame;
-  private @Inject NodeFactoryService nodeFactory;
+  private @Inject SkinService skinService;
   private @Inject FileActions fileActions;
   private @Inject List<CssAppFeature> features = Collections.emptyList();
 
@@ -62,7 +62,7 @@ public class FxCssApplication implements FxApplication, ContextService {
     // To ensure font awesome loaded
     new Glyph().setFontFamily("FontAwesome");
     
-    Scene scene = nodeFactory.createScene(mainFrame.getRoot());
+    Scene scene = skinService.bind(new Scene(mainFrame.getRoot()));
     scene.getStylesheets().add("/css/global.css");
     stage.setScene(scene);
 

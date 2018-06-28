@@ -203,12 +203,13 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
 
   private boolean canClose(CssEditor editor) {
     if (editor.modifiedProperty().get()) {
-      ButtonType result = messageService.showConfirmCancelDialog(stage, "Save",
-          String.format("File\n\t%s\nhas been modified. Save changes?", editor.fileProperty().get().toString()));
-      if (result.equals(ButtonType.YES)) {
-        return save(editor);
-      }
-      return result.equals(ButtonType.NO);
+      return messageService.confirmCancelDialog()
+          .owner(stage)
+          .title("Save")
+          .content(String.format("File\n\t%s\nhas been modified. Save changes?", editor.fileProperty().get().toString()))
+          .showAndWait()
+          .map(result -> result.equals(ButtonType.YES) ? save(editor) : result.equals(ButtonType.NO))
+          .orElse(true);
     }
     return true;
   }
@@ -234,7 +235,11 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   }
 
   public void help() {
-    messageService.showMessageDialog(stage, "Help", "Send email to xuda1107@gmail.com for help.");
+    messageService.infoDialog()
+        .owner(stage)
+        .title("Help")
+        .content("Send email to xuda1107@gmail.com for help.")
+        .show();
   }
 
   @FXML

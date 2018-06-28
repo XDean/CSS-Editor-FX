@@ -64,7 +64,7 @@ public class LastFileFeature implements CssAppFeature {
         contextService.editorList().add(editor);
       }));
     } catch (IOException e) {
-      dialogService.showError("Fail to open last files.", e);
+      dialogService.errorDialog(e).content("Fail to open last files.").show();
     }
   }
 
@@ -79,7 +79,7 @@ public class LastFileFeature implements CssAppFeature {
         try {
           Files.write(path, String.join("\n", nameString, text).getBytes(options.charset().getValue()));
         } catch (IOException e1) {
-          dialogService.showError("Fail to save last files.", e1);
+          dialogService.errorDialog(e1).content("Fail to save last files.").show();
         }
       });
     }

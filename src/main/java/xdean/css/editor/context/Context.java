@@ -59,9 +59,13 @@ public class Context implements FxContextPostProcessor, ApplicationListener<Appl
       System.exit(1);
     }
     if (Platform.isFxApplicationThread()) {
-      messageService.showError("ERROR", e);
+      handleError(e);
     } else {
-      Platform.runLater(() -> messageService.showError("ERROR", e));
+      Platform.runLater(() -> handleError(e));
     }
+  }
+
+  private void handleError(Throwable e) {
+    messageService.errorDialog(e).show();
   }
 }

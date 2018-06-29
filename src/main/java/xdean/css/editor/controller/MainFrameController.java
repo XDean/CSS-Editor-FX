@@ -62,7 +62,7 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
   private @Inject @Named(FxContext.FX_PRIMARY_STAGE) Stage stage;
   private @Inject MainFrameModel model;
   private @Inject RecentFileService recentService;
-  private @Inject DialogService messageService;
+  private @Inject DialogService dialogService;
   private @Inject ContextService contextService;
   private @Inject PreferenceSettings options;
   private @Inject EditActions editActions;
@@ -203,7 +203,7 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
 
   private boolean canClose(CssEditor editor) {
     if (editor.modifiedProperty().get()) {
-      return messageService.confirmCancelDialog()
+      return dialogService.confirmCancelDialog()
           .owner(stage)
           .title("Save")
           .content(String.format("File\n\t%s\nhas been modified. Save changes?", editor.fileProperty().get().toString()))
@@ -232,10 +232,13 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
 
   public void about() {
     // TODO About
+    dialogService.errorNotification(new Exception())
+    .text("Load skins failed.")
+    .show();
   }
 
   public void help() {
-    messageService.infoDialog()
+    dialogService.infoDialog()
         .owner(stage)
         .title("Help")
         .content("Send email to xuda1107@gmail.com for help.")

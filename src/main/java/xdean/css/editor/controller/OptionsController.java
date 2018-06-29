@@ -1,5 +1,8 @@
 package xdean.css.editor.controller;
 
+import static xdean.jex.util.cache.CacheUtil.cache;
+import static xdean.jfxex.bean.ListenerUtil.on;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +10,7 @@ import javax.inject.Inject;
 
 import com.sun.javafx.binding.ContentBinding;
 
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -32,6 +36,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.ModifierValue;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -45,7 +50,6 @@ import xdean.css.editor.context.setting.model.option.ValueOption;
 import xdean.css.editor.feature.CssAppFeature;
 import xdean.css.editor.service.MessageService;
 import xdean.jex.log.Logable;
-import xdean.jex.util.cache.CacheUtil;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
@@ -57,13 +61,14 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
   private @FXML TableView<Option<KeyCombination>> keyTable;
   private @FXML TableColumn<Option<KeyCombination>, String> commandColumn;
   private @FXML TableColumn<Option<KeyCombination>, KeyCombination> bindingColumn;
+
   private @Inject PreferenceSettings preference;
   private @Inject List<Option<KeyCombination>> keyOptions;
   private @Inject MessageService messageService;
   private @Inject HelpActions help;
 
   private int nowTab = 0;
-  private List<Runnable> onSubmit = new ArrayList<>();
+  private final List<Runnable> onSubmit = new ArrayList<>();
 
   @Override
   public void bind(Stage stage) {
@@ -75,16 +80,14 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
     initGeneral();
     initKey();
 
-    root.lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> {
-      onSubmit.forEach(Runnable::run);
-      e.consume();
-    });
+    root.lookupButton(ButtonType.FINISH).addEventHandler(ActionEvent.ACTION, e -> onSubmit.forEach(Runnable::run));
   }
 
   public void open(Stage stage) {
     Dialog<Void> dialog = new Dialog<>();
     dialog.initOwner(stage);
     dialog.setDialogPane(root);
+    dialog.setResizable(true);
     dialog.show();
   }
 
@@ -95,7 +98,7 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
 
   private void initKey() {
     commandColumn.setCellValueFactory(cdf -> new SimpleStringProperty(messageService.getMessage(cdf.getValue().getKey())));
-    bindingColumn.setCellValueFactory(cdf -> CacheUtil.cache(OptionsController.this,
+    bindingColumn.setCellValueFactory(cdf -> cache(this,
         cdf.getValue(), () -> new SimpleObjectProperty<>(cdf.getValue().getValue())));
 
     bindingColumn.setEditable(true);
@@ -103,6 +106,8 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
 
     keyTable.getItems().setAll(keyOptions);
     onSubmit.add(() -> keyTable.getItems().forEach(key -> key.setValue(bindingColumn.getCellData(key))));
+    keyOptions.forEach(option -> option.valueProperty()
+        .addListener((ob, o, n) -> ((Property<KeyCombination>) bindingColumn.getCellObservableValue(option)).setValue(n)));
   }
 
   private <T> void handle(OptionGroup og) {
@@ -118,7 +123,6 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
   private <T> void handle(Option<T> o) {
     nowTab++;
     if (special(o)) {
-      ;
     } else if (o instanceof BooleanOption) {
       add((BooleanOption) o);
     } else if (o instanceof IntegerOption) {
@@ -145,6 +149,7 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
     ContentBinding.bind(cb.getItems(), vo.values);
     cb.getSelectionModel().select(vo.getValue());
     onSubmit.add(() -> vo.setValue(cb.getSelectionModel().getSelectedItem()));
+    vo.valueProperty().addListener((ob, o, n) -> cb.getSelectionModel().select(n));
     add(wrapWithText(cb, messageService.getMessage(vo.getKey())));
     return cb;
   }
@@ -153,20 +158,23 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
     Spinner<Integer> s = new Spinner<>(
         new SpinnerValueFactory.IntegerSpinnerValueFactory(ro.getMin(), ro.getMax(), ro.getValue()));
     onSubmit.add(() -> ro.setValue(s.getValue()));
+    ro.valueProperty().addListener((ob, o, n) -> s.getValueFactory().setValue(n));
     add(wrapWithText(s, messageService.getMessage(ro.getKey())));
     return s;
   }
 
-  private CheckBox add(BooleanOption ob) {
-    CheckBox cb = new CheckBox(messageService.getMessage(ob.getKey()));
-    cb.setSelected(ob.getValue());
-    onSubmit.add(() -> ob.setValue(cb.isSelected()));
+  private CheckBox add(BooleanOption bo) {
+    CheckBox cb = new CheckBox(messageService.getMessage(bo.getKey()));
+    cb.setSelected(bo.getValue());
+    onSubmit.add(() -> bo.setValue(cb.isSelected()));
+    bo.valueProperty().addListener((ob, o, n) -> cb.setSelected(n));
     add(cb);
     return cb;
   }
 
   private Node wrapWithText(Node node, String text) {
     HBox hb = new HBox(new Label(text), node);
+    HBox.setHgrow(node, Priority.ALWAYS);
     hb.setSpacing(5);
     return hb;
   }
@@ -191,17 +199,18 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
 
   private static class KeyEditField extends TableCell<Option<KeyCombination>, KeyCombination> {
 
-    TextField field;
+    private TextField field;
 
     @Override
     public void startEdit() {
       super.startEdit();
       if (field == null) {
-        createField();
+        field = createField();
       }
       field.setText(getString());
       setText(null);
       setGraphic(field);
+      field.requestFocus();
     }
 
     @Override
@@ -209,7 +218,6 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
       super.cancelEdit();
       setText(getString());
       setGraphic(null);
-
     }
 
     @Override
@@ -229,16 +237,12 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
       }
     }
 
-    private void createField() {
-      field = new TextField(getString());
+    private TextField createField() {
+      TextField field = new TextField(getString());
       field.setEditable(false);
       field.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
         if (e.getCode() == KeyCode.ENTER) {
-          try {
-            commitEdit(KeyCombination.valueOf(field.getText()));
-          } catch (Exception ee) {
-            cancelEdit();
-          }
+          commit(field);
         } else if (e.getCode() == KeyCode.ESCAPE) {
           cancelEdit();
         } else {
@@ -246,6 +250,16 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
         }
         e.consume();
       });
+      field.focusedProperty().addListener(on(false, () -> commit(field)));
+      return field;
+    }
+
+    public void commit(TextField field) {
+      try {
+        commitEdit(KeyCombination.valueOf(field.getText()));
+      } catch (Exception ee) {
+        cancelEdit();
+      }
     }
 
     private String convert(KeyEvent e) {

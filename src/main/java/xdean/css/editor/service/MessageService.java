@@ -14,11 +14,8 @@ import xdean.css.editor.context.setting.model.option.Option;
 @Service
 public class MessageService {
 
-  @Inject
-  private MessageSource messageSource;
-
-  @Inject
-  private Option<Locale> localeOption;
+  private @Inject MessageSource messageSource;
+  private @Inject Option<Locale> localeOption;
 
   public String getMessage(String code, Object... args) throws NoSuchMessageException {
     return messageSource.getMessage(code, args, localeOption.getValue());

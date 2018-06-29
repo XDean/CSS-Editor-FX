@@ -30,7 +30,7 @@ public class RecentFileService implements Logable, CssEditorFeature {
 
   @Inject
   @Named(SettingKeys.RECENT_LOC)
-  StringOption recent;
+  private StringOption recent;
 
   private final ObservableList<Path> recentFiles = FXCollections.observableArrayList();
 

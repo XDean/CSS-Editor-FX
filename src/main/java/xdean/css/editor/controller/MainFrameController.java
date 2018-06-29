@@ -232,15 +232,13 @@ public class MainFrameController implements FxInitializable, Logable, CssEditorF
 
   public void about() {
     // TODO About
-    dialogService.errorNotification(new Exception())
-    .text("Load skins failed.")
-    .show();
   }
 
   public void help() {
     dialogService.infoDialog()
         .owner(stage)
         .title("Help")
+        .header("Help")
         .content("Send email to xuda1107@gmail.com for help.")
         .show();
   }

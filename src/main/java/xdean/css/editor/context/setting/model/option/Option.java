@@ -3,6 +3,7 @@ package xdean.css.editor.context.setting.model.option;
 import javafx.beans.property.Property;
 import javafx.util.StringConverter;
 import xdean.css.editor.context.Config;
+import xdean.jex.extra.tryto.Try;
 
 public interface Option<T> {
 
@@ -24,7 +25,8 @@ public interface Option<T> {
 
   default void bind(Config config) {
     StringConverter<T> converter = getConverter();
-    valueProperty().setValue(config.getProperty(getKey()).map(converter::fromString).orElse(getDefaultValue()));
+    valueProperty()
+        .setValue(Try.to(() -> config.getProperty(getKey()).map(converter::fromString).get()).getOrElse(getDefaultValue()));
     valueProperty().addListener((ob, o, n) -> config.setProperty(getKey(), converter.toString(n)));
   }
 }

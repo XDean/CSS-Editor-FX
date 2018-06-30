@@ -50,6 +50,7 @@ import xdean.css.editor.context.setting.model.option.ValueOption;
 import xdean.css.editor.feature.CssAppFeature;
 import xdean.css.editor.service.MessageService;
 import xdean.jex.log.Logable;
+import xdean.jex.util.string.StringUtil;
 import xdean.jex.util.task.TaskUtil;
 import xdean.jfx.spring.FxInitializable;
 import xdean.jfx.spring.annotation.FxController;
@@ -197,7 +198,7 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
     }
   }
 
-  private static class KeyEditField extends TableCell<Option<KeyCombination>, KeyCombination> {
+  private static class KeyEditField extends TableCell<Option<KeyCombination>, KeyCombination> implements Logable {
 
     private TextField field;
 
@@ -242,22 +243,25 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
       field.setEditable(false);
       field.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
         if (e.getCode() == KeyCode.ENTER) {
-          commit(field);
+          commit(field.getText());
         } else if (e.getCode() == KeyCode.ESCAPE) {
           cancelEdit();
+        } else if (e.getCode() == KeyCode.BACK_SPACE) {
+          field.setText(null);
         } else {
           field.setText(convert(e).toString());
         }
         e.consume();
       });
-      field.focusedProperty().addListener(on(false, () -> commit(field)));
+      field.focusedProperty().addListener(on(false, () -> commit(field.getText())));
       return field;
     }
 
-    public void commit(TextField field) {
+    public void commit(String text) {
       try {
-        commitEdit(KeyCombination.valueOf(field.getText()));
+        commitEdit(StringUtil.isEmpty(text) ? KeyCombination.NO_MATCH : KeyCombination.valueOf(text));
       } catch (Exception ee) {
+        debug(ee);
         cancelEdit();
       }
     }
@@ -266,7 +270,7 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
       return TaskUtil.firstSuccess(
           () -> new KeyCodeCombination(e.getCode(),
               e.isShiftDown() ? ModifierValue.DOWN : ModifierValue.UP,
-              e.isControlDown() ? ModifierValue.DOWN : ModifierValue.UP,
+              e.isControlDown() || !(e.isAltDown() || e.isShiftDown() || e.isMetaDown()) ? ModifierValue.DOWN : ModifierValue.UP,
               e.isAltDown() ? ModifierValue.DOWN : ModifierValue.UP,
               e.isMetaDown() ? ModifierValue.DOWN : ModifierValue.UP,
               ModifierValue.UP).toString(),
@@ -286,5 +290,4 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
       return getItem() == null ? "" : getItem().toString();
     }
   }
-
 }

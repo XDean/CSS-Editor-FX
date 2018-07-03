@@ -7,7 +7,9 @@ import java.nio.file.Paths;
 
 import javax.inject.Inject;
 
-import org.springframework.boot.context.event.ApplicationStartingEvent;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.GlyphFontRegistry;
+import org.springframework.boot.context.event.ApplicationPreparedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,7 +25,7 @@ import xdean.spring.auto.AutoSpringFactories;
 
 @Configuration
 @AutoSpringFactories(ApplicationListener.class)
-public class Context implements FxContextPostProcessor, ApplicationListener<ApplicationStartingEvent>,
+public class Context implements FxContextPostProcessor, ApplicationListener<ApplicationPreparedEvent>,
     UncaughtExceptionHandler, Logable {
   public static final Path HOME_PATH = Paths.get(System.getProperty("user.home"), ".xdean", "css");
   public static final Path TEMP_PATH = HOME_PATH.resolve("temp");
@@ -32,7 +34,7 @@ public class Context implements FxContextPostProcessor, ApplicationListener<Appl
   private @Inject DialogService messageService;
 
   @Override
-  public void onApplicationEvent(ApplicationStartingEvent event) {
+  public void onApplicationEvent(ApplicationPreparedEvent event) {
     debug("Setup Css Editor Environment");
     // create directories
     try {
@@ -43,6 +45,10 @@ public class Context implements FxContextPostProcessor, ApplicationListener<Appl
     }
     // close CSS logger
     Logging.getCSSLogger().setLevel(Level.OFF);
+
+    // To ensure font awesome loaded
+    GlyphFontRegistry.register(new FontAwesome(getClass().getResourceAsStream("/fontawesome.ttf")));
+    GlyphFontRegistry.font("FontAwesome");
   }
 
   @Override

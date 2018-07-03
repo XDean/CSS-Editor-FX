@@ -17,6 +17,8 @@ import xdean.css.editor.context.setting.model.option.Option;
 import xdean.jex.log.Logable;
 import xdean.jex.util.string.StringUtil;
 import xdean.jfx.spring.annotation.FxReady;
+import xdean.jfx.spring.splash.PreloadReporter;
+import xdean.jfx.spring.splash.PreloadReporter.SubReporter;
 import xdean.jfxex.support.skin.SkinManager;
 import xdean.jfxex.support.skin.SkinStyle;
 
@@ -30,10 +32,15 @@ public class SkinService extends SkinManager implements Logable {
   @Inject
   private DialogService dialogService;
 
+  @Inject
+  private PreloadReporter preload;
+
   @PostConstruct
   public void init() throws Exception {
+    SubReporter sub = preload.load("Loading skins...");
     // load default skins
     for (SkinStyle ss : DefaultSkin.values()) {
+      sub.load("Loading " + ss.getName());
       addSkin(ss);
     }
     // load skin files in /skin
@@ -47,6 +54,7 @@ public class SkinService extends SkinManager implements Logable {
           if (!Files.isDirectory(path) && (fileName.endsWith(".css") || fileName.endsWith(".bss"))) {
             String url = path.toUri().toString();
             String name = StringUtil.upperFirst(fileName.substring(0, fileName.length() - 4));
+            sub.load("Loading " + name);
             addSkin(new SkinStyle() {
               @Override
               public String getURL() {
@@ -69,6 +77,7 @@ public class SkinService extends SkinManager implements Logable {
     }
     getSkinList().stream().map(SkinStyle::getURL).map(s -> "loaded skin: " + s).forEach(this::debug);
 
+    sub.load("Read skin setting");
     String configSkin = skinOption.getValue();
     if (configSkin != null) {
       getSkinList().stream()
@@ -78,6 +87,7 @@ public class SkinService extends SkinManager implements Logable {
     } else {
       changeSkin(DefaultSkin.CLASSIC);
     }
+    sub.load("Apply skin setting");
     JavaFxObservable.valuesOf(skinProperty())
         .subscribe(skin -> skinOption.setValue(skin.getName()));
   }

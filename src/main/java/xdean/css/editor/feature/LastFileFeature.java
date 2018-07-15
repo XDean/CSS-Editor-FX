@@ -4,6 +4,7 @@ import static xdean.css.editor.context.Context.LAST_FILE_PATH;
 import static xdean.jex.util.lang.ExceptionUtil.uncheck;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,24 +46,26 @@ public class LastFileFeature implements CssAppFeature {
   public void open() {
     try {
       FileUtil.createDirectory(LAST_FILE_PATH);
-      Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp").forEach(p -> uncheck(() -> {
-        List<String> lines = Files.readAllLines(p, options.charset().getValue());
-        if (lines.isEmpty()) {
-          return;
-        }
-        String head = lines.get(0);
-        CssEditor editor = editorFactory.get();
-        editor.fileProperty().set(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
-            .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
-        lines.stream()
-            .skip(1)
-            .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
-            .ifPresent(t -> {
-              editor.replaceText(t);
-              editor.getUndoManager().forgetHistory();
-            });
-        contextService.editorList().add(editor);
-      }));
+      try (DirectoryStream<Path> stream = Files.newDirectoryStream(LAST_FILE_PATH, "*.tmp")) {
+        stream.forEach(p -> uncheck(() -> {
+          List<String> lines = Files.readAllLines(p, options.charset().getValue());
+          if (lines.isEmpty()) {
+            return;
+          }
+          String head = lines.get(0);
+          CssEditor editor = editorFactory.get();
+          editor.fileProperty().set(Try.to(() -> Integer.valueOf(head)).map(i -> FileWrapper.newFile(i))
+              .getOrElse(() -> FileWrapper.existFile(Paths.get(head))));
+          lines.stream()
+              .skip(1)
+              .reduce((a, b) -> String.join(System.lineSeparator(), a, b))
+              .ifPresent(t -> {
+                editor.replaceText(t);
+                editor.getUndoManager().forgetHistory();
+              });
+          contextService.editorList().add(editor);
+        }));
+      }
     } catch (IOException e) {
       dialogService.errorDialog(e).content("Fail to open last files.").show();
     }

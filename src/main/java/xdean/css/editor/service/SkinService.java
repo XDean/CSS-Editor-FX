@@ -1,5 +1,6 @@
 package xdean.css.editor.service;
 
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -49,25 +50,27 @@ public class SkinService extends SkinManager implements Logable {
       if (Files.notExists(skinFolder)) {
         Files.createDirectory(skinFolder);
       } else {
-        Files.newDirectoryStream(skinFolder).forEach(path -> {
-          String fileName = path.getFileName().toString();
-          if (!Files.isDirectory(path) && (fileName.endsWith(".css") || fileName.endsWith(".bss"))) {
-            String url = path.toUri().toString();
-            String name = StringUtil.upperFirst(fileName.substring(0, fileName.length() - 4));
-            sub.load("Loading " + name);
-            addSkin(new SkinStyle() {
-              @Override
-              public String getURL() {
-                return url;
-              }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(skinFolder)) {
+          stream.forEach(path -> {
+            String fileName = path.getFileName().toString();
+            if (!Files.isDirectory(path) && (fileName.endsWith(".css") || fileName.endsWith(".bss"))) {
+              String url = path.toUri().toString();
+              String name = StringUtil.upperFirst(fileName.substring(0, fileName.length() - 4));
+              sub.load("Loading " + name);
+              addSkin(new SkinStyle() {
+                @Override
+                public String getURL() {
+                  return url;
+                }
 
-              @Override
-              public String getName() {
-                return name;
-              }
-            });
-          }
-        });
+                @Override
+                public String getName() {
+                  return name;
+                }
+              });
+            }
+          });
+        }
       }
       throw new Exception();
     } catch (Exception e) {

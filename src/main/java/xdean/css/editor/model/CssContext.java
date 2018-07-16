@@ -20,11 +20,10 @@ import io.reactivex.Observable;
 import javafx.css.ParsedValue;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
-import lombok.extern.slf4j.Slf4j;
+import xdean.jex.log.LogFactory;
 import xdean.jex.util.collection.ListUtil;
 import xdean.jex.util.task.TaskUtil;
 
-@Slf4j
 public class CssContext {
   private static final CssContext MODENA = new CssContext();
   private static final String ROOT = "*.root";;
@@ -34,7 +33,7 @@ public class CssContext {
       MODENA.load(CssContext.class.getResource(
           "/com/sun/javafx/scene/control/skin/modena/modena.css"));
     } catch (IOException e) {
-      log.error("Load modena.css fail!", e);
+      LogFactory.from(CssContext.class).error("Load modena.css fail!", e);
       throw new RuntimeException(e);
     }
   }

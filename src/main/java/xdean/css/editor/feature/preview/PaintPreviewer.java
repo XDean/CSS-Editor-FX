@@ -2,8 +2,6 @@ package xdean.css.editor.feature.preview;
 
 import static xdean.jex.util.lang.ExceptionUtil.uncatch;
 
-import java.util.function.Function;
-
 import org.springframework.stereotype.Service;
 
 import com.sun.javafx.css.Stylesheet;
@@ -14,7 +12,9 @@ import com.sun.javafx.css.parser.DeriveColorConverter;
 import com.sun.javafx.css.parser.LadderConverter;
 
 import io.reactivex.Maybe;
+import io.reactivex.MaybeSource;
 import io.reactivex.Observable;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import javafx.css.ParsedValue;
 import javafx.scene.Group;
@@ -46,7 +46,9 @@ public class PaintPreviewer implements CssElementPreviewer<Paint> {
         text -> LinearGradientConverter.getInstance().convert(resolve(context, text), Font.getDefault()),
         text -> RadialGradientConverter.getInstance().convert(resolve(context, text), Font.getDefault()))
         .observeOn(Schedulers.computation())
-        .flatMapMaybe((Function<String, Paint> t) -> Maybe.fromCallable(() -> uncatch(() -> t.apply(str))).onErrorComplete())
+        .<Paint> flatMapMaybe((Function<Function<String, Paint>, MaybeSource<Paint>>) (t -> Maybe
+            .fromCallable(() -> uncatch(() -> t.apply(str)))
+            .onErrorComplete()))
         .firstElement();
   }
 

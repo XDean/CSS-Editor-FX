@@ -37,6 +37,7 @@ import javafx.scene.input.KeyCombination.ModifierValue;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -87,8 +88,8 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
   public void open(Stage stage) {
     Dialog<Void> dialog = new Dialog<>();
     dialog.initOwner(stage);
+    dialog.setTitle("Option");
     dialog.setDialogPane(root);
-    dialog.setResizable(true);
     dialog.show();
   }
 
@@ -174,7 +175,9 @@ public class OptionsController implements FxInitializable, Logable, CssAppFeatur
   }
 
   private Node wrapWithText(Node node, String text) {
-    HBox hb = new HBox(new Label(text), node);
+    Label label = new Label(text);
+    label.setMinWidth(Region.USE_PREF_SIZE);
+    HBox hb = new HBox(label, node);
     HBox.setHgrow(node, Priority.ALWAYS);
     hb.setSpacing(5);
     return hb;

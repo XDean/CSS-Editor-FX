@@ -4,7 +4,7 @@ import static xdean.css.editor.context.setting.RawSettingKeys.*;
 
 import xdean.auto.message.AutoMessage;
 
-@AutoMessage(path = "/message/settings.properties", generatedName = "RawSettingKeys")
+@AutoMessage(path = "/message/settings.properties", generatedName = "RawSettingKeysStub")
 public interface SettingKeys {
   String GENERAL = OPTION_GENERAL;
 

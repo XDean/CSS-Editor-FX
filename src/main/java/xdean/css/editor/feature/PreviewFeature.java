@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.rxjavafx.observables.JavaFxObservable;
 import io.reactivex.rxjavafx.schedulers.JavaFxScheduler;
 import io.reactivex.schedulers.Schedulers;
@@ -101,7 +102,7 @@ public class PreviewFeature implements CssEditorFeature {
                   .map(o -> Pair.of(p, o)))
               .firstElement())
           .observeOn(JavaFxScheduler.platform())
-          .doOnNext((Pair<CssElementPreviewer, Object>  p) -> show(p.getLeft(), p.getRight()))
+          .doOnNext((Consumer<Pair<CssElementPreviewer, Object>>) (p -> show(p.getLeft(), p.getRight())))
           .subscribe();
     }
 

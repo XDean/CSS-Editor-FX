@@ -2,6 +2,10 @@
 
 A CSS editor written in JavaFX 8
 
+**This is a study project in 2017. Not maintain now.**
+
+**Hope it inspires you about using Spring Boot + JavaFX together**
+
 ## Features ##
 - [Code Highlight](#code-highlight)
 - [Code Assist](#code-assist)
